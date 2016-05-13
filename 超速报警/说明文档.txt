@@ -1,0 +1,1 @@
+Timer.c 5个定时器  软件设置: 其中Timer0为固定定时器  Timer1,Timer3,Timer4为可开关定时器  Timer2给串口1使用

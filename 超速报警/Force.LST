@@ -1,0 +1,79 @@
+C51 COMPILER V9.00   FORCE                                                                 05/12/2016 23:54:10 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE FORCE
+OBJECT MODULE PLACED IN Force.OBJ
+COMPILER INVOKED BY: E:\software\DevelopmentSoftware\InstallSrc\KeilC51\C51\BIN\C51.EXE Force.c BROWSE DEBUG OBJECTEXTEN
+                    -D
+
+line level    source
+
+   1          #include "stc15.h"
+*** WARNING C318 IN LINE 1 OF Force.c: can't open file 'stc15.h'
+   2          
+   3          static unsigned char VAILDSPEED=20;         //合法速度
+   4          unsigned char ForceTime;                                //中断次数
+   5          
+   6          //------------开一个中断
+   7          void ForceInit()
+   8          {
+   9   1              ForceTime = 0;                                                  //中断次数清零
+  10   1              //开中断0
+  11   1              
+  12   1      }
+  13          
+  14          //------------计算速度
+  15          unsigned char CalSpeed()
+  16          {
+  17   1              unsigned char TempSpeed=0;
+  18   1              //取两个时间,减一下（注意处理定时器值飞出去的情况,当前未处理）
+  19   1              return TempSpeed;
+  20   1      }
+  21          
+  22          //------------处理压力传感器值和时间,判断并发送数据
+  23          void AnalyseForce()
+  24          {
+  25   1          unsigned char speed;
+  26   1              //读时间
+  27   1              //读大小?
+  28   1              ;
+  29   1              if(++ForceTime==2)                                              //第二次中断
+  30   1              {
+  31   2                      ForceTime = 0;                                  //中断次数清零
+  32   2                      speed=CalSpeed();                                       //计算速度
+  33   2                      if(speed>VAILDSPEED)                            //如果超速
+  34   2                      {
+  35   3                          OpenCamera();                   //开摄像头
+*** WARNING C206 IN LINE 35 OF FORCE.C: 'OpenCamera': missing function-prototype
+  36   3                              WifiSend();                     //发送数据(拿摄像头的数据连续发,这个认为较难实现)
+*** WARNING C206 IN LINE 36 OF FORCE.C: 'WifiSend': missing function-prototype
+  37   3                              WifiSend();                     //发送数据,给蜂鸣器用的
+  38   3                      }
+  39   2                      else                                //如果未超速,不处理
+  40   2                      {
+  41   3                          ;
+  42   3                      }
+  43   2              }
+  44   1      }
+  45          
+  46          //------------中断0函数
+  47          /*void ???? using interrupt ??()
+  48          {
+  49                  AnalyseForce();             //读一下值和时间()?
+  50          }*/
+
+C51 COMPILER V9.00   FORCE                                                                 05/12/2016 23:54:10 PAGE 2   
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     36    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      2    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  3 WARNING(S),  0 ERROR(S)

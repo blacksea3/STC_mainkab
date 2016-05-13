@@ -1,0 +1,2 @@
+void WifiSend();
+void UartInit();

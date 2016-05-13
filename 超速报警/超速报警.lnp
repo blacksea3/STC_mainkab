@@ -1,0 +1,7 @@
+"STARTUP.obj",
+"main.obj",
+"UART.obj",
+"Delay.obj",
+"Timer.obj" 
+TO "³¬ËÙ±¨¾¯" 
+RAMSIZE(256) 
