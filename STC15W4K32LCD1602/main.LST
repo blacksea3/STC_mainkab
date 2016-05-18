@@ -1,0 +1,103 @@
+C51 COMPILER V9.00   MAIN                                                                  05/18/2016 20:02:03 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN main.OBJ
+COMPILER INVOKED BY: E:\software\DevelopmentSoftware\InstallSrc\KeilC51\C51\BIN\C51.EXE main.c BROWSE DEBUG OBJECTEXTEND
+
+line level    source
+
+   1          #include "LCD1602.H"
+   2          #include "myfun.H"
+   3          /****************《51单片机轻松入门-基于STC15W4K系列》配套例程 *************
+   4           ★★★★★★★★★★★★★★★★★★★★★★★★
+   5           《51单片机轻松入门-基于STC15W4K系列》 一书已经由北航出版社正式出版发行。
+   6            作者亲手创作的与教材配套的51双核实验板(2个MCU)对程序下载、调试、仿真方便，不需要外部
+   7            仿真器与编程器，这种设计方式彻底解决了系统中多个最高优先级谁也不能让谁的中断竞争问题。
+   8            淘宝店地址：https://shop117387413.taobao.com
+   9            QQ群：STC51-STM32(3) ：515624099 或 STC51-STM32(2)：99794374。
+  10                  验证信息：STC15单片机
+  11            邮箱：xgliyouquan@126.com
+  12            ★★★★★★★★★★★★★★★★★★★★★★★★*/
+  13          
+  14          void port_mode()            // 端口模式
+  15          {
+  16   1              P0M1=0x00; P0M0=0x00;P1M1=0x00; P1M0=0x00;P2M1=0x00; P2M0=0x00;P3M1=0x00; P3M0=0x00;
+  17   1              P4M1=0x00; P4M0=0x00;P5M1=0x00; P5M0=0x00;P6M1=0x00; P6M0=0x00;P7M1=0x00; P7M0=0x00; 
+  18   1      }
+  19          void main()
+  20          {       
+  21   1              unsigned char xPos,yPos;                 // X坐标、Y坐标
+  22   1              unsigned char *s="TTESTTESTTESTESTTTTTTTTTTTT";
+  23   1              unsigned char DispBuf[9];            // 存放4个待发送ASCII码
+  24   1              unsigned long TestDat=123456789;     // 临时变量
+  25   1          unsigned char tmp;
+  26   1                      
+  27   1          for(tmp=0;tmp<10;tmp++)
+  28   1              {
+  29   2                      delay100ms();
+  30   2              }
+  31   1      
+  32   1              port_mode();          // 所有IO口设为准双向弱上拉方式。
+  33   1              LCD1602_Init();
+  34   1              SetCur(CurFlash);     // 开光标显示、闪烁，NoCur——有显示无光标,NoDisp——无显示，     
+  35   1                                // CurNoFlash——有光标但不闪烁       ，CurFlash——有光标且闪烁
+  36   1              xPos=0;               // xPos表示水平右移字符数(0-15)
+  37   1              yPos=1;               // yPos表示垂直下移字符数(0-1)
+  38   1              WriteString(0,0,"~!@#$%^&*()_+");         // X坐标、Y坐标、字符串，屏幕左上角为坐标原点，水平：0-15，垂直：0-1
+  39   1              Long_Str(TestDat,DispBuf);                        // 同第4章8节"利用串口调试程序"
+  40   1              //WriteString(xPos,yPos,s);       // X坐标、Y坐标、字符串，屏幕左上角为坐标原点 
+  41   1              xPos=5;                
+  42   1              yPos=1; 
+  43   1              //WriteString(xPos,yPos,DispBuf);
+  44   1              WriteString(xPos,yPos,s);       
+  45   1              while(1)
+  46   1              {
+  47   2                      /*delay100ms();
+  48   2                      delay100ms();
+  49   2                      delay100ms();
+  50   2                      delay100ms();
+  51   2                      delay100ms();
+  52   2                      delay100ms();
+  53   2                      delay100ms();
+  54   2                      delay100ms();
+  55   2                      delay100ms();
+C51 COMPILER V9.00   MAIN                                                                  05/18/2016 20:02:03 PAGE 2   
+
+  56   2                      delay100ms();
+  57   2                      P0=0x00;
+  58   2                      P1=0x00;
+  59   2                      P2=0x00;
+  60   2                      P3=0x00;
+  61   2                      P4=0x00;
+  62   2                      delay100ms();
+  63   2                      delay100ms();
+  64   2                      delay100ms();
+  65   2                      delay100ms();
+  66   2                      delay100ms();
+  67   2                      delay100ms();
+  68   2                      delay100ms();
+  69   2                      delay100ms();
+  70   2                      delay100ms();
+  71   2                      delay100ms();
+  72   2                      P0=0xff;
+  73   2                      P1=0xff;
+  74   2                      P2=0xff;
+  75   2                      P3=0xff;
+  76   2                      P4=0xff;*/
+  77   2              }
+  78   1      } 
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    127    ----
+   CONSTANT SIZE    =     42    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      17
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

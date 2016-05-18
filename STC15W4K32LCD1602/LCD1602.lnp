@@ -1,0 +1,5 @@
+"LCD1602.obj",
+"main.obj",
+"myfun.obj" 
+TO "LCD1602" 
+RAMSIZE(256) 
