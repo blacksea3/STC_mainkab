@@ -2,6 +2,11 @@
 "main.obj",
 "UART.obj",
 "Delay.obj",
-"Timer.obj" 
+"Timer.obj",
+"UltraSound.obj",
+"DHT11.obj",
+"Buzzer.obj",
+"LCD12864.obj",
+"myfun.obj" 
 TO "³¬ËÙ±¨¾¯" 
 RAMSIZE(256) 

@@ -1,49 +1,70 @@
 #include "stc15.h"
 #include "Timer.h"
+
+#include "LCD12864.H"    //
+
+#include "DHT11.h"				  //DHT11没有初始化程序
+
 //#include "Temperature.h"
 //#include "Wifi.h"
 #include "Delay.h"
+
 //#include "Force.h"
 //#include "Camera.h"
 #include "UART.h"
+#include "UltraSound.h"
 
-//static unsigned char StrHello[]="HELLOWORLD!";
+#include "main.h"
+
+unsigned char code StrHello[]="HELLOWORLD!";  
+unsigned char DHT11ISREADY;
+unsigned char ULTRAISREADY;
+
+void port_mode()            // 端口模式
+{
+	P0M1=0x00; P0M0=0x00;P1M1=0x00; P1M0=0x00;P2M1=0x00; P2M0=0x00;P3M1=0x00; P3M0=0x00;
+	P4M1=0x00; P4M0=0x00;P5M1=0x00; P5M0=0x00;P6M1=0x00; P6M0=0x00;P7M1=0x00; P7M0=0x00; 
+}
 
 void main()
-{
-    unsigned char i;
-    //ForceInit();	                  //开一个中断
-    Timer0Init();			          //定时器0初始化
-	Timer1Init();					  //定时器1初始化
-	EnableTimer1();
-	Timer3Init();					  //定时器3初始化
-	EnableTimer3();
- 	Timer4Init();					  //定时器4初始化
-	EnableTimer4();
-	P20 = 0;
-	P24 = 0;
-	P25 = 0;
-	P26 = 0;
-	UARTInit();				          //Uart0初始化
-	//CameraInit();                   //摄像头初始化
-	EA = 1;
-				   
+{	
+    //UARTInit();
+
+    DHT11ISREADY = 0;
+	ULTRAISREADY = 0;
+
+	UltraSoundInit();
+
+    port_mode();
+    Delay1000ms();
+    Delay1000ms();
+    Delay1000ms();   
+    Lcm_Init();
+
+	//Timer4Init();         //超声波  1s   它还内部使用Timer1
+	//EnableTimer4();
+	Timer0Init();		  //DHT11	2s
+	EA = 1;     
+    
+	/*Delay1000ms();   	  // LCD上电延时
+	
+	port_mode();	      // 所有IO口设为准双向弱上拉方式。
+	Delay1000ms();   	  // LCD上电延时
+	Lcm_Init();
+	*/
+	Display_String(1,StrHello);			   
 	while(1)
-	{
-	    //Delay100ms();
-	    
-	    for(i=0;i<200;i++)
+	{	
+		if(DHT11ISREADY)
 		{
-			Delay100ms();
+			DisplayDHT11();                         //读取温度湿度传感器值
+			DHT11ISREADY = 0;
 		}
-		DisableTimer1();
-		DisableTimer3();
-		DisableTimer4();
-		//P20 = !P20;
-	    //SendString("A");
-		
-		//SendString(StrHello);
-		
-		//巴拉巴拉
+		else if(ULTRAISREADY)
+		{
+			UltraSoundDisplay();                     //超声波
+			ULTRAISREADY = 0;
+		}
+		else ;
 	}
 }

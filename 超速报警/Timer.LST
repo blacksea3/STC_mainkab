@@ -1,203 +1,220 @@
-C51 COMPILER V9.00   TIMER                                                                 05/13/2016 20:08:44 PAGE 1   
+C51 COMPILER V9.00   TIMER                                                                 05/22/2016 00:44:04 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE TIMER
 OBJECT MODULE PLACED IN Timer.OBJ
-COMPILER INVOKED BY: E:\software\DevelopmentSoftware\InstallSrc\KeilC51\C51\BIN\C51.EXE Timer.c BROWSE DEBUG OBJECTEXTEN
-                    -D
+COMPILER INVOKED BY: E:\software\DevelopmentSoftware\InstallSrc\KeilC51\C51\BIN\C51.EXE Timer.c COMPACT BROWSE DEBUG OBJ
+                    -ECTEXTEND
 
 line level    source
 
    1          #include "stc15.h"
    2          //#include "Temperature.h"
    3          #include "UART.h"
-   4          
-   5          #define TFOSC 11059200L
-   6          #define TIMS (65536-TFOSC/1000)  //1T模式
-   7          
-   8          unsigned int T0times;           //定时器0中断次数
-   9          unsigned int T1times;           //定时器1中断次数
-  10          unsigned int T3times;           //定时器3中断次数
-  11          unsigned int T4times;           //定时器4中断次数
-  12          //sbit P20 = P2^0;
-  13          
-  14          //固定定时器Timer0
-  15          void Timer0Init(void)           //1毫秒@11.0592MHz
-  16          {
-  17   1              AUXR |= 0x80;               //定时器0时钟1T模式
-  18   1              TMOD &= 0xfc;                   //设置定时器0 16位自动重装载
-  19   1              TL0 = TIMS;                             //设置定时初值
-  20   1              TH0 = TIMS>>8;                  //设置定时初值
-  21   1              TR0 = 1;                        //定时器0开始计时
-  22   1              ET0 = 1;                //使能定时器0中断
-  23   1              T0times = 0;
-  24   1      }
-  25          
-  26          //Timer0中断函数
-  27          void Timer0_ISR() interrupt 1 using 2                   //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
-  28          {
-  29   1          //EA = 0;
-  30   1              if(T0times<500)
-  31   1              {       
-  32   2                      T0times++;
-  33   2              }
-  34   1              else
-  35   1              {
-  36   2                  P20 = !P20;
-  37   2                      T0times=0;
-  38   2                      //SendString("ABCDE");
-  39   2                      //ReadTemperature();                    //读取温度湿度传感器值
-  40   2                      //ReadAir();                            //读取空气传感器值
-  41   2                      //WifiSend();                           //Wifi发送数据
-  42   2              }
-  43   1              //EA = 1;
-  44   1      }
-  45          
-  46          //可变定时器Timer1
-  47          void Timer1Init(void)           //1毫秒@11.0592MHz
-  48          {
-  49   1              AUXR |= 0x40;               //定时器1时钟1T模式
-  50   1              TMOD &= 0xf3;                   //设置定时器1 16位自动重装载
-  51   1              TL1 = TIMS;                             //设置定时初值
-  52   1              TH1 = TIMS>>8;                  //设置定时初值
-  53   1              TR1 = 0;                        //定时器1停止计时
-  54   1              ET1 = 0;                //关闭定时器1中断
-C51 COMPILER V9.00   TIMER                                                                 05/13/2016 20:08:44 PAGE 2   
+   4          #include "DHT11.h"
+   5          #include "Buzzer.h"
+   6          #include "UltraSound.h"
+   7          #include "main.h"
+   8          
+   9          #define TFOSC 11059200L
+  10          #define TIMS (65536-TFOSC/1000)  //1T模式
+  11          
+  12          unsigned int T0times0;          //定时器0中断次数0
+  13          unsigned int T0times1;          //定时器0中断次数1
+  14          unsigned int T1times;           //定时器1中断次数
+  15          unsigned int T3times;           //定时器3中断次数
+  16          unsigned int T4times;           //定时器4中断次数
+  17          unsigned int T3TimesValue;      //定时器3中断阈值
+  18          //sbit P20 = P2^0;
+  19          
+  20          //固定定时器Timer0
+  21          void Timer0Init(void)           //1毫秒@11.0592MHz
+  22          {
+  23   1              AUXR |= 0x80;               //定时器0时钟1T模式
+  24   1              TMOD &= 0xfc;                   //设置定时器0 16位自动重装载
+  25   1              TL0 = TIMS;                             //设置定时初值
+  26   1              TH0 = TIMS>>8;                  //设置定时初值
+  27   1              PT0 = 0;                //Timer0低优先级
+  28   1              TR0 = 1;                        //定时器0开始计时
+  29   1              ET0 = 1;                //使能定时器0中断
+  30   1              T0times0 = 0;
+  31   1              T0times1 = 0;
+  32   1              P25 = 1;
+  33   1              P24 = 1;
+  34   1      }
+  35          
+  36          //Timer0中断函数
+  37          void Timer0_ISR() interrupt 1                               //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
+  38          {
+  39   1          //EA = 0;
+  40   1              if(T0times0<2000)
+  41   1              {
+  42   2                  T0times0++;
+  43   2              }
+  44   1              else
+  45   1              {
+  46   2                  T0times0=0;
+  47   2                      DHT11ISREADY = 1;
+  48   2                      
+  49   2              }
+  50   1              if(T0times1<500)
+  51   1              {
+  52   2                  T0times1++;
+  53   2              }
+  54   1              else
+C51 COMPILER V9.00   TIMER                                                                 05/22/2016 00:44:04 PAGE 2   
 
-  55   1      }
-  56          
-  57          void EnableTimer1()
-  58          {
-  59   1              TR1 = 1;                        //定时器1开始计时
-  60   1              ET1 = 1;                //使能定时器1中断
-  61   1              T1times = 0;
+  55   1              {
+  56   2                  T0times1=0;
+  57   2                      ULTRAISREADY = 1;
+  58   2                      
+  59   2              }
+  60   1              
+  61   1              //EA = 1;
   62   1      }
   63          
-  64          void DisableTimer1()
-  65          {
-  66   1              TR1 = 0;                        //定时器1停止计时
-  67   1              ET1 = 0;                //关闭定时器1中断       
-  68   1      }
-  69          
-  70          //Timer1中断函数
-  71          void Timer1_ISR() interrupt 3 using 2                   //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
-  72          {
-  73   1          //EA = 0;
-  74   1              if(T1times<1000)
-  75   1              {       
-  76   2                      T1times++;
-  77   2              }
-  78   1              else
-  79   1              {
-  80   2                      P24 = !P24;
-  81   2                      T1times=0;
-  82   2                      //SendString("ABCDE");
-  83   2                      //ReadTemperature();                    //读取温度湿度传感器值
-  84   2                      //ReadAir();                            //读取空气传感器值
-  85   2                      //WifiSend();                           //Wifi发送数据
-  86   2              }
-  87   1              //EA = 1;
-  88   1      }
-  89          
-  90          //可变定时器Timer3
-  91          void Timer3Init(void)           //1毫秒@11.0592MHz
-  92          {
-  93   1              T4T3M &= 0xfb;              //定时器3内部系统时钟
-  94   1              T4T3M |= 0x02;          //定时器3 1T模式
-  95   1              T3L = TIMS;                             //设置定时初值
-  96   1              T3H = TIMS>>8;                  //设置定时初值
-  97   1              T4T3M &= 0xf7;              //定时器3停止计时
-  98   1              IE2 &= 0xdf;            //关闭定时器3中断
-  99   1      }
- 100          
- 101          void EnableTimer3()
- 102          {
- 103   1              T4T3M |= 0x08;              //定时器3开始计时
- 104   1              IE2 |= 0x20;            //开启定时器3中断
- 105   1              T3times = 0;
+  64          //计时定时器Timer1
+  65          void Timer1Init(void)           //@11.0592MHz           340m/s  4m       340t=2x    x<=4m    t=x/170<=0.02352941s   65535*1/110
+             -59200
+  66          {                                                                                   //有溢出的可能性,需要添加中断次数变量T1Times
+  67   1              AUXR |= 0x40;                                   //定时器1时钟1T模式
+  68   1              TMOD &= 0xf3;                                                           //设置定时器1 16位自动重装载
+  69   1              TR1 = 0;                                                                //定时器1停止计时
+  70   1              ET1 = 0;                                                        //关闭定时器1中断
+  71   1      }
+  72          
+  73          void EnableTimer1()
+  74          {
+  75   1              TL1 = 0;                                                                        //设置定时初值
+  76   1              TH1 = 0>>8;                                                             //设置定时初值
+  77   1              TR1 = 1;                                                                //定时器1开始计时
+  78   1              ET1 = 1;                                                        //使能定时器1中断
+  79   1              T1times = 0;
+  80   1      }
+  81          
+  82          void DisableTimer1()
+  83          {
+  84   1              TR1 = 0;                        //定时器1停止计时
+  85   1              ET1 = 0;                //关闭定时器1中断       
+  86   1      }
+  87          
+  88          //Timer1中断函数
+  89          void Timer1_ISR() interrupt 3                           //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
+  90          {
+  91   1          //EA = 0;
+  92   1              if(T1times<1000)
+  93   1              {       
+  94   2                      T1times++;
+  95   2              }
+  96   1              else
+  97   1              {
+  98   2                      T1times=0;
+  99   2              }
+ 100   1              //EA = 1;
+ 101   1              if(T1times == 4)
+ 102   1              {
+ 103   2                      ;
+ 104   2                      //SendData('?');
+ 105   2              }
  106   1      }
  107          
- 108          void DisableTimer3()
- 109          {
- 110   1              T4T3M &= 0xf7;              //定时器3停止计时
- 111   1              IE2 &= 0xdf;            //关闭定时器3中断       
- 112   1      }
- 113          
- 114          //Timer3中断函数
- 115          void Timer3_ISR() interrupt 19 using 2                  //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
- 116          {
-C51 COMPILER V9.00   TIMER                                                                 05/13/2016 20:08:44 PAGE 3   
+ 108          //可变定时器Timer3
+ 109          void Timer3Init(void)           //1毫秒@11.0592MHz
+ 110          {
+ 111   1              T4T3M &= 0xfb;              //定时器3内部系统时钟
+ 112   1              T4T3M |= 0x02;          //定时器3 1T模式
+ 113   1              T3L = TIMS;                             //设置定时初值
+ 114   1              T3H = TIMS>>8;                  //设置定时初值
+ 115   1              T4T3M &= 0xf7;              //定时器3停止计时
+C51 COMPILER V9.00   TIMER                                                                 05/22/2016 00:44:04 PAGE 3   
 
- 117   1          //EA = 0;
- 118   1              if(T3times<2000)
- 119   1              {       
- 120   2                      T3times++;
- 121   2              }
- 122   1              else
- 123   1              {
- 124   2                      P25 = !P25;
- 125   2                      T3times=0;
- 126   2                      //SendString("ABCDE");
- 127   2                      //ReadTemperature();                    //读取温度湿度传感器值
- 128   2                      //ReadAir();                            //读取空气传感器值
- 129   2                      //WifiSend();                           //Wifi发送数据
- 130   2              }
- 131   1              //EA = 1;
- 132   1      }
- 133          
- 134          //可变定时器Timer4
- 135          void Timer4Init(void)           //1毫秒@11.0592MHz
- 136          {
- 137   1              T4T3M &= 0xbf;              //定时器4内部系统时钟
- 138   1              T4T3M |= 0x20;          //定时器4 1T模式
- 139   1              T4L = TIMS;                             //设置定时初值
- 140   1              T4H = TIMS>>8;                  //设置定时初值
- 141   1              T4T3M &= 0x7f;              //定时器4停止计时
- 142   1              IE2 &= 0xbf;            //关闭定时器4中断
- 143   1      }
- 144          
- 145          void EnableTimer4()
- 146          {
- 147   1              T4T3M |= 0x80;              //定时器4开始计时
- 148   1              IE2 |= 0x40;            //开启定时器4中断
- 149   1              T4times = 0;
- 150   1      }
- 151          
- 152          void DisableTimer4()
- 153          {
- 154   1              T4T3M &= 0x7f;              //定时器4停止计时
- 155   1              IE2 &= 0xbf;            //关闭定时器4中断       
- 156   1      }
- 157          
- 158          //Timer4中断函数
- 159          void Timer4_ISR() interrupt 20 using 2                  //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
- 160          {
- 161   1          //EA = 0;
- 162   1              if(T4times<4000)
- 163   1              {       
- 164   2                      T4times++;
- 165   2              }
- 166   1              else
- 167   1              {
- 168   2                      P26 = !P26;
- 169   2                      T4times=0;
- 170   2                      //SendString("ABCDE");
- 171   2                      //ReadTemperature();                    //读取温度湿度传感器值
- 172   2                      //ReadAir();                            //读取空气传感器值
- 173   2                      //WifiSend();                           //Wifi发送数据
- 174   2              }
- 175   1              //EA = 1;
- 176   1      }
+ 116   1              IE2 &= 0xdf;            //关闭定时器3中断
+ 117   1      }
+ 118          
+ 119          void EnableTimer3()
+ 120          {
+ 121   1              T4T3M |= 0x08;              //定时器3开始计时
+ 122   1              IE2 |= 0x20;            //开启定时器3中断
+ 123   1              T3times = 0;
+ 124   1              T3TimesValue = 0;
+ 125   1      }
+ 126          
+ 127          void DisableTimer3()
+ 128          {
+ 129   1              T4T3M &= 0xf7;              //定时器3停止计时
+ 130   1              IE2 &= 0xdf;            //关闭定时器3中断       
+ 131   1      }
+ 132          
+ 133          //Timer3中断函数
+ 134          void Timer3_ISR() interrupt 19 using 2                  //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
+ 135          {
+ 136   1          //EA = 0;
+ 137   1              if(T3times<T3TimesValue)
+ 138   1              {       
+ 139   2                      T3times++;
+ 140   2              }
+ 141   1              else
+ 142   1              {
+ 143   2                      Buzzer();                                                               //蜂鸣器
+ 144   2                      T3times=0;
+ 145   2              }
+ 146   1              //EA = 1;
+ 147   1      }
+ 148          
+ 149          //可变定时器Timer4
+ 150          void Timer4Init(void)           //1毫秒@11.0592MHz
+ 151          {
+ 152   1              T4T3M &= 0xbf;              //定时器4内部系统时钟
+ 153   1              T4T3M |= 0x20;          //定时器4 1T模式
+ 154   1              T4L = TIMS;                             //设置定时初值
+ 155   1              T4H = TIMS>>8;                  //设置定时初值
+ 156   1              T4T3M &= 0x7f;              //定时器4停止计时
+ 157   1              IE2 &= 0xbf;            //关闭定时器4中断
+ 158   1              P25 = 0;
+ 159   1      }
+ 160          
+ 161          void EnableTimer4()
+ 162          {
+ 163   1              T4T3M |= 0x80;              //定时器4开始计时
+ 164   1              IE2 |= 0x40;            //开启定时器4中断
+ 165   1              T4times = 0;
+ 166   1      }
+ 167          
+ 168          void DisableTimer4()
+ 169          {
+ 170   1              T4T3M &= 0x7f;              //定时器4停止计时
+ 171   1              IE2 &= 0xbf;            //关闭定时器4中断       
+ 172   1      }
+ 173          
+ 174          //Timer4中断函数
+ 175          void Timer4_ISR() interrupt 20                          //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
+ 176          {
+ 177   1          //EA = 0;
+C51 COMPILER V9.00   TIMER                                                                 05/22/2016 00:44:04 PAGE 4   
 
+ 178   1              if(T4times<1000)
+ 179   1              {       
+ 180   2                      T4times++;
+ 181   2              }
+ 182   1              else
+ 183   1              {
+ 184   2                      T4times=0;
+ 185   2                      P25=!P25;
+ 186   2                      //SendString("ABCDE");
+ 187   2                      //ReadTemperature();                    //读取温度湿度传感器值
+ 188   2                      //ReadAir();                            //读取空气传感器值
+ 189   2                      //WifiSend();                           //Wifi发送数据
+ 190   2              }
+ 191   1              //EA = 1;
+ 192   1      }
 
-C51 COMPILER V9.00   TIMER                                                                 05/13/2016 20:08:44 PAGE 4   
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    282    ----
+   CODE SIZE        =    389    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
-   PDATA SIZE       =   ----    ----
-   DATA SIZE        =      8    ----
+   PDATA SIZE       =     12    ----
+   DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.

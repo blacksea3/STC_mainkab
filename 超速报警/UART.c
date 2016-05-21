@@ -8,7 +8,7 @@ typedef unsigned char BYTE;
 typedef unsigned int WORD;
 
 #define FOSC 11059200L                       //系统频率
-#define BAUD 115200                          //串口波特率
+#define BAUD 9600                          //串口波特率
 
 #define NONE_PARITY 0                        //无校验
 #define ODD_PARITY 1                         //奇校验
@@ -45,13 +45,14 @@ void UARTInit()
 	AUXR |= 0x14;                   		//T2 1T模式,启动定时器2
 	AUXR |= 0x01;                  			//定时器2为串口1的波特率发生器
 	ES = 1;                        			//使能串口1中断
+	PS = 1;                                 //UART中断调整为高优先级
 	//EA = 1;                        		//使能总中断
 }
 
 /*-------------------------
 UART 中断服务程序
 -------------------------*/
-void Uart() interrupt 4 using 1
+void Uart() interrupt 4
 {
 	if(RI)
 	{

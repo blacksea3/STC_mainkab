@@ -1,0 +1,60 @@
+C51 COMPILER V9.00   MYFUN                                                                 05/21/2016 23:37:48 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE MYFUN
+OBJECT MODULE PLACED IN myfun.OBJ
+COMPILER INVOKED BY: E:\software\DevelopmentSoftware\InstallSrc\KeilC51\C51\BIN\C51.EXE myfun.c COMPACT BROWSE DEBUG OBJ
+                    -ECTEXTEND
+
+line level    source
+
+   1          /****************《51单片机轻松入门-基于STC15W4K系列》配套例程 *************
+   2           ★★★★★★★★★★★★★★★★★★★★★★★★
+   3           《51单片机轻松入门-基于STC15W4K系列》 一书已经由北航出版社正式出版发行。
+   4            作者亲手创作的与教材配套的51双核实验板(2个MCU)对程序下载、调试、仿真方便，不需要外部
+   5            仿真器与编程器，这种设计方式彻底解决了系统中多个最高优先级谁也不能让谁的中断竞争问题。
+   6            淘宝店地址：https://shop117387413.taobao.com
+   7            QQ群：STC51-STM32(3) ：515624099 或 STC51-STM32(2)：99794374。
+   8                  验证信息：STC15单片机
+   9            邮箱：xgliyouquan@126.com
+  10            ★★★★★★★★★★★★★★★★★★★★★★★★*/
+  11          
+  12          #include "intrins.h"             // _nop_()函数需要
+  13          
+  14          /******************************************************************
+  15           - 功能描述：将一个32位长整型变量dat转为字符串，比如把1234转为"1234"
+  16           - 参数说明：dat:待转的long型的变量
+  17                       str:指向字符数组的指针，转换后的字节串放在其中           
+  18           ******************************************************************/ 
+  19          void Long_Str(unsigned long dat,char *str) 
+  20          {
+  21   1              unsigned char temp[11];  // 长整数最大值4294967295，转ASCII码后占用10字节       
+  22   1              unsigned char i=0,j=0;    
+  23   1              while(dat)                               // 数值转ASCII码，字节在数组中反向排列
+  24   1              {
+  25   2                      temp[i]=dat%10+0x30;
+  26   2                      i++;
+  27   2                      dat/=10;
+  28   2              }
+  29   1              j=i;
+  30   1              for(i=0;i<j;i++)                 // 数组交换先后顺序，正向排列
+  31   1              {
+  32   2                      str[i]=temp[j-i-1];      // C语言中数组下标固定从0开始
+  33   2              }
+  34   1              if(!i) {str[i++]='0';}   // 函数参数dat=0处理
+  35   1              str[i]=0;                                // 由于要使用KEIL自带的字符串处理函数处理，必须有结束标记。
+  36   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    225    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----      20
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

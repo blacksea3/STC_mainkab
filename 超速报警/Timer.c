@@ -1,14 +1,20 @@
 #include "stc15.h"
 //#include "Temperature.h"
 #include "UART.h"
+#include "DHT11.h"
+#include "Buzzer.h"
+#include "UltraSound.h"
+#include "main.h"
 
 #define TFOSC 11059200L
 #define TIMS (65536-TFOSC/1000)  //1TÄ£Ê½
 
-unsigned int T0times;     	//¶¨Ê±Æ÷0ÖĞ¶Ï´ÎÊı
+unsigned int T0times0;     	//¶¨Ê±Æ÷0ÖĞ¶Ï´ÎÊı0
+unsigned int T0times1;     	//¶¨Ê±Æ÷0ÖĞ¶Ï´ÎÊı1
 unsigned int T1times;     	//¶¨Ê±Æ÷1ÖĞ¶Ï´ÎÊı
 unsigned int T3times;     	//¶¨Ê±Æ÷3ÖĞ¶Ï´ÎÊı
 unsigned int T4times;     	//¶¨Ê±Æ÷4ÖĞ¶Ï´ÎÊı
+unsigned int T3TimesValue;	//¶¨Ê±Æ÷3ÖĞ¶ÏãĞÖµ
 //sbit P20 = P2^0;
 
 //¹Ì¶¨¶¨Ê±Æ÷Timer0
@@ -18,46 +24,58 @@ void Timer0Init(void)		//1ºÁÃë@11.0592MHz
 	TMOD &= 0xfc;			//ÉèÖÃ¶¨Ê±Æ÷0 16Î»×Ô¶¯ÖØ×°ÔØ
 	TL0 = TIMS;				//ÉèÖÃ¶¨Ê±³õÖµ
 	TH0 = TIMS>>8;			//ÉèÖÃ¶¨Ê±³õÖµ
+	PT0 = 0;                //Timer0µÍÓÅÏÈ¼¶
 	TR0 = 1;		        //¶¨Ê±Æ÷0¿ªÊ¼¼ÆÊ±
 	ET0 = 1;            	//Ê¹ÄÜ¶¨Ê±Æ÷0ÖĞ¶Ï
-	T0times = 0;
+	T0times0 = 0;
+	T0times1 = 0;
+	P25 = 1;
+	P24 = 1;
 }
 
 //Timer0ÖĞ¶Ïº¯Êı
-void Timer0_ISR() interrupt 1 using 2			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµÄÖĞ¶ÏÀïÖ±½Ó·¢Êı¾İ
+void Timer0_ISR() interrupt 1      			    //ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµÄÖĞ¶ÏÀïÖ±½Ó·¢Êı¾İ
 {
     //EA = 0;
-	if(T0times<500)
-	{	
-		T0times++;
+	if(T0times0<2000)
+	{
+	    T0times0++;
 	}
 	else
 	{
-	    P20 = !P20;
-		T0times=0;
-		//SendString("ABCDE");
-		//ReadTemperature();                    //¶ÁÈ¡ÎÂ¶ÈÊª¶È´«¸ĞÆ÷Öµ
-		//ReadAir();                            //¶ÁÈ¡¿ÕÆø´«¸ĞÆ÷Öµ
-		//WifiSend();                           //Wifi·¢ËÍÊı¾İ
+	    T0times0=0;
+		DHT11ISREADY = 1;
+		
 	}
+	if(T0times1<500)
+	{
+	    T0times1++;
+	}
+	else
+	{
+	    T0times1=0;
+		ULTRAISREADY = 1;
+		
+	}
+	
 	//EA = 1;
 }
 
-//¿É±ä¶¨Ê±Æ÷Timer1
-void Timer1Init(void)		//1ºÁÃë@11.0592MHz
-{
-	AUXR |= 0x40;		    //¶¨Ê±Æ÷1Ê±ÖÓ1TÄ£Ê½
-	TMOD &= 0xf3;			//ÉèÖÃ¶¨Ê±Æ÷1 16Î»×Ô¶¯ÖØ×°ÔØ
-	TL1 = TIMS;				//ÉèÖÃ¶¨Ê±³õÖµ
-	TH1 = TIMS>>8;			//ÉèÖÃ¶¨Ê±³õÖµ
-	TR1 = 0;		        //¶¨Ê±Æ÷1Í£Ö¹¼ÆÊ±
-	ET1 = 0;            	//¹Ø±Õ¶¨Ê±Æ÷1ÖĞ¶Ï
+//¼ÆÊ±¶¨Ê±Æ÷Timer1
+void Timer1Init(void)		//@11.0592MHz		340m/s  4m  	 340t=2x    x<=4m    t=x/170<=0.02352941s   65535*1/11059200
+{									            //ÓĞÒç³öµÄ¿ÉÄÜĞÔ,ĞèÒªÌí¼ÓÖĞ¶Ï´ÎÊı±äÁ¿T1Times
+	AUXR |= 0x40;		                        //¶¨Ê±Æ÷1Ê±ÖÓ1TÄ£Ê½
+	TMOD &= 0xf3;								//ÉèÖÃ¶¨Ê±Æ÷1 16Î»×Ô¶¯ÖØ×°ÔØ
+	TR1 = 0;		        					//¶¨Ê±Æ÷1Í£Ö¹¼ÆÊ±
+	ET1 = 0;            						//¹Ø±Õ¶¨Ê±Æ÷1ÖĞ¶Ï
 }
 
 void EnableTimer1()
 {
-	TR1 = 1;		        //¶¨Ê±Æ÷1¿ªÊ¼¼ÆÊ±
-	ET1 = 1;            	//Ê¹ÄÜ¶¨Ê±Æ÷1ÖĞ¶Ï
+	TL1 = 0;									//ÉèÖÃ¶¨Ê±³õÖµ
+	TH1 = 0>>8;			    					//ÉèÖÃ¶¨Ê±³õÖµ
+	TR1 = 1;		        					//¶¨Ê±Æ÷1¿ªÊ¼¼ÆÊ±
+	ET1 = 1;            						//Ê¹ÄÜ¶¨Ê±Æ÷1ÖĞ¶Ï
 	T1times = 0;
 }
 
@@ -68,7 +86,7 @@ void DisableTimer1()
 }
 
 //Timer1ÖĞ¶Ïº¯Êı
-void Timer1_ISR() interrupt 3 using 2			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµÄÖĞ¶ÏÀïÖ±½Ó·¢Êı¾İ
+void Timer1_ISR() interrupt 3       			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµÄÖĞ¶ÏÀïÖ±½Ó·¢Êı¾İ
 {
     //EA = 0;
 	if(T1times<1000)
@@ -77,14 +95,14 @@ void Timer1_ISR() interrupt 3 using 2			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµ
 	}
 	else
 	{
-		P24 = !P24;
 		T1times=0;
-		//SendString("ABCDE");
-		//ReadTemperature();                    //¶ÁÈ¡ÎÂ¶ÈÊª¶È´«¸ĞÆ÷Öµ
-		//ReadAir();                            //¶ÁÈ¡¿ÕÆø´«¸ĞÆ÷Öµ
-		//WifiSend();                           //Wifi·¢ËÍÊı¾İ
 	}
 	//EA = 1;
+	if(T1times == 4)
+	{
+		;
+		//SendData('?');
+	}
 }
 
 //¿É±ä¶¨Ê±Æ÷Timer3
@@ -103,6 +121,7 @@ void EnableTimer3()
 	T4T3M |= 0x08;		    //¶¨Ê±Æ÷3¿ªÊ¼¼ÆÊ±
 	IE2 |= 0x20;            //¿ªÆô¶¨Ê±Æ÷3ÖĞ¶Ï
 	T3times = 0;
+	T3TimesValue = 0;
 }
 
 void DisableTimer3()
@@ -115,18 +134,14 @@ void DisableTimer3()
 void Timer3_ISR() interrupt 19 using 2			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµÄÖĞ¶ÏÀïÖ±½Ó·¢Êı¾İ
 {
     //EA = 0;
-	if(T3times<2000)
+	if(T3times<T3TimesValue)
 	{	
 		T3times++;
 	}
 	else
 	{
-		P25 = !P25;
+		Buzzer();								//·äÃùÆ÷
 		T3times=0;
-		//SendString("ABCDE");
-		//ReadTemperature();                    //¶ÁÈ¡ÎÂ¶ÈÊª¶È´«¸ĞÆ÷Öµ
-		//ReadAir();                            //¶ÁÈ¡¿ÕÆø´«¸ĞÆ÷Öµ
-		//WifiSend();                           //Wifi·¢ËÍÊı¾İ
 	}
 	//EA = 1;
 }
@@ -140,6 +155,7 @@ void Timer4Init(void)		//1ºÁÃë@11.0592MHz
 	T4H = TIMS>>8;			//ÉèÖÃ¶¨Ê±³õÖµ
 	T4T3M &= 0x7f;		    //¶¨Ê±Æ÷4Í£Ö¹¼ÆÊ±
 	IE2 &= 0xbf;            //¹Ø±Õ¶¨Ê±Æ÷4ÖĞ¶Ï
+	P25 = 0;
 }
 
 void EnableTimer4()
@@ -156,17 +172,17 @@ void DisableTimer4()
 }
 
 //Timer4ÖĞ¶Ïº¯Êı
-void Timer4_ISR() interrupt 20 using 2			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµÄÖĞ¶ÏÀïÖ±½Ó·¢Êı¾İ
+void Timer4_ISR() interrupt 20       			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµÄÖĞ¶ÏÀïÖ±½Ó·¢Êı¾İ
 {
     //EA = 0;
-	if(T4times<4000)
+	if(T4times<1000)
 	{	
 		T4times++;
 	}
 	else
 	{
-		P26 = !P26;
 		T4times=0;
+		P25=!P25;
 		//SendString("ABCDE");
 		//ReadTemperature();                    //¶ÁÈ¡ÎÂ¶ÈÊª¶È´«¸ĞÆ÷Öµ
 		//ReadAir();                            //¶ÁÈ¡¿ÕÆø´«¸ĞÆ÷Öµ
