@@ -146,7 +146,7 @@ void UltraSoundDisplay()
 		if(DDis%10000/1000>0)					            //³¬¹ý1m/s
 		{
 			FASTSPEED = 1;
-			P20 = !P20;                                      
+			//P20 = !P20;                                      
 		}
 	}	
 }
