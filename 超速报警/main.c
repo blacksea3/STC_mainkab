@@ -19,6 +19,8 @@
 unsigned char code StrHello[]="HELLOWORLD!";  
 unsigned char DHT11ISREADY;
 unsigned char ULTRAISREADY;
+unsigned char FASTSPEED;
+unsigned char TIMER3STOP;
 
 void port_mode()            // 端口模式
 {
@@ -29,32 +31,37 @@ void port_mode()            // 端口模式
 void main()
 {	
     //UARTInit();
+    unsigned char code FUCKSTOP[]={"FUCKSTOOP!"};
+	unsigned char code FUCKSTART[]={"FUCKSTAART!"};
 
-    DHT11ISREADY = 0;
-	ULTRAISREADY = 0;
 
-	UltraSoundInit();
+    DHT11ISREADY = 0;	  //DHT11未激活
+	ULTRAISREADY = 0;	  //超声波未激活,他们两个由Timer0中断激活
+	FASTSPEED = 0;		  //超速蜂鸣器未激活
+	TIMER3STOP = 0;
+    UltraSoundInit();	  //超声波初始化
 
-    port_mode();
-    Delay1000ms();
+    port_mode();		  //端口设置全部弱上拉
+    Delay1000ms();		  //延时3s
     Delay1000ms();
     Delay1000ms();   
-    Lcm_Init();
+    Lcm_Init();			  //LCD12864以及初始化
 
-	//Timer4Init();         //超声波  1s   它还内部使用Timer1
-	//EnableTimer4();
-	Timer0Init();		  //DHT11	2s
-	EA = 1;     
-    
-	/*Delay1000ms();   	  // LCD上电延时
-	
-	port_mode();	      // 所有IO口设为准双向弱上拉方式。
-	Delay1000ms();   	  // LCD上电延时
-	Lcm_Init();
-	*/
-	Display_String(1,StrHello);			   
+    Timer3Init();         //蜂鸣器定时器初始化但不开启,开启由变量FASTSPEED指示
+
+	Timer0Init();		  //DHT11和超声波
+	EA = 1;     		  //使能总中断
+    P20 = 0;
+
+	Display_String(1,StrHello);			   		    //LCD显示HelloWorld!
 	while(1)
 	{	
+        if(TIMER3STOP)
+		{
+			DisableTimer3();
+			Display_String(4,FUCKSTOP);
+		}
+
 		if(DHT11ISREADY)
 		{
 			DisplayDHT11();                         //读取温度湿度传感器值
@@ -62,8 +69,14 @@ void main()
 		}
 		else if(ULTRAISREADY)
 		{
-			UltraSoundDisplay();                     //超声波
+			UltraSoundDisplay();                    //超声波
 			ULTRAISREADY = 0;
+			if(FASTSPEED)
+			{
+			    TIMER3STOP = 0;
+				EnableTimer3();
+				Display_String(4,FUCKSTART);
+			}
 		}
 		else ;
 	}

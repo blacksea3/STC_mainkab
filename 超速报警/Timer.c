@@ -1,9 +1,9 @@
 #include "stc15.h"
 //#include "Temperature.h"
-#include "UART.h"
-#include "DHT11.h"
+//#include "UART.h"
+//#include "DHT11.h"
 #include "Buzzer.h"
-#include "UltraSound.h"
+//#include "UltraSound.h"
 #include "main.h"
 
 #define TFOSC 11059200L
@@ -34,7 +34,7 @@ void Timer0Init(void)		//1毫秒@11.0592MHz
 }
 
 //Timer0中断函数
-void Timer0_ISR() interrupt 1      			    //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
+void Timer0_ISR() interrupt 1      			    
 {
     //EA = 0;
 	if(T0times0<2000)
@@ -110,8 +110,6 @@ void Timer3Init(void)		//1毫秒@11.0592MHz
 {
 	T4T3M &= 0xfb;		    //定时器3内部系统时钟
 	T4T3M |= 0x02;          //定时器3 1T模式
-	T3L = TIMS;				//设置定时初值
-	T3H = TIMS>>8;			//设置定时初值
 	T4T3M &= 0xf7;		    //定时器3停止计时
 	IE2 &= 0xdf;            //关闭定时器3中断
 }
@@ -120,8 +118,10 @@ void EnableTimer3()
 {
 	T4T3M |= 0x08;		    //定时器3开始计时
 	IE2 |= 0x20;            //开启定时器3中断
+	T3L = TIMS;				//设置定时初值
+	T3H = TIMS>>8;			//设置定时初值
 	T3times = 0;
-	T3TimesValue = 0;
+	T3TimesValue = 400;
 }
 
 void DisableTimer3()
@@ -131,19 +131,22 @@ void DisableTimer3()
 }
 
 //Timer3中断函数
-void Timer3_ISR() interrupt 19 using 2			//由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
+void Timer3_ISR() interrupt 19       			//由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
 {
-    //EA = 0;
+    EA = 0;
 	if(T3times<T3TimesValue)
 	{	
+	    Buzzer();								//蜂鸣器
 		T3times++;
 	}
 	else
 	{
-		Buzzer();								//蜂鸣器
+	    P55 = 0;
+	    FASTSPEED = 0;						
+	    TIMER3STOP = 1;
 		T3times=0;
 	}
-	//EA = 1;
+	EA = 1;
 }
 
 //可变定时器Timer4
