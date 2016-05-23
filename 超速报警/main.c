@@ -1,26 +1,26 @@
 #include "stc15.h"
 #include "Timer.h"
+
+#include "LCD12864.H"    //
+
+#include "DHT11.h"				  //DHT11没有初始化程序
+
+//#include "Temperature.h"
+//#include "Wifi.h"
 #include "Delay.h"
+
+//#include "Force.h"
+//#include "Camera.h"
+#include "UART.h"
+#include "UltraSound.h"
 
 #include "main.h"
 
-#include "LCD12864.H"
-#include "DHT11.h"
-#include "UltraSound.h"
-#include "DS1302.h"				 
-//#include "Wifi.h"
-//#include "Force.h"
-//#include "Camera.h"
-//#include "UART.h"
-
-unsigned char code StrHello[]="HELLOWORLD!";
-unsigned char DS1302ISREADY;  
+unsigned char code StrHello[]="HELLOWORLD!";  
 unsigned char DHT11ISREADY;
 unsigned char ULTRAISREADY;
 unsigned char FASTSPEED;
 unsigned char TIMER3STOP;
-
-unsigned char StartTime[7]=	{14,11,30,23,50,59,7};  // 年月日时分秒周 14-11-30 23:50:59   DS1302起始时间
 
 void port_mode()            // 端口模式
 {
@@ -30,33 +30,28 @@ void port_mode()            // 端口模式
 
 void main()
 {	
-    
-    //unsigned char code FUCKSTOP[]={"FUCKSTOOP!"};
-	//unsigned char code FUCKSTART[]={"FUCKSTAART!"};
+    //UARTInit();
+    unsigned char code FUCKSTOP[]={"FUCKSTOOP!"};
+	unsigned char code FUCKSTART[]={"FUCKSTAART!"};
 
-    port_mode();		  	//端口设置全部弱上拉
 
-    DS1302ISREADY = 0;    	//DS1302未激活
-    DHT11ISREADY = 0;	  	//DHT11未激活
-	ULTRAISREADY = 0;	  	//超声波未激活,他们两个由Timer0中断激活
-	FASTSPEED = 0;		  	//超速蜂鸣器未激活
+    DHT11ISREADY = 0;	  //DHT11未激活
+	ULTRAISREADY = 0;	  //超声波未激活,他们两个由Timer0中断激活
+	FASTSPEED = 0;		  //超速蜂鸣器未激活
 	TIMER3STOP = 0;
-    
-	UltraSoundInit();	  	//超声波初始化
-	DS1302Init(StartTime);	//DS1302初始化
-	//DHT11Init();        	//DHT11没有初始化程序
-    //UARTInit();		  	//UART初始化
-    
-    Delay1000ms();		  	//延时3s
+    UltraSoundInit();	  //超声波初始化
+
+    port_mode();		  //端口设置全部弱上拉
+    Delay1000ms();		  //延时3s
     Delay1000ms();
     Delay1000ms();   
-    Lcm_Init();			  	//LCD12864以及初始化
+    Lcm_Init();			  //LCD12864以及初始化
 
-    Timer3Init();         	//蜂鸣器定时器初始化但不开启,开启由变量FASTSPEED指示
+    Timer3Init();         //蜂鸣器定时器初始化但不开启,开启由变量FASTSPEED指示
 
-	Timer0Init();		  	//DHT11和超声波
-	EA = 1;     		  	//使能总中断
-    //P20 = 0;
+	Timer0Init();		  //DHT11和超声波
+	EA = 1;     		  //使能总中断
+    P20 = 0;
 
 	Display_String(1,StrHello);			   		    //LCD显示HelloWorld!
 	while(1)
@@ -64,7 +59,7 @@ void main()
         if(TIMER3STOP)
 		{
 			DisableTimer3();
-			//Display_String(4,FUCKSTOP);
+			Display_String(4,FUCKSTOP);
 		}
 
 		if(DHT11ISREADY)
@@ -80,7 +75,7 @@ void main()
 			{
 			    TIMER3STOP = 0;
 				EnableTimer3();
-				//Display_String(4,FUCKSTART);
+				Display_String(4,FUCKSTART);
 			}
 		}
 		else ;

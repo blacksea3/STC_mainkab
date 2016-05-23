@@ -11,7 +11,6 @@
 
 unsigned int T0times0;     	//定时器0中断次数0
 unsigned int T0times1;     	//定时器0中断次数1
-unsigned int T0times2;      //定时器0中断次数2
 unsigned int T1times;     	//定时器1中断次数
 unsigned int T3times;     	//定时器3中断次数
 unsigned int T4times;     	//定时器4中断次数
@@ -38,17 +37,17 @@ void Timer0Init(void)		//1毫秒@11.0592MHz
 void Timer0_ISR() interrupt 1      			    
 {
     //EA = 0;
-	if(T0times0<2000)						   	//2s间隔 DHT11
+	if(T0times0<2000)
 	{
 	    T0times0++;
 	}
 	else
 	{
 	    T0times0=0;
-		DHT11ISREADY = 1;	
+		DHT11ISREADY = 1;
+		
 	}
-
-	if(T0times1<500)							//0.5s间隔 UltraSound
+	if(T0times1<500)
 	{
 	    T0times1++;
 	}
@@ -56,17 +55,8 @@ void Timer0_ISR() interrupt 1
 	{
 	    T0times1=0;
 		ULTRAISREADY = 1;
+		
 	}
-
-	/*if(T0times2<1000)							//1s间隔 DS1302
-	{
-	    T0times2++;
-	}
-	else
-	{
-	    T0times2=0;
-		DS1302ISREADY = 1;
-	}*/
 	
 	//EA = 1;
 }
