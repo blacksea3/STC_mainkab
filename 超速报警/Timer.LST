@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   TIMER                                                                 05/22/2016 11:09:02 PAGE 1   
+C51 COMPILER V9.00   TIMER                                                                 05/22/2016 00:44:04 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE TIMER
@@ -10,10 +10,10 @@ line level    source
 
    1          #include "stc15.h"
    2          //#include "Temperature.h"
-   3          //#include "UART.h"
-   4          //#include "DHT11.h"
+   3          #include "UART.h"
+   4          #include "DHT11.h"
    5          #include "Buzzer.h"
-   6          //#include "UltraSound.h"
+   6          #include "UltraSound.h"
    7          #include "main.h"
    8          
    9          #define TFOSC 11059200L
@@ -44,7 +44,7 @@ line level    source
   34   1      }
   35          
   36          //Timer0中断函数
-  37          void Timer0_ISR() interrupt 1                               
+  37          void Timer0_ISR() interrupt 1                               //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
   38          {
   39   1          //EA = 0;
   40   1              if(T0times0<2000)
@@ -62,7 +62,7 @@ line level    source
   52   2                  T0times1++;
   53   2              }
   54   1              else
-C51 COMPILER V9.00   TIMER                                                                 05/22/2016 11:09:02 PAGE 2   
+C51 COMPILER V9.00   TIMER                                                                 05/22/2016 00:44:04 PAGE 2   
 
   55   1              {
   56   2                  T0times1=0;
@@ -123,20 +123,20 @@ line level    source
  110          {
  111   1              T4T3M &= 0xfb;              //定时器3内部系统时钟
  112   1              T4T3M |= 0x02;          //定时器3 1T模式
- 113   1              T4T3M &= 0xf7;              //定时器3停止计时
- 114   1              IE2 &= 0xdf;            //关闭定时器3中断
- 115   1      }
-C51 COMPILER V9.00   TIMER                                                                 05/22/2016 11:09:02 PAGE 3   
+ 113   1              T3L = TIMS;                             //设置定时初值
+ 114   1              T3H = TIMS>>8;                  //设置定时初值
+ 115   1              T4T3M &= 0xf7;              //定时器3停止计时
+C51 COMPILER V9.00   TIMER                                                                 05/22/2016 00:44:04 PAGE 3   
 
- 116          
- 117          void EnableTimer3()
- 118          {
- 119   1              T4T3M |= 0x08;              //定时器3开始计时
- 120   1              IE2 |= 0x20;            //开启定时器3中断
- 121   1              T3L = TIMS;                             //设置定时初值
- 122   1              T3H = TIMS>>8;                  //设置定时初值
+ 116   1              IE2 &= 0xdf;            //关闭定时器3中断
+ 117   1      }
+ 118          
+ 119          void EnableTimer3()
+ 120          {
+ 121   1              T4T3M |= 0x08;              //定时器3开始计时
+ 122   1              IE2 |= 0x20;            //开启定时器3中断
  123   1              T3times = 0;
- 124   1              T3TimesValue = 400;
+ 124   1              T3TimesValue = 0;
  125   1      }
  126          
  127          void DisableTimer3()
@@ -146,74 +146,71 @@ line level    source
  131   1      }
  132          
  133          //Timer3中断函数
- 134          void Timer3_ISR() interrupt 19                          //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
+ 134          void Timer3_ISR() interrupt 19 using 2                  //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
  135          {
- 136   1          EA = 0;
+ 136   1          //EA = 0;
  137   1              if(T3times<T3TimesValue)
  138   1              {       
- 139   2                  Buzzer();                                                           //蜂鸣器
- 140   2                      T3times++;
- 141   2              }
- 142   1              else
- 143   1              {
- 144   2                  P55 = 0;
- 145   2                  FASTSPEED = 0;                                              
- 146   2                  TIMER3STOP = 1;
- 147   2                      T3times=0;
- 148   2              }
- 149   1              EA = 1;
- 150   1      }
- 151          
- 152          //可变定时器Timer4
- 153          void Timer4Init(void)           //1毫秒@11.0592MHz
- 154          {
- 155   1              T4T3M &= 0xbf;              //定时器4内部系统时钟
- 156   1              T4T3M |= 0x20;          //定时器4 1T模式
- 157   1              T4L = TIMS;                             //设置定时初值
- 158   1              T4H = TIMS>>8;                  //设置定时初值
- 159   1              T4T3M &= 0x7f;              //定时器4停止计时
- 160   1              IE2 &= 0xbf;            //关闭定时器4中断
- 161   1              P25 = 0;
- 162   1      }
- 163          
- 164          void EnableTimer4()
- 165          {
- 166   1              T4T3M |= 0x80;              //定时器4开始计时
- 167   1              IE2 |= 0x40;            //开启定时器4中断
- 168   1              T4times = 0;
- 169   1      }
- 170          
- 171          void DisableTimer4()
- 172          {
- 173   1              T4T3M &= 0x7f;              //定时器4停止计时
- 174   1              IE2 &= 0xbf;            //关闭定时器4中断       
- 175   1      }
- 176          
- 177          //Timer4中断函数
-C51 COMPILER V9.00   TIMER                                                                 05/22/2016 11:09:02 PAGE 4   
+ 139   2                      T3times++;
+ 140   2              }
+ 141   1              else
+ 142   1              {
+ 143   2                      Buzzer();                                                               //蜂鸣器
+ 144   2                      T3times=0;
+ 145   2              }
+ 146   1              //EA = 1;
+ 147   1      }
+ 148          
+ 149          //可变定时器Timer4
+ 150          void Timer4Init(void)           //1毫秒@11.0592MHz
+ 151          {
+ 152   1              T4T3M &= 0xbf;              //定时器4内部系统时钟
+ 153   1              T4T3M |= 0x20;          //定时器4 1T模式
+ 154   1              T4L = TIMS;                             //设置定时初值
+ 155   1              T4H = TIMS>>8;                  //设置定时初值
+ 156   1              T4T3M &= 0x7f;              //定时器4停止计时
+ 157   1              IE2 &= 0xbf;            //关闭定时器4中断
+ 158   1              P25 = 0;
+ 159   1      }
+ 160          
+ 161          void EnableTimer4()
+ 162          {
+ 163   1              T4T3M |= 0x80;              //定时器4开始计时
+ 164   1              IE2 |= 0x40;            //开启定时器4中断
+ 165   1              T4times = 0;
+ 166   1      }
+ 167          
+ 168          void DisableTimer4()
+ 169          {
+ 170   1              T4T3M &= 0x7f;              //定时器4停止计时
+ 171   1              IE2 &= 0xbf;            //关闭定时器4中断       
+ 172   1      }
+ 173          
+ 174          //Timer4中断函数
+ 175          void Timer4_ISR() interrupt 20                          //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
+ 176          {
+ 177   1          //EA = 0;
+C51 COMPILER V9.00   TIMER                                                                 05/22/2016 00:44:04 PAGE 4   
 
- 178          void Timer4_ISR() interrupt 20                          //由于发送数据使用串口中断,尽量避免在别的中断里直接发数据
- 179          {
- 180   1          //EA = 0;
- 181   1              if(T4times<1000)
- 182   1              {       
- 183   2                      T4times++;
- 184   2              }
- 185   1              else
- 186   1              {
- 187   2                      T4times=0;
- 188   2                      P25=!P25;
- 189   2                      //SendString("ABCDE");
- 190   2                      //ReadTemperature();                    //读取温度湿度传感器值
- 191   2                      //ReadAir();                            //读取空气传感器值
- 192   2                      //WifiSend();                           //Wifi发送数据
- 193   2              }
- 194   1              //EA = 1;
- 195   1      }
+ 178   1              if(T4times<1000)
+ 179   1              {       
+ 180   2                      T4times++;
+ 181   2              }
+ 182   1              else
+ 183   1              {
+ 184   2                      T4times=0;
+ 185   2                      P25=!P25;
+ 186   2                      //SendString("ABCDE");
+ 187   2                      //ReadTemperature();                    //读取温度湿度传感器值
+ 188   2                      //ReadAir();                            //读取空气传感器值
+ 189   2                      //WifiSend();                           //Wifi发送数据
+ 190   2              }
+ 191   1              //EA = 1;
+ 192   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    439    ----
+   CODE SIZE        =    389    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =     12    ----

@@ -1,9 +1,8 @@
 #include "stc15.h"
-//#include "UART.h"
+#include "UART.h"
 #include "Timer.h"
 #include "Delay.h"
 #include "LCD12864.h"
-#include "main.h"
 
 sbit trig=P1^0;	//触发输入 至少为10us以上
 sbit echo=P1^1;	//输出回响信号
@@ -119,34 +118,29 @@ void UltraSoundDisplay()
 
     Delay1ms();*/
 
-    	if(Dis1>Dis2)
-		{
-			DDis=Dis1-Dis2;
-			VelocityData[6] = '+';
-		}
-		else
-		{
-			DDis=Dis2-Dis1;
-			VelocityData[6] = '-';
-		}
+    if(Dis1>Dis2)
+	{
+		DDis=Dis1-Dis2;
+		VelocityData[6] = '+';
+	}
+	else
+	{
+		DDis=Dis2-Dis1;
+		VelocityData[6] = '-';
+	}
 														   //单位mm  时间 50ms      4000mm/50ms  ->  4000*20=80m/s
-		DDis*=4;
+	DDis*=4;
 	
-		VelocityData[7]=DDis%10000/1000 + 48;
-		VelocityData[8]=(unsigned char)('.');							
-		VelocityData[9]=DDis%1000/100 + 48;
-		VelocityData[10]=DDis%100/10 + 48;
-		VelocityData[11]=DDis%10 + 48;
-		VelocityData[12]=(unsigned char)('m');
-		VelocityData[13]=(unsigned char)('/');
-		VelocityData[14]=(unsigned char)('s');
-		VelocityData[15]='\0';
+	VelocityData[7]=DDis%10000/1000 + 48;
+	VelocityData[8]=(unsigned char)('.');							
+	VelocityData[9]=DDis%1000/100 + 48;
+	VelocityData[10]=DDis%100/10 + 48;
+	VelocityData[11]=DDis%10 + 48;
+	VelocityData[12]=(unsigned char)('m');
+	VelocityData[13]=(unsigned char)('/');
+	VelocityData[14]=(unsigned char)('s');
+	VelocityData[15]='\0';
 
-		Display_String(1,VelocityData);
-		if(DDis%10000/1000>0)					            //超过1m/s
-		{
-			FASTSPEED = 1;
-			P20 = !P20;                                      
-		}
+	Display_String(1,VelocityData);
 	}	
 }
