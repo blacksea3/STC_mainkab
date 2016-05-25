@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   MAIN                                                                  05/22/2016 00:43:48 PAGE 1   
+C51 COMPILER V9.00   MAIN                                                                  05/25/2016 09:30:46 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
@@ -10,83 +10,124 @@ line level    source
 
    1          #include "stc15.h"
    2          #include "Timer.h"
-   3          
-   4          #include "LCD12864.H"    //
-   5          
-   6          #include "DHT11.h"                                //DHT11没有初始化程序
-   7          
-   8          //#include "Temperature.h"
-   9          //#include "Wifi.h"
-  10          #include "Delay.h"
-  11          
-  12          //#include "Force.h"
-  13          //#include "Camera.h"
-  14          #include "UART.h"
-  15          #include "UltraSound.h"
+   3          #include "Delay.h"
+   4          
+   5          #include "main.h"
+   6          
+   7          #include "LCD12864.H"
+   8          #include "DHT11.h"
+   9          #include "UltraSound.h"
+  10          #include "DS1302.h"
+  11          #include "Button.h"                              
+  12          //#include "Wifi.h"
+  13          //#include "Force.h"
+  14          //#include "Camera.h"
+  15          //#include "UART.h"
   16          
-  17          #include "main.h"
-  18          
-  19          unsigned char code StrHello[]="HELLOWORLD!";  
-  20          unsigned char DHT11ISREADY;
-  21          unsigned char ULTRAISREADY;
-  22          
-  23          void port_mode()            // 端口模式
-  24          {
-  25   1              P0M1=0x00; P0M0=0x00;P1M1=0x00; P1M0=0x00;P2M1=0x00; P2M0=0x00;P3M1=0x00; P3M0=0x00;
-  26   1              P4M1=0x00; P4M0=0x00;P5M1=0x00; P5M0=0x00;P6M1=0x00; P6M0=0x00;P7M1=0x00; P7M0=0x00; 
-  27   1      }
-  28          
-  29          void main()
-  30          {       
-  31   1          //UARTInit();
-  32   1      
-  33   1          DHT11ISREADY = 0;
-  34   1              ULTRAISREADY = 0;
-  35   1      
-  36   1              UltraSoundInit();
-  37   1      
-  38   1          port_mode();
-  39   1          Delay1000ms();
-  40   1          Delay1000ms();
-  41   1          Delay1000ms();   
-  42   1          Lcm_Init();
-  43   1      
-  44   1              //Timer4Init();         //超声波  1s   它还内部使用Timer1
-  45   1              //EnableTimer4();
-  46   1              Timer0Init();             //DHT11       2s
-  47   1              EA = 1;     
-  48   1          
-  49   1              /*Delay1000ms();          // LCD上电延时
-  50   1              
-  51   1              port_mode();          // 所有IO口设为准双向弱上拉方式。
-  52   1              Delay1000ms();            // LCD上电延时
-  53   1              Lcm_Init();
-  54   1              */
-C51 COMPILER V9.00   MAIN                                                                  05/22/2016 00:43:48 PAGE 2   
+  17          unsigned char code StrHello[]="HELLOWORLD!";
+  18          unsigned char DS1302ISREADY;  
+  19          unsigned char DHT11ISREADY;
+  20          unsigned char ULTRAISREADY;
+  21          unsigned char FASTSPEED;
+  22          unsigned char TIMER3STOP;
+  23          unsigned char ISSETTING;                                                //设置,1为设置状态 0为运行状态
+  24          unsigned char EXITSETTING;                                              //退出设置标志1为激活0为未激活
+  25          
+  26          unsigned char StartTime[7]=     {14,11,30,23,50,59,7};  // 年月日时分秒周 14-11-30 23:50:59   DS1302起始时间
+  27          
+  28          void port_mode()            // 端口模式
+  29          {
+  30   1              P0M1=0x00; P0M0=0x00;P1M1=0x00; P1M0=0x00;P2M1=0x00; P2M0=0x00;P3M1=0x00; P3M0=0x00;
+  31   1              P4M1=0x00; P4M0=0x00;
+  32   1              //P5M1=0x00; P5M0=0x00;P6M1=0x00; P6M0=0x00;P7M1=0x00; P7M0=0x00; 
+  33   1      }
+  34          
+  35          void main()
+  36          {       
+  37   1          
+  38   1          //unsigned char code FUCKSTOP[]={"FUCKSTOOP!"};
+  39   1              //unsigned char code FUCKSTART[]={"FUCKSTAART!"};
+  40   1      
+  41   1          port_mode();                        //端口设置全部弱上拉
+  42   1      
+  43   1          //DS1302ISREADY = 0;        //DS1302未激活
+  44   1          
+  45   1              DHT11ISREADY = 0;               //DHT11未激活
+  46   1              ULTRAISREADY = 0;               //超声波未激活,他们两个由Timer0中断激活
+  47   1              FASTSPEED = 0;                  //超速蜂鸣器未激活
+  48   1              TIMER3STOP = 0;
+  49   1          ISSETTING = 0;
+  50   1              EXITSETTING = 0;
+  51   1              P20 = 1;
+  52   1              UltraSoundInit();               //超声波初始化
+  53   1              
+  54   1              
+C51 COMPILER V9.00   MAIN                                                                  05/25/2016 09:30:46 PAGE 2   
 
-  55   1              Display_String(1,StrHello);                        
-  56   1              while(1)
-  57   1              {       
-  58   2                      if(DHT11ISREADY)
-  59   2                      {
-  60   3                              DisplayDHT11();                         //读取温度湿度传感器值
-  61   3                              DHT11ISREADY = 0;
-  62   3                      }
-  63   2                      else if(ULTRAISREADY)
-  64   2                      {
-  65   3                              UltraSoundDisplay();                     //超声波
-  66   3                              ULTRAISREADY = 0;
-  67   3                      }
-  68   2                      else ;
-  69   2              }
-  70   1      }
+  55   1              //DS1302Init(StartTime);        //DS1302初始化
+  56   1              //DHT11Init();          //DHT11没有初始化程序
+  57   1          //UARTInit();                       //UART初始化
+  58   1          
+  59   1          Delay1000ms();                      //延时3s
+  60   1          Delay1000ms();   
+  61   1          Lcm_Init();                         //LCD12864以及初始化
+  62   1      
+  63   1          Timer3Init();               //蜂鸣器定时器初始化但不开启,开启由变量FASTSPEED指示
+  64   1              INT0_Init();            //按键外部中断0开启
+  65   1              Timer0Init();                   //DHT11和超声波
+  66   1              EA = 1;                         //使能总中断
+  67   1          
+  68   1      
+  69   1              Display_String(1,StrHello);                                         //LCD显示HelloWorld!
+  70   1              Display_String(2,StrHello);                                         //LCD显示HelloWorld!
+  71   1              Display_String(3,StrHello);                                         //LCD显示HelloWorld!
+  72   1              Display_String(4,StrHello);                                         //LCD显示HelloWorld!
+  73   1              P20 = 0;
+  74   1              while(1)
+  75   1              {       
+  76   2                      /**********************设置状态*****************************/
+  77   2                  if(ISSETTING == 0)                                                  
+  78   2                      {
+  79   3                      if(TIMER3STOP)
+  80   3                              {
+  81   4                                      DisableTimer3();
+  82   4                                      //Display_String(4,FUCKSTOP);
+  83   4                              }
+  84   3      
+  85   3                              if(DHT11ISREADY)
+  86   3                              {
+  87   4                                      DisplayDHT11();                         //读取温度湿度传感器值
+  88   4                                      DHT11ISREADY = 0;
+  89   4                              }
+  90   3                              else if(ULTRAISREADY)
+  91   3                              {
+  92   4                                      UltraSoundDisplay();                    //超声波
+  93   4                                      ULTRAISREADY = 0;
+  94   4                                      if(FASTSPEED)
+  95   4                                      {
+  96   5                                          TIMER3STOP = 0;
+  97   5                                              EnableTimer3();
+  98   5                                              //Display_String(4,FUCKSTART);
+  99   5                                      }
+ 100   4                              }
+ 101   3                              else ;
+ 102   3                              }
+ 103   2                      /*********************************设置状态*****************************/
+ 104   2                      else
+ 105   2                      {
+ 106   3                              EnterSetting();                                                          //这里设置成死循环!
+ 107   3                      }
+ 108   2              }
+ 109   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    102    ----
+   CODE SIZE        =    173    ----
    CONSTANT SIZE    =     12    ----
    XDATA SIZE       =   ----    ----
-   PDATA SIZE       =      2    ----
+   PDATA SIZE       =     14    ----
+C51 COMPILER V9.00   MAIN                                                                  05/25/2016 09:30:46 PAGE 3   
+
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----

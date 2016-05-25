@@ -3,6 +3,9 @@
 
 void Timer0Init();
 void Timer1Init();
+
+void EnableTimer0();
+void DisableTimer0();
 void EnableTimer1();
 void DisableTimer1();
 void Timer3Init();

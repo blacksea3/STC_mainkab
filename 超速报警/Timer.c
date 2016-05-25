@@ -1,9 +1,9 @@
 #include "stc15.h"
 //#include "Temperature.h"
-#include "UART.h"
-#include "DHT11.h"
+//#include "UART.h"
+//#include "DHT11.h"
 #include "Buzzer.h"
-#include "UltraSound.h"
+//#include "UltraSound.h"
 #include "main.h"
 
 #define TFOSC 11059200L
@@ -11,6 +11,7 @@
 
 unsigned int T0times0;     	//¶¨Ê±Æ÷0ÖĞ¶Ï´ÎÊı0
 unsigned int T0times1;     	//¶¨Ê±Æ÷0ÖĞ¶Ï´ÎÊı1
+unsigned int T0times2;      //¶¨Ê±Æ÷0ÖĞ¶Ï´ÎÊı2
 unsigned int T1times;     	//¶¨Ê±Æ÷1ÖĞ¶Ï´ÎÊı
 unsigned int T3times;     	//¶¨Ê±Æ÷3ÖĞ¶Ï´ÎÊı
 unsigned int T4times;     	//¶¨Ê±Æ÷4ÖĞ¶Ï´ÎÊı
@@ -29,34 +30,57 @@ void Timer0Init(void)		//1ºÁÃë@11.0592MHz
 	ET0 = 1;            	//Ê¹ÄÜ¶¨Ê±Æ÷0ÖĞ¶Ï
 	T0times0 = 0;
 	T0times1 = 0;
-	P25 = 1;
-	P24 = 1;
+}
+
+void EnableTimer0()
+{
+	TL0 = TIMS;									//ÉèÖÃ¶¨Ê±³õÖµ
+	TH0 = TIMS>>8;			    				//ÉèÖÃ¶¨Ê±³õÖµ
+	TR0 = 1;		        					//¶¨Ê±Æ÷0¿ªÊ¼¼ÆÊ±
+	ET0 = 1;            						//Ê¹ÄÜ¶¨Ê±Æ÷0ÖĞ¶Ï
+	T0times0 = 0;
+	T0times1 = 0;
+}
+
+void DisableTimer0()
+{
+	TR0 = 0;		        //¶¨Ê±Æ÷0Í£Ö¹¼ÆÊ±
+	ET0 = 0;            	//¹Ø±Õ¶¨Ê±Æ÷0ÖĞ¶Ï	
 }
 
 //Timer0ÖĞ¶Ïº¯Êı
-void Timer0_ISR() interrupt 1      			    //ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµÄÖĞ¶ÏÀïÖ±½Ó·¢Êı¾İ
+void Timer0_ISR() interrupt 1      			    
 {
     //EA = 0;
-	if(T0times0<2000)
+	if(T0times0<2000)						   	//2s¼ä¸ô DHT11
 	{
 	    T0times0++;
 	}
 	else
 	{
 	    T0times0=0;
-		DHT11ISREADY = 1;
-		
+		DHT11ISREADY = 1;	
 	}
-	if(T0times1<500)
+
+	if(T0times1<500)							//0.5s¼ä¸ô UltraSound
 	{
 	    T0times1++;
 	}
 	else
 	{
-	    T0times1=0;
+		T0times1=0;
 		ULTRAISREADY = 1;
-		
 	}
+
+	/*if(T0times2<1000)							//1s¼ä¸ô DS1302
+	{
+	    T0times2++;
+	}
+	else
+	{
+	    T0times2=0;
+		DS1302ISREADY = 1;
+	}*/
 	
 	//EA = 1;
 }
@@ -110,8 +134,6 @@ void Timer3Init(void)		//1ºÁÃë@11.0592MHz
 {
 	T4T3M &= 0xfb;		    //¶¨Ê±Æ÷3ÄÚ²¿ÏµÍ³Ê±ÖÓ
 	T4T3M |= 0x02;          //¶¨Ê±Æ÷3 1TÄ£Ê½
-	T3L = TIMS;				//ÉèÖÃ¶¨Ê±³õÖµ
-	T3H = TIMS>>8;			//ÉèÖÃ¶¨Ê±³õÖµ
 	T4T3M &= 0xf7;		    //¶¨Ê±Æ÷3Í£Ö¹¼ÆÊ±
 	IE2 &= 0xdf;            //¹Ø±Õ¶¨Ê±Æ÷3ÖĞ¶Ï
 }
@@ -120,8 +142,10 @@ void EnableTimer3()
 {
 	T4T3M |= 0x08;		    //¶¨Ê±Æ÷3¿ªÊ¼¼ÆÊ±
 	IE2 |= 0x20;            //¿ªÆô¶¨Ê±Æ÷3ÖĞ¶Ï
+	T3L = TIMS;				//ÉèÖÃ¶¨Ê±³õÖµ
+	T3H = TIMS>>8;			//ÉèÖÃ¶¨Ê±³õÖµ
 	T3times = 0;
-	T3TimesValue = 0;
+	T3TimesValue = 400;
 }
 
 void DisableTimer3()
@@ -131,19 +155,22 @@ void DisableTimer3()
 }
 
 //Timer3ÖĞ¶Ïº¯Êı
-void Timer3_ISR() interrupt 19 using 2			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµÄÖĞ¶ÏÀïÖ±½Ó·¢Êı¾İ
+void Timer3_ISR() interrupt 19       			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµÄÖĞ¶ÏÀïÖ±½Ó·¢Êı¾İ
 {
-    //EA = 0;
+    EA = 0;
 	if(T3times<T3TimesValue)
 	{	
+	    Buzzer();								//·äÃùÆ÷
 		T3times++;
 	}
 	else
 	{
-		Buzzer();								//·äÃùÆ÷
+	    P55 = 0;
+	    FASTSPEED = 0;						
+	    TIMER3STOP = 1;
 		T3times=0;
 	}
-	//EA = 1;
+	EA = 1;
 }
 
 //¿É±ä¶¨Ê±Æ÷Timer4
@@ -155,7 +182,6 @@ void Timer4Init(void)		//1ºÁÃë@11.0592MHz
 	T4H = TIMS>>8;			//ÉèÖÃ¶¨Ê±³õÖµ
 	T4T3M &= 0x7f;		    //¶¨Ê±Æ÷4Í£Ö¹¼ÆÊ±
 	IE2 &= 0xbf;            //¹Ø±Õ¶¨Ê±Æ÷4ÖĞ¶Ï
-	P25 = 0;
 }
 
 void EnableTimer4()
@@ -182,7 +208,6 @@ void Timer4_ISR() interrupt 20       			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµ
 	else
 	{
 		T4times=0;
-		P25=!P25;
 		//SendString("ABCDE");
 		//ReadTemperature();                    //¶ÁÈ¡ÎÂ¶ÈÊª¶È´«¸ĞÆ÷Öµ
 		//ReadAir();                            //¶ÁÈ¡¿ÕÆø´«¸ĞÆ÷Öµ

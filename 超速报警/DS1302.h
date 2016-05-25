@@ -1,0 +1,1 @@
+void DS1302Init(unsigned char *);

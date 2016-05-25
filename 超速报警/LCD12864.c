@@ -69,22 +69,93 @@ if((LCMdata&Busy)==0)   break;
 } 
 }
 
+void LCD12864DisplayChar(unsigned char line, unsigned char column, unsigned char Str)
+{	
+	switch(line)
+	{
+		case 1:
+		{   
+			Wr_Command(0x80 + column -1 ,1);
+			break;  
+		}
+		case 2:
+		{
+			Wr_Command(0x90 + column -1 ,1);
+			break;
+		}
+		case 3:
+		{
+			Wr_Command(0x88 + column -1 ,1);
+			break;  
+		}
+		case 4:
+		{
+			Wr_Command(0x98 + column -1 ,1);
+			break;
+		}
+		default:
+		{
+			;
+		}	
+	}
+	
+	Wr_Data(Str);
+}
+
+void LCD12864SettingInit()
+{
+    unsigned char VeloCitySettingFull[] = {"v 上限0 . 0 m/s "};				  //由于不知怎么按行列操作故每次都刷新整行
+
+   	//unsigned char VeloCityFullSetting[] = {"速度上限：0.0m/s"};
+
+	Wr_Command(0x30,0);  
+	Delay5Ms();  
+	Wr_Command(0x30,0); //2 次显示模式设置，不用判忙  
+	Delay5Ms();
+	Wr_Command(0x0d,1);	//整体显示ON 游标ON 游标位置OFF
+	Delay5Ms();	  
+	//Wr_Command(0x0C,1); //开显示及光标设置  			  
+	//Delay5Ms(); 
+	Wr_Command(0x01,1); //显示清屏  
+	Delay5Ms();  
+	Delay5Ms();  
+	Wr_Command(0x06,1); //显示光标移动设置  
+	Delay5Ms();
+	Display_String(1,VeloCitySettingFull);
+	LCD12864DisplayChar(1,4,0+48);	
+}
+
+void LCD12864SettingExit()
+{
+	Wr_Command(0x30,0);  
+	Delay5Ms();  
+	Wr_Command(0x30,0); //2 次显示模式设置，不用判忙  
+	Delay5Ms();  
+	Wr_Command(0x0C,1); //整体显示ON 游标OFF 游标位置OFF   			  
+	Delay5Ms(); 
+	Wr_Command(0x01,1); //显示清屏  
+	Delay5Ms();  
+	Delay5Ms();  
+	Wr_Command(0x06,1); //显示光标移动设置  
+	Delay5Ms();	
+}
+
 void Lcm_Init(void) 
 {  
-Delay5Ms();     
-REST=1;     
-REST=0;     
-REST=1;   
-Wr_Command(0x30,0);  
-Delay5Ms();  
-Wr_Command(0x30,0); //2 次显示模式设置，不用判忙  
-Delay5Ms();  
-Wr_Command(0x0C,1); //开显示及光标设置  
-Delay5Ms(); 
-Wr_Command(0x01,1); //显示清屏  
-Delay5Ms();  
-Delay5Ms();  
-Wr_Command(0x06,1); //显示光标移动设置  
-Delay5Ms(); 
+	Delay5Ms();     
+	REST=1;     
+	REST=0;     
+	REST=1;   
+	Wr_Command(0x30,0);  
+	Delay5Ms();  
+	Wr_Command(0x30,0); //2 次显示模式设置，不用判忙  
+	Delay5Ms();  
+	Wr_Command(0x0C,1); //整体显示ON 游标OFF 游标位置OFF  			  
+	Delay5Ms(); 
+	Wr_Command(0x01,1); //显示清屏  
+	Delay5Ms();  
+	Delay5Ms();  
+	Wr_Command(0x06,1); //显示光标移动设置  
+	Delay5Ms(); 
 }
 
