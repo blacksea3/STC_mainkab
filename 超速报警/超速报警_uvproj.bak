@@ -406,6 +406,11 @@
               <FileType>1</FileType>
               <FilePath>.\Button.c</FilePath>
             </File>
+            <File>
+              <FileName>FLASH.C</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\FLASH.C</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

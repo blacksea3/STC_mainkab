@@ -127,22 +127,27 @@ void ReadDHT11(void)
  */
 void DisplayDHT11()
 {
-	unsigned char HumidityData[] = {"湿度：  %"};
-	unsigned char TemperatureData[] = {"温度：  °C"};
+	unsigned char HumidityAndTemperatureData[] = {"湿度00% 温度00度"};
+	//unsigned char TemperatureData[] = {""};
 	
 	ReadDHT11();
 	//SendString(StrHello);
     
-	HumidityData[6]=TempearatureH%100/10+48;
-	HumidityData[7]=TempearatureH%10+48;								
-    Display_String(2,HumidityData);
+	//HumidityData[6]=TempearatureH%100/10+48;
+	//HumidityData[7]=TempearatureH%10+48;								
+    //Display_String(2,HumidityData);
 
 	//SendData(TempearatureL);	  //正常为00
 
-	TemperatureData[6]=HumidityH%100/10+48;
-	TemperatureData[7]=HumidityH%10+48;
-	Display_String(3,TemperatureData);
+	//TemperatureData[6]=HumidityH%100/10+48;
+	//TemperatureData[7]=HumidityH%10+48;
+	//Display_String(3,TemperatureData);
 
 	//SendData(HumidityL);		  //正常为00
     //SendData(CHECK);			  //校验位	
+    HumidityAndTemperatureData[4] = TempearatureH%100/10+48;
+	HumidityAndTemperatureData[5] = TempearatureH%10+48;
+    HumidityAndTemperatureData[12] = HumidityH%100/10+48;
+	HumidityAndTemperatureData[13] = HumidityH%10+48;
+	Display_String(2,HumidityAndTemperatureData);
 }

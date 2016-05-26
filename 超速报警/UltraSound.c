@@ -65,11 +65,11 @@ void UltraSoundDisplay()
 	//unsigned char bat2[8]={0,0,0,0,0,0};
 	//unsigned char bat3[10]={'+',0,'.',0,0,0,'m','/','s','\0'};
 	  
-	unsigned char VelocityData[] = {"速度为000000000"};			//字符串初始化
+	unsigned char VelocityData[] = {"速度为000000000 "};			//字符串初始化
 	unsigned long Dis1,Dis2,DDis;								//临时变量
 	unsigned char i;											//临时变量
 
-	unsigned char TempVelocityThreshold;						//速度阈值
+	unsigned int TempVelocityThreshold;						//速度阈值
 
     TempVelocityThreshold = GetVelocityThreshold();				//获取当前速度阈值
 
@@ -112,23 +112,29 @@ void UltraSoundDisplay()
 		}
 		DDis*=4;											//单位mm  时间差是250ms,要乘1000ms/250ms=4
         DDis*=3.6;											//转为km/h,取整即可
-		//VelocityData[7]=DDis%100000/10000 + 48;
-		VelocityData[7]=DDis%10000/1000 + 48;
-		VelocityData[8]=(unsigned char)('.');
-		VelocityData[9]=DDis%1000/100 + 48;						
-		VelocityData[10]=DDis%100/10 + 48;
+		VelocityData[7]=DDis%100000/10000 + 48;
+		VelocityData[8]=DDis%10000/1000 + 48;
+		VelocityData[9]=(unsigned char)('.');
+		VelocityData[10]=DDis%1000/100 + 48;						
+		VelocityData[11]=DDis%100/10 + 48;
 		//VelocityData[10]=DDis%10 + 48;
-		VelocityData[11]=(unsigned char)('k');							 
-		VelocityData[12]=(unsigned char)('m');
-		VelocityData[13]=(unsigned char)('/');
-		VelocityData[14]=(unsigned char)('h');
-		VelocityData[15]='\0';
+		VelocityData[12]=(unsigned char)('k');							 
+		VelocityData[13]=(unsigned char)('m');
+		VelocityData[14]=(unsigned char)('/');
+		VelocityData[15]=(unsigned char)('h');
+		VelocityData[16]='\0';
 
 		Display_String(1,VelocityData);
-		if(DDis > TempVelocityThreshold)					 //超过速度阈值,单位m/h,1000mm/s=1m/s=3.6km/h
-		{
+
+		if((unsigned int)DDis > TempVelocityThreshold)					 //超过速度阈值,单位m/h,1000mm/s=1m/s=3.6km/h
+		{	 
 			FASTSPEED = 1;
-			//P20 = !P20;                                      
+			P20 = !P20;
+			//Display_String(1,VelocityData);
+			//LCD12864DisplayChar(2,6,DDis%100000/10000 + 48);
+			//LCD12864DisplayChar(2,7,DDis%10000/1000 + 48);
+			//LCD12864DisplayChar(2,8,DDis%1000/100 + 48);
+			//LCD12864DisplayChar(3,7,TempVelocityThreshold%1000/100 + 48);                                      
 		}
 	}	
 }
