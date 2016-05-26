@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   DS1302                                                                05/23/2016 20:22:32 PAGE 1   
+C51 COMPILER V9.00   DS1302                                                                05/26/2016 17:37:52 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE DS1302
@@ -22,11 +22,11 @@ line level    source
   12          #include "stc15.h" 
   13          #include "LCD12864.h"
   14          
-  15          #include <intrins.h> 
+  15          #include "DS1302.h"
   16          
-  17          sbit SCK = P2^7;                   // 时钟      
-  18          sbit SDA = P4^5;                   // 数据      
-  19          sbit RST = P4^6;               // DS1302复位(片选)
+  17          #include <intrins.h> 
+  18                  
+  19          
   20          #define DS1302_W_ADDR 0x80         // 写起始地址
   21          #define DS1302_R_ADDR 0x81         // 读起始地址
   22          
@@ -62,7 +62,7 @@ line level    source
   52          void clear_ds1302_WP(void) 
   53          {
   54   1              RST = 0;           // RST引脚既是CE引脚
-C51 COMPILER V9.00   DS1302                                                                05/23/2016 20:22:32 PAGE 2   
+C51 COMPILER V9.00   DS1302                                                                05/26/2016 17:37:52 PAGE 2   
 
   55   1              SCK = 0;
   56   1              RST = 1;
@@ -81,7 +81,7 @@ line level    source
   69   1              write_ds1302_byte(0x80);
   70   1              SDA = 0;
   71   1              RST = 0;
-  72   1      } 
+  72   1      }
   73          
   74          // 连续写入8个寄存器数据，dat-待写入数据指针  
   75          void write_ds1302_nbyte(unsigned char *dat)
@@ -126,95 +126,98 @@ line level    source
  114   1              return dat;
  115   1      } 
  116          
-C51 COMPILER V9.00   DS1302                                                                05/23/2016 20:22:32 PAGE 3   
+C51 COMPILER V9.00   DS1302                                                                05/26/2016 17:37:52 PAGE 3   
 
  117          // 单字节压缩BCD码转换成ASCII码另一常见格式示例，dat/16 + 0x30，
  118          // dat/16本质就是右移4位，数字0--9加上0x30即得数字0--9的ASCII码
  119          void LCD12864_Send_TIME(unsigned char *tmp)
  120          {
  121   1              unsigned char str[19];           // 字符串转换缓冲区
- 122   1              str[0] = '2';                    // 添加年份的高2位：20
- 123   1          str[1] = '0';
- 124   1          str[2] = (tmp[6] >> 4) + '0';    //“年”高位数字转换为ASCII码
- 125   1          str[3] = (tmp[6]&0x0F) + '0';    //“年”低位数字转换为ASCII码
- 126   1          str[4] = '-';  //添加日期分隔符
- 127   1          str[5] = (tmp[4] >> 4) + '0';    //“月”
- 128   1          str[6] = (tmp[4]&0x0F) + '0';
- 129   1          str[7] = '-';
- 130   1          str[8] = (tmp[3] >> 4) + '0';    //“日”
- 131   1          str[9] = (tmp[3]&0x0F) + '0';
- 132   1          //str[10] = '\0';                                    // 字符串结束符
- 133   1              //UART_Send_Str(str);                            // 输出  年、月、日
- 134   1              //UART_Send_Str("   ");
- 135   1        
- 136   1          str[10] = (tmp[2] >> 4) + '0';    //“时”
- 137   1          str[11] = (tmp[2]&0x0F) + '0';
- 138   1          str[12] = ':';  //添加时间分隔符
- 139   1          str[13] = (tmp[1] >> 4) + '0';    //“分”
- 140   1          str[14] = (tmp[1]&0x0F) + '0';
- 141   1          str[15] = ':';
- 142   1          str[16] = (tmp[0] >> 4) + '0';    //“秒”
- 143   1          str[17] = (tmp[0]&0x0F) + '0';
- 144   1          str[18] = '\0';
- 145   1              Display_String(4,str);                    //LCD12864输出
- 146   1      
- 147   1          //UART_Send_Str(str);                // 输出  时、分、秒         
- 148   1              //UART_Send_Str("   ");   
- 149   1              
- 150   1              /*UART_Send_Str("week = "); 
- 151   1              str[0] = (tmp[5]&0x0F) + '0';    //“星期”
- 152   1          str[1] = '\0'; 
- 153   1              UART_Send_Str(str);                      // 输出  星期  
- 154   1              UART_Send_Str("   ");*/ 
- 155   1      }
- 156          
- 157          // 连续读取8个寄存器的数据//dat-读取数据的接收指针  
- 158          void read_time()
- 159          {
- 160   1          unsigned char i;
- 161   1              unsigned char TempData[8] = {0,0,0,0,0,0,0,0};
- 162   1              //unsigned char TimeData[8] = {0,0,0,0,0,0,0,0};  
- 163   1              RST=0;
- 164   1              SCK=0;
- 165   1          RST = 1;
- 166   1          write_ds1302_byte(0xBF);  //发送突发读寄存器指令
- 167   1          for (i=0; i<8; i++)     //连续读取8个字节
- 168   1          {
- 169   2              TempData[i] = read_ds1302_byte();
- 170   2          }
- 171   1          RST = 0;
- 172   1              LCD12864_Send_TIME(TempData);
- 173   1      } 
- 174           
- 175          void delay_1S(void)
- 176          {
- 177   1         unsigned char i,j,k;
- 178   1         for(i=85;i>0;i--)      // 注意后面没分号
-C51 COMPILER V9.00   DS1302                                                                05/23/2016 20:22:32 PAGE 4   
+ 122   1              unsigned char *nowstrloc;
+ 123   1              nowstrloc = &str[2];
+ 124   1              //str[0] = '2';                    // 添加年份的高2位：20
+ 125   1          //str[1] = '0';
+ 126   1          str[2] = (tmp[6] >> 4) + '0';    //“年”高位数字转换为ASCII码
+ 127   1          str[3] = (tmp[6]&0x0F) + '0';    //“年”低位数字转换为ASCII码
+ 128   1          str[4] = '-';  //添加日期分隔符
+ 129   1          str[5] = (tmp[4] >> 4) + '0';    //“月”
+ 130   1          str[6] = (tmp[4]&0x0F) + '0';
+ 131   1          str[7] = '-';
+ 132   1          str[8] = (tmp[3] >> 4) + '0';    //“日”
+ 133   1          str[9] = (tmp[3]&0x0F) + '0';
+ 134   1          //str[10] = '\0';                                    // 字符串结束符
+ 135   1              //UART_Send_Str(str);                            // 输出  年、月、日
+ 136   1              //UART_Send_Str("   ");
+ 137   1        
+ 138   1          str[10] = (tmp[2] >> 4) + '0';    //“时”
+ 139   1          str[11] = (tmp[2]&0x0F) + '0';
+ 140   1          str[12] = ':';  //添加时间分隔符
+ 141   1          str[13] = (tmp[1] >> 4) + '0';    //“分”
+ 142   1          str[14] = (tmp[1]&0x0F) + '0';
+ 143   1          str[15] = ':';
+ 144   1              //str[15] = '\0';
+ 145   1          str[16] = (tmp[0] >> 4) + '0';    //“秒”
+ 146   1          str[17] = (tmp[0]&0x0F) + '0';
+ 147   1          str[18] = '\0';
+ 148   1              Display_String(4,nowstrloc);                      //LCD12864输出
+ 149   1      
+ 150   1          //UART_Send_Str(str);                // 输出  时、分、秒         
+ 151   1              //UART_Send_Str("   ");   
+ 152   1              
+ 153   1              /*UART_Send_Str("week = "); 
+ 154   1              str[0] = (tmp[5]&0x0F) + '0';    //“星期”
+ 155   1          str[1] = '\0'; 
+ 156   1              UART_Send_Str(str);                      // 输出  星期  
+ 157   1              UART_Send_Str("   ");*/ 
+ 158   1      }
+ 159          
+ 160          // 连续读取8个寄存器的数据//dat-读取数据的接收指针  
+ 161          void DS3231read_time()
+ 162          {
+ 163   1          unsigned char i;
+ 164   1              unsigned char TempData[8] = {0,0,0,0,0,0,0,0};
+ 165   1              //unsigned char TimeData[8] = {0,0,0,0,0,0,0,0};  
+ 166   1              RST=0;
+ 167   1              SCK=0;
+ 168   1          RST = 1;
+ 169   1          write_ds1302_byte(0xBF);  //发送突发读寄存器指令
+ 170   1          for (i=0; i<8; i++)     //连续读取8个字节
+ 171   1          {
+ 172   2              TempData[i] = read_ds1302_byte();
+ 173   2          }
+ 174   1          RST = 0;
+ 175   1              LCD12864_Send_TIME(TempData);
+ 176   1      } 
+ 177           
+ 178          void delay_1S(void)
+C51 COMPILER V9.00   DS1302                                                                05/26/2016 17:37:52 PAGE 4   
 
- 179   1         for(j=254;j>0;j--)     // 注意后面没分号
- 180   1         for(k=255;k>0;k--);    // 注意后面有分号
- 181   1      }
- 182          
- 183          /*
- 184           * DS1302初始化
- 185           * 参数:时间数组StartTime[7]=   {14,11,30,23,50,59,7} 
- 186           */
- 187          void DS1302Init(unsigned char StartTime[7])    
- 188          {
- 189   1              //unsigned char StartTime[7]=   {14,11,30,23,50,59,7};  // 年月日时分秒周 14-11-30 23:50:59
- 190   1              unsigned char time[8];                                                                  // 秒分时日月周年  
- 191   1              Data_Swap(StartTime,time);                                                      // 数据交换
- 192   1              set_time(time);                                                                         // 设定初始时间值 ,数组名就代表数组首地址               
- 193   1              //read_time();                                                                  // 秒分时日月周年       
- 194   1      }
+ 179          {
+ 180   1         unsigned char i,j,k;
+ 181   1         for(i=85;i>0;i--)      // 注意后面没分号
+ 182   1         for(j=254;j>0;j--)     // 注意后面没分号
+ 183   1         for(k=255;k>0;k--);    // 注意后面有分号
+ 184   1      }
+ 185          
+ 186          /*
+ 187           * DS1302初始化
+ 188           * 参数:时间数组StartTime[7]=   {14,11,30,23,50,59,7} 
+ 189           */
+ 190          void DS1302Init(unsigned char StartTime[7])    
+ 191          {
+ 192   1              //unsigned char StartTime[7]=   {14,11,30,23,50,59,7};  // 年月日时分秒周 14-11-30 23:50:59
+ 193   1              unsigned char time[8];                                                                  // 秒分时日月周年  
+ 194   1              Data_Swap(StartTime,time);                                                      // 数据交换
+ 195   1              set_time(time);                                                                         // 设定初始时间值 ,数组名就代表数组首地址               
+ 196   1              //read_time();                                                                      // 秒分时日月周年   
+ 197   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    741    ----
+   CODE SIZE        =    768    ----
    CONSTANT SIZE    =      8    ----
    XDATA SIZE       =   ----    ----
-   PDATA SIZE       =   ----      47
+   PDATA SIZE       =   ----      53
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----

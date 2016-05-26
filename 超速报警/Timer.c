@@ -16,7 +16,6 @@ unsigned int T1times;     	//¶¨Ê±Æ÷1ÖÐ¶Ï´ÎÊý
 unsigned int T3times;     	//¶¨Ê±Æ÷3ÖÐ¶Ï´ÎÊý
 unsigned int T4times;     	//¶¨Ê±Æ÷4ÖÐ¶Ï´ÎÊý
 unsigned int T3TimesValue;	//¶¨Ê±Æ÷3ÖÐ¶ÏãÐÖµ
-//sbit P20 = P2^0;
 
 //¹Ì¶¨¶¨Ê±Æ÷Timer0
 void Timer0Init(void)		//1ºÁÃë@11.0592MHz
@@ -72,15 +71,15 @@ void Timer0_ISR() interrupt 1
 		ULTRAISREADY = 1;
 	}
 
-	/*if(T0times2<1000)							//1s¼ä¸ô DS1302
+	if(T0times2<1000)							//1s¼ä¸ô DS3231
 	{
 	    T0times2++;
 	}
 	else
 	{
 	    T0times2=0;
-		DS1302ISREADY = 1;
-	}*/
+		DS3231ISREADY = 1;
+	}
 	
 	//EA = 1;
 }
@@ -167,7 +166,7 @@ void Timer3_ISR() interrupt 19       			//ÓÉÓÚ·¢ËÍÊý¾ÝÊ¹ÓÃ´®¿ÚÖÐ¶Ï,¾¡Á¿±ÜÃâÔÚ±ðµ
 	{
 	    P55 = 0;
 	    FASTSPEED = 0;						
-	    TIMER3STOP = 1;
+	    BUZZERTIMER3STOP = 1;
 		T3times=0;
 	}
 	EA = 1;

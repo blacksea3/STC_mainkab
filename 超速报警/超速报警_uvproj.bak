@@ -401,6 +401,11 @@
               <FileType>1</FileType>
               <FilePath>.\DS1302.C</FilePath>
             </File>
+            <File>
+              <FileName>Button.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Button.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

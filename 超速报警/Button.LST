@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   BUTTON                                                                05/25/2016 13:04:47 PAGE 1   
+C51 COMPILER V9.00   BUTTON                                                                05/26/2016 17:37:52 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE BUTTON
@@ -14,133 +14,166 @@ line level    source
    4          #include "main.h"
    5          #include "Timer.h"
    6          #include "Button.h"
-   7          
-   8          unsigned char code SetString[] = {"设置："};
-   9          
-  10          void INT0_Init()
-  11          {       
-  12   1              IT0=1;                                          // 设置为下降沿触发
-  13   1              EX0=1;                                          // 开外部中断0                    P3.2 INT0
-  14   1      }
-  15          void EXT0(void) interrupt 0
-  16          {
-  17   1          Delay20ms();
-  18   1              Delay20ms();
-  19   1              if(P32==0)                                                      // 仍然是按下状态
-  20   1              {
-  21   2                      if(ISSETTING==0)
-  22   2                      { 
-  23   3                          P20 = !P20;
-  24   3                              ISSETTING=1;
-  25   3                              DisableTimer0();                        // 关闭超声波 温湿度的定时器中断
-  26   3                              DisableTimer3();                        // 关闭蜂鸣器的定时器中断
-  27   3                      }
-  28   2                      else
-  29   2                      {
-  30   3                          //P26 = !P26;
-  31   3                          ISSETTING=0;
-  32   3                              EXITSETTING=1; 
-  33   3                              EnableTimer0();                         // 关闭超声波 温湿度的定时器中断
-  34   3                              EnableTimer3();                         // 关闭蜂鸣器的定时器中断                       
-  35   3                      }
-  36   2              }
-  37   1              else                                                            // 抖动
-  38   1              {
-  39   2                      ; 
-  40   2              }       
-  41   1      }
-  42          
-  43          void EnterSetting()
-  44          {
-  45   1          //unsigned char VelocityUp[] = {"速度上限：   m/s"};
-  46   1              //LCD12864ClearScreen();
-  47   1              //unsigned char Velocity1 = (unsigned char)(0 + 48);
-  48   1              //unsigned char Velocity2 = (unsigned char)(0 + 48);
-  49   1              //unsigned char VeloCitySetting1[] = {"速度上限：0."};
-  50   1              //unsigned char VeloCitySetting2[] = {"速度上限：0.0m"};
-  51   1              unsigned char Loc = 1;
-  52   1      
-  53   1              unsigned char LeftVelocityValue = 0;
-  54   1              unsigned char RightVelocityValue = 0;
-C51 COMPILER V9.00   BUTTON                                                                05/25/2016 13:04:47 PAGE 2   
+   7          #include "FLASH.h"
+   8          
+   9          unsigned char code SetString[] = {"设置："};
+  10          
+  11          void INT0_Init()
+  12          {       
+  13   1              IT0=1;                                          // 设置为下降沿触发
+  14   1              EX0=1;                                          // 开外部中断0                    P3.2 INT0
+  15   1      }
+  16          void EXT0(void) interrupt 0
+  17          {
+  18   1          Delay20ms();
+  19   1              Delay20ms();
+  20   1              if(P32==0)                                                      // 仍然是按下状态
+  21   1              {
+  22   2                      if(ISSETTING==0)
+  23   2                      { 
+  24   3                          P20 = !P20;
+  25   3                              ISSETTING=1;
+  26   3                              DisableTimer0();                        // 关闭超声波 温湿度的定时器中断
+  27   3                              DisableTimer3();                        // 关闭蜂鸣器的定时器中断
+  28   3                      }
+  29   2                      else
+  30   2                      {
+  31   3                          //P26 = !P26;
+  32   3                          ISSETTING=0;
+  33   3                              EXITSETTING=1; 
+  34   3                              EnableTimer0();                         // 关闭超声波 温湿度的定时器中断
+  35   3                              EnableTimer3();                         // 关闭蜂鸣器的定时器中断                       
+  36   3                      }
+  37   2              }
+  38   1              else                                                            // 抖动
+  39   1              {
+  40   2                      ; 
+  41   2              }       
+  42   1      }
+  43          
+  44          void EnterSetting()
+  45          {
+  46   1          unsigned char VeloCitySettingFull1[] = {"速度上限："};
+  47   1              unsigned char VeloCitySettingFull2[] = {"6 . 6 6 km/h"};
+  48   1              unsigned int TempVelocity;                                                                      //临时变量
+  49   1              unsigned char VelocityValue1 = 0;                                                                       //个位
+  50   1              unsigned char VelocityValue2 = 0;                                                                       //十分之一位
+  51   1              unsigned char VelocityValue3 = 0;                                                                       //百分之一位
+  52   1          unsigned char Loc = 1;
+  53   1              //unsigned char VelocityUp[] = {"速度上限：   m/s"};
+  54   1              //LCD12864ClearScreen();
+C51 COMPILER V9.00   BUTTON                                                                05/26/2016 17:37:52 PAGE 2   
 
-  55   1      
-  56   1          LCD12864SettingInit();
-  57   1              //Display_String(1,SetString);
-  58   1              //Display_String(2,VelocityUp);
-  59   1      
-  60   1               
-  61   1              do                                                              //矩阵键盘按键扫描
-  62   1              {
-  63   2                  KeyOut1 = 0;
-  64   2                      if(KeyIn1 == 0)                                                                         //调节左右
-  65   2                      {       
-  66   3                      Delay20ms();
-  67   3                              Delay20ms();
-  68   3                              if(KeyIn1 == 1) continue;
-  69   3                              //sbit KeyOut1 = P3^5;
-  70   3      //sbit KeyIn1  = P3^4;
-  71   3      //sbit KeyIn2  = P3^6;
-  72   3                              P20 = !P20;
-  73   3                              if(Loc == 1)                                               
-  74   3                              {
-  75   4                                      Loc = 2;
-  76   4                                      //Display_String(1,VeloCitySetting2);
-  77   4                                      LCD12864DisplayChar(1,6,RightVelocityValue + 48);
-  78   4                              }
-  79   3                              else
-  80   3                              {
-  81   4                                      Loc = 1;
-  82   4                                      LCD12864DisplayChar(1,4,LeftVelocityValue + 48);
-  83   4                                      //Display_String(1,VeloCitySetting1);                           
-  84   4                              }
-  85   3                              while(KeyIn1==0);
-  86   3                      }
-  87   2                      else                                                                            //调节值
-  88   2                      {
-  89   3                      Delay20ms();
-  90   3                              Delay20ms();
-  91   3                              if(KeyIn2 == 1) continue;
-  92   3                              if(Loc == 1)                                               
-  93   3                              {
-  94   4                                  if(LeftVelocityValue==9)
-  95   4                                      {       
-  96   5                                          LeftVelocityValue = 0;
-  97   5                                      LCD12864DisplayChar(1,4,0+48);
-  98   5                                      }
-  99   4                                      else
- 100   4                                      {
- 101   5                                              LCD12864DisplayChar(1,4,++LeftVelocityValue+48);
- 102   5                                      }
- 103   4                              }
- 104   3                              else
- 105   3                              {
- 106   4                                  if(RightVelocityValue==9)
- 107   4                                      {       
- 108   5                                          RightVelocityValue = 0;
- 109   5                                      LCD12864DisplayChar(1,6,0+48);
- 110   5                                      }
- 111   4                                      else
- 112   4                                      {
- 113   5                                              LCD12864DisplayChar(1,6,++RightVelocityValue+48);
- 114   5                                      }                               
- 115   4                              }
- 116   3                              while(KeyIn2==0);                       
-C51 COMPILER V9.00   BUTTON                                                                05/25/2016 13:04:47 PAGE 3   
+  55   1              //unsigned char Velocity1 = (unsigned char)(0 + 48);
+  56   1              //unsigned char Velocity2 = (unsigned char)(0 + 48);
+  57   1              //unsigned char VeloCitySetting1[] = {"速度上限：0."};
+  58   1              //unsigned char VeloCitySetting2[] = {"速度上限：0.0m"};
+  59   1              
+  60   1          LCD12864SettingInit();
+  61   1              //Display_String(1,SetString);
+  62   1              //Display_String(2,VelocityUp);
+  63   1              Display_String(1,VeloCitySettingFull1);
+  64   1              Display_String(2,VeloCitySettingFull2);
+  65   1      
+  66   1          TempVelocity = GetVelocityThreshold();
+  67   1              //SendData(VelocityValue1);
+  68   1              //SendData(VelocityValue1);
+  69   1              //SendData(VelocityValue1);
+  70   1              VelocityValue1 = TempVelocity%10000/1000;
+  71   1              VelocityValue2 = TempVelocity%1000/100;
+  72   1              VelocityValue3 = TempVelocity%100/10;  
+  73   1              
+  74   1              //LCD12864DisplayChar(2,2,'.');
+  75   1              LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+  76   1              LCD12864DisplayChar(2,4,VelocityValue3 + 48);
+  77   1              LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+  78   1               
+  79   1              do                                                                              //矩阵键盘按键扫描
+  80   1              {
+  81   2                  KeyOut1 = 0;
+  82   2                      if(KeyIn1 == 0)                                                                                         //调节左右
+  83   2                      {       
+  84   3                      Delay20ms();
+  85   3                              Delay20ms();
+  86   3                              if(KeyIn1 == 1) continue;
+  87   3                              //P20 = !P20;
+  88   3                              if(Loc == 1)                                               
+  89   3                              {
+  90   4                                      Loc = 2;
+  91   4                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+  92   4                              }
+  93   3                              else if(Loc == 2)
+  94   3                              {
+  95   4                                      Loc = 3;
+  96   4                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);                           
+  97   4                              }
+  98   3                              else
+  99   3                              {
+ 100   4                                      Loc = 1;
+ 101   4                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+ 102   4                              }
+ 103   3                              while(KeyIn1==0);
+ 104   3                      }
+ 105   2                      else                                                                            //调节值
+ 106   2                      {
+ 107   3                      Delay20ms();
+ 108   3                              Delay20ms();
+ 109   3                              if(KeyIn2 == 1) continue;
+ 110   3                              if(Loc == 1)                                               
+ 111   3                              {
+ 112   4                                  if(VelocityValue1==9)
+ 113   4                                      {       
+ 114   5                                          VelocityValue1 = 0;
+ 115   5                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+ 116   5                                      }
+C51 COMPILER V9.00   BUTTON                                                                05/26/2016 17:37:52 PAGE 3   
 
- 117   3                      }
- 118   2              }       
- 119   1              while(EXITSETTING == 0);                                                //当没有退出循环时在里面
- 120   1              LCD12864SettingExit();
- 121   1              EXITSETTING = 0;
- 122   1      }
+ 117   4                                      else
+ 118   4                                      {
+ 119   5                                              LCD12864DisplayChar(2,1,++VelocityValue1 + 48);
+ 120   5                                      }
+ 121   4                              }
+ 122   3                              else if(Loc == 2)
+ 123   3                              {
+ 124   4                                  if(VelocityValue2==9)
+ 125   4                                      {       
+ 126   5                                          VelocityValue2 = 0;
+ 127   5                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+ 128   5                                      }
+ 129   4                                      else
+ 130   4                                      {
+ 131   5                                              LCD12864DisplayChar(2,3,++VelocityValue2 + 48);
+ 132   5                                      }                               
+ 133   4                              }
+ 134   3                              else
+ 135   3                              {
+ 136   4                                  if(VelocityValue3==9)
+ 137   4                                      {       
+ 138   5                                          VelocityValue3 = 0;
+ 139   5                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);
+ 140   5                                      }
+ 141   4                                      else
+ 142   4                                      {
+ 143   5                                              LCD12864DisplayChar(2,4,++VelocityValue3 + 48);
+ 144   5                                      }                                                                                  
+ 145   4                              }
+ 146   3                              while(KeyIn2==0);                       
+ 147   3                      }
+ 148   2              }       
+ 149   1              while(EXITSETTING == 0);                                                //当没有退出循环时在里面
+ 150   1              
+ 151   1              TempVelocity = 1000*VelocityValue1 + 100*VelocityValue2 + 10*VelocityValue3;    //计算速度阈值
+ 152   1              SetVelocityThreshold(TempVelocity,0);           //保存速度阈值
+ 153   1              LCD12864SettingExit();
+ 154   1              EXITSETTING = 0;
+ 155   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    256    ----
-   CONSTANT SIZE    =      7    ----
+   CODE SIZE        =    553    ----
+   CONSTANT SIZE    =     31    ----
    XDATA SIZE       =   ----    ----
-   PDATA SIZE       =   ----       3
+   PDATA SIZE       =   ----      30
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----

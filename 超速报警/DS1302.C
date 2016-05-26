@@ -12,11 +12,11 @@
 #include "stc15.h" 
 #include "LCD12864.h"
 
-#include <intrins.h> 
+#include "DS1302.h"
 
-sbit SCK = P2^7;	           // 时钟	
-sbit SDA = P4^5;   	           // 数据	
-sbit RST = P4^6;               // DS1302复位(片选)
+#include <intrins.h> 
+	
+
 #define DS1302_W_ADDR 0x80	   // 写起始地址
 #define DS1302_R_ADDR 0x81 	   // 读起始地址
 
@@ -69,7 +69,7 @@ void set_ds1302_WP(void)
 	write_ds1302_byte(0x80);
 	SDA = 0;
 	RST = 0;
-} 
+}
 
 // 连续写入8个寄存器数据，dat-待写入数据指针  
 void write_ds1302_nbyte(unsigned char *dat)
@@ -119,8 +119,10 @@ unsigned char read_ds1302_byte(void)
 void LCD12864_Send_TIME(unsigned char *tmp)
 {
 	unsigned char str[19];           // 字符串转换缓冲区
-	str[0] = '2';                    // 添加年份的高2位：20
-    str[1] = '0';
+	unsigned char *nowstrloc;
+	nowstrloc = &str[2];
+	//str[0] = '2';                    // 添加年份的高2位：20
+    //str[1] = '0';
     str[2] = (tmp[6] >> 4) + '0';    //“年”高位数字转换为ASCII码
     str[3] = (tmp[6]&0x0F) + '0';    //“年”低位数字转换为ASCII码
     str[4] = '-';  //添加日期分隔符
@@ -139,10 +141,11 @@ void LCD12864_Send_TIME(unsigned char *tmp)
     str[13] = (tmp[1] >> 4) + '0';    //“分”
     str[14] = (tmp[1]&0x0F) + '0';
     str[15] = ':';
+	//str[15] = '\0';
     str[16] = (tmp[0] >> 4) + '0';    //“秒”
     str[17] = (tmp[0]&0x0F) + '0';
     str[18] = '\0';
-	Display_String(4,str);			  //LCD12864输出
+	Display_String(4,nowstrloc);			  //LCD12864输出
 
     //UART_Send_Str(str);  	         // 输出  时、分、秒         
 	//UART_Send_Str("   ");   
@@ -155,7 +158,7 @@ void LCD12864_Send_TIME(unsigned char *tmp)
 }
 
 // 连续读取8个寄存器的数据//dat-读取数据的接收指针  
-void read_time()
+void DS3231read_time()
 {
     unsigned char i;
 	unsigned char TempData[8] = {0,0,0,0,0,0,0,0};
@@ -190,5 +193,5 @@ void DS1302Init(unsigned char StartTime[7])
 	unsigned char time[8];  								// 秒分时日月周年  
 	Data_Swap(StartTime,time);        						// 数据交换
  	set_time(time);     									// 设定初始时间值 ,数组名就代表数组首地址		
-	//read_time();          							// 秒分时日月周年	
+	//read_time();          							    // 秒分时日月周年	
 }

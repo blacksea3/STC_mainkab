@@ -104,8 +104,6 @@ void LCD12864DisplayChar(unsigned char line, unsigned char column, unsigned char
 
 void LCD12864SettingInit()
 {
-    unsigned char VeloCitySettingFull[] = {"v 上限0 . 0 m/s "};				  //由于不知怎么按行列操作故每次都刷新整行
-
    	//unsigned char VeloCityFullSetting[] = {"速度上限：0.0m/s"};
 
 	Wr_Command(0x30,0);  
@@ -121,8 +119,7 @@ void LCD12864SettingInit()
 	Delay5Ms();  
 	Wr_Command(0x06,1); //显示光标移动设置  
 	Delay5Ms();
-	Display_String(1,VeloCitySettingFull);
-	LCD12864DisplayChar(1,4,0+48);	
+	
 }
 
 void LCD12864SettingExit()

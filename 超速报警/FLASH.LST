@@ -1,0 +1,194 @@
+C51 COMPILER V9.00   FLASH                                                                 05/26/2016 17:40:58 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE FLASH
+OBJECT MODULE PLACED IN FLASH.OBJ
+COMPILER INVOKED BY: E:\software\DevelopmentSoftware\InstallSrc\KeilC51\C51\BIN\C51.EXE FLASH.C COMPACT BROWSE DEBUG OBJ
+                    -ECTEXTEND
+
+line level    source
+
+   1          /****************¡¶51µ¥Æ¬»úÇáËÉÈëÃÅ-»ùÓÚSTC15W4KÏµÁĞ¡·ÅäÌ×Àı³Ì *************
+   2           ¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï
+   3           ¡¶51µ¥Æ¬»úÇáËÉÈëÃÅ-»ùÓÚSTC15W4KÏµÁĞ¡· Ò»ÊéÒÑ¾­ÓÉ±±º½³ö°æÉçÕıÊ½³ö°æ·¢ĞĞ¡£
+   4            ×÷ÕßÇ×ÊÖ´´×÷µÄÓë½Ì²ÄÅäÌ×µÄ51Ë«ºËÊµÑé°å(2¸öMCU)¶Ô³ÌĞòÏÂÔØ¡¢µ÷ÊÔ¡¢·ÂÕæ·½±ã£¬²»ĞèÒªÍâ²¿
+   5            ·ÂÕæÆ÷Óë±à³ÌÆ÷£¬ÕâÖÖÉè¼Æ·½Ê½³¹µ×½â¾öÁËÏµÍ³ÖĞ¶à¸ö×î¸ßÓÅÏÈ¼¶Ë­Ò²²»ÄÜÈÃË­µÄÖĞ¶Ï¾ºÕùÎÊÌâ¡£
+   6            ÌÔ±¦µêµØÖ·£ºhttps://shop117387413.taobao.com
+   7            QQÈº£ºSTC51-STM32(3) £º515624099 »ò STC51-STM32(2)£º99794374¡£
+   8                  ÑéÖ¤ĞÅÏ¢£ºSTC15µ¥Æ¬»ú
+   9            ÓÊÏä£ºxgliyouquan@126.com
+  10            ¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï¡ï*/
+  11          
+  12          //******************************************************************************
+  13          //                ´ËÎÄ¼şÖ±½Ó¸´ÖÆÊ¹ÓÃ£¬ÓÃ»§ÎŞĞèÈÎºÎ¸ü¸Ä¡£
+  14          //******************************************************************************
+  15          #include "FLASH.h"  
+  16          //#include "UART.h"
+  17          
+  18          // ¼Ä´æÆ÷¶¨Òå£¬ËäÈ»Í·ÎÄ¼şÒÑÓĞ¶¨Òå£¬µ«²»»á³åÍ»£¬ÕâÀïÁĞ³öÀ´·½±ãÀí½â³ÌĞò¡£
+  19          sfr ISP_DATA  = 0xC2;
+  20          sfr ISP_ADDRH = 0xC3;
+  21          sfr ISP_ADDRL = 0xC4;
+  22          sfr ISP_CMD   = 0xC5;
+  23          sfr ISP_TRIG  = 0xC6;
+  24          sfr ISP_CONTR = 0xC7;
+  25          
+  26          ///////////////////////////////// FLASH ²Ù×÷ÑÓÊ±µÈ´ı²ÎÊı  ////////////////////////////
+  27          #if (SYSclk >= 24000000L)
+                      #define         ISP_WAIT_FREQUENCY      0
+              #elif (SYSclk >= 20000000L)
+                      #define         ISP_WAIT_FREQUENCY      1
+              #elif (SYSclk >= 12000000L)
+                      #define         ISP_WAIT_FREQUENCY      2
+              #elif (SYSclk >= 6000000L)
+  34                  #define         ISP_WAIT_FREQUENCY      3
+  35          #elif (SYSclk >= 3000000L)
+                      #define         ISP_WAIT_FREQUENCY      4
+              #elif (SYSclk >= 2000000L)
+                      #define         ISP_WAIT_FREQUENCY      5
+              #elif (SYSclk >= 1000000L)
+                      #define         ISP_WAIT_FREQUENCY      6
+              #else
+                      #define         ISP_WAIT_FREQUENCY      7
+              #endif    
+  44          //////////////////////////////////////////////////////////////////////////////////////////////
+  45          
+  46          /*************************½ûÖ¹²Ù×÷FLASH ( ¹Ì¶¨²»±ä )********************************************/
+  47          
+  48          void DisableEEPROM(void)                // ÒÔÏÂÓï¾ä¿ÉÒÔ²»ÓÃ£¬Ö»ÊÇ³öÓÚ°²È«¿¼ÂÇ¶øÒÑ
+  49          {
+  50   1              ISP_CONTR = 0;                          // ½ûÖ¹ISP/IAP²Ù×÷
+  51   1              ISP_CMD   = 0;                          // È¥³ıISP/IAPÃüÁî
+  52   1              ISP_TRIG  = 0;                          // ·ÀÖ¹ISP/IAPÃüÁîÎó´¥·¢
+  53   1              ISP_ADDRH = 0xff;                       // Ö¸Ïò·ÇEEPROMÇø£¬·ÀÖ¹Îó²Ù×÷
+  54   1              ISP_ADDRL = 0xff;                       // Ö¸Ïò·ÇEEPROMÇø£¬·ÀÖ¹Îó²Ù×÷
+C51 COMPILER V9.00   FLASH                                                                 05/26/2016 17:40:58 PAGE 2   
+
+  55   1      }
+  56          /******************** Ğ´N¸ö×Ö½Úº¯Êı ×î¶à255×Ö½ÚÒ»´Î( ¹Ì¶¨²»±ä ) *****************/
+  57          void EEPROM_write_n(unsigned int EE_address,unsigned char *DataAddress,unsigned char lenth)
+  58          {
+  59   1              EA = 0;                  // ½ûÖ¹ÖĞ¶Ï                                                                       
+  60   1              ISP_CONTR = 0x80 + ISP_WAIT_FREQUENCY;  // ÔÊĞí²Ù×÷FLASH + ÑÓÊ±µÈ´ıÊ±¼ä£¬ËÍÒ»´Î¾Í¹»
+  61   1              ISP_CMD = 2     ;                               // ×Ö½ÚĞ´ÃüÁî£¬ÃüÁî²»Ğè¸Ä±äÊ±£¬²»ĞèÖØĞÂËÍÃüÁî
+  62   1              do
+  63   1              {
+  64   2                      ISP_ADDRH = EE_address / 256;           // ËÍµØÖ·¸ß×Ö½Ú£¨µØÖ·ĞèÒª¸Ä±äÊ±²ÅĞèÖØĞÂËÍµØÖ·£©
+  65   2                      ISP_ADDRL = EE_address % 256;           // ËÍµØÖ·µÍ×Ö½Ú
+  66   2                      ISP_DATA  = *DataAddress;                       // ËÍÊı¾İµ½ISP_DATA£¬Ö»ÓĞÊı¾İ¸Ä±äÊ±²ÅĞèÖØĞÂËÍ
+  67   2                      ISP_TRIG = 0x5A;                                        // ISP´¥·¢ÃüÁî,ÏÈËÍ5AH£¬ÔÙËÍA5Hµ½ISP/IAP´¥·¢¼Ä´æÆ÷£¬Ã¿´Î¶¼ĞèÒªÈç´Ë
+  68   2                      ISP_TRIG = 0xA5;                                        // ISP´¥·¢ÃüÁî,Ğ´×Ö½Ú×î³¤ĞèÒª55uS£¬Òò´Ë±¾ĞĞÓï¾ä»áÔİÍ£55uSÒÔÉÏµÄÊ±¼ä
+  69   2                      _nop_();
+  70   2                      _nop_();
+  71   2                      _nop_();
+  72   2                      _nop_();                
+  73   2                      EE_address++;                                           // ÏÂÒ»¸öµØÖ·
+  74   2                      DataAddress++;                                          // ÏÂÒ»¸öÊı¾İ
+  75   2              }while(--lenth);                                                // Ö±µ½½áÊø
+  76   1              DisableEEPROM();
+  77   1              EA = 1;                 // ÖØĞÂÔÊĞíÖĞ¶Ï
+  78   1      }
+  79          
+  80          /******************** ¶ÁN¸ö×Ö½Úº¯Êı ×î¶à255×Ö½ÚÒ»´Î ( ¹Ì¶¨²»±ä )*****************/
+  81          void EEPROM_read_n(unsigned int EE_address,unsigned char *DataAddress,unsigned char lenth)
+  82          {
+  83   1              EA = 0;                 // ½ûÖ¹ÖĞ¶Ï
+  84   1              ISP_CONTR = 0x80 + ISP_WAIT_FREQUENCY;  // ÔÊĞí²Ù×÷FLASH + ÑÓÊ±µÈ´ıÊ±¼ä£¬ËÍÒ»´Î¾Í¹»
+  85   1              ISP_CMD = 1     ;               // ×Ö½Ú¶ÁÃüÁî£¬ÃüÁî²»Ğè¸Ä±äÊ±£¬²»ĞèÖØĞÂËÍÃüÁî
+  86   1              do
+  87   1              {
+  88   2                      ISP_ADDRH = EE_address / 256;           // ËÍµØÖ·¸ß×Ö½Ú£¨µØÖ·ĞèÒª¸Ä±äÊ±²ÅĞèÖØĞÂËÍµØÖ·£©
+  89   2                      ISP_ADDRL = EE_address % 256;           // ËÍµØÖ·µÍ×Ö½Ú
+  90   2                      ISP_TRIG = 0x5A;                                        // ISP´¥·¢ÃüÁî
+  91   2                      ISP_TRIG = 0xA5;                                        // ISP´¥·¢ÃüÁî£¬¶ÁÒ»¸ö×Ö½Ú×î³¤ĞèÒª2¸öÊ±ÖÓ£¬Òò´Ë±¾ĞĞÓï¾ä»áÔİÍ£2¸öÊ±ÖÓÒÔÉÏµÄÊ±¼ä
+  92   2                      _nop_();
+  93   2                      _nop_();
+  94   2                      _nop_();
+  95   2                      _nop_();                
+  96   2                      *DataAddress = ISP_DATA;                        // ¶Á³öµÄÊı¾İËÍÍùÍâ²¿±äÁ¿µØÖ·
+  97   2                      EE_address++;
+  98   2                      DataAddress++;
+  99   2              }while(--lenth);
+ 100   1              DisableEEPROM();                                            
+ 101   1              EA = 1;                // ÖØĞÂÔÊĞíÖĞ¶Ï
+ 102   1      }  
+ 103          
+ 104          /******************** ÉÈÇø²Á³ıº¯Êı( ¹Ì¶¨²»±ä )  *****************/
+ 105          void EEPROM_SectorErase(unsigned int EE_address)
+ 106          {
+ 107   1              EA = 0;                  // ½ûÖ¹ÖĞ¶Ï
+ 108   1              // Ö»ÓĞÉÈÇø²Á³ı£¬Ã»ÓĞ×Ö½Ú²Á³ı£¬512×Ö½Ú/ÉÈÇø£¬ÉÈÇøÖĞÈÎÒâÒ»¸ö×Ö½ÚµØÖ·¶¼ÊÇÉÈÇøµØÖ·¡£
+ 109   1              ISP_ADDRH = EE_address / 256;                   // ËÍÉÈÇøµØÖ·¸ß×Ö½Ú£¨µØÖ·ĞèÒª¸Ä±äÊ±²ÅĞèÖØĞÂËÍµØÖ·£©
+ 110   1              ISP_ADDRL = EE_address % 256;                   // ËÍÉÈÇøµØÖ·µÍ×Ö½Ú
+ 111   1              ISP_CONTR = 0x80 + ISP_WAIT_FREQUENCY;  // ÔÊĞí²Ù×÷FLASH + ÑÓÊ±µÈ´ıÊ±¼ä£¬ËÍÒ»´Î¾Í¹»
+ 112   1              ISP_CMD = 3;                                // ËÍÉÈÇø²Á³ıÃüÁî£¬ÃüÁî²»Ğè¸Ä±äÊ±£¬²»ĞèÖØĞÂËÍÃüÁî
+ 113   1              ISP_TRIG = 0x5A;                                                // ISP´¥·¢ÃüÁî
+ 114   1              ISP_TRIG = 0xA5;                                                // ISP´¥·¢ÃüÁî£¬²Á³ı×î³¤ĞèÒª21mS£¬Òò´Ë±¾ĞĞÓï¾ä»áÔİÍ£21mSÒÔÉÏµÄÊ±¼ä
+ 115   1              _nop_();                
+ 116   1              DisableEEPROM();                                                // ½ûÖ¹ÃüÁî
+C51 COMPILER V9.00   FLASH                                                                 05/26/2016 17:40:58 PAGE 3   
+
+ 117   1              EA = 1;                 // ÖØĞÂÔÊĞíÖĞ¶Ï
+ 118   1      }
+ 119          
+ 120          /**********************´æ·ÅËÙ¶ÈãĞÖµ******************************/
+ 121          /*
+ 122           ÓÃ»§³ÌĞò¿Õ°×ÇøÓòÓÃFFÌîµÄ,Ê×ÏÈ¼ì²âÊÇ·ñÈ«FF,Èç¹û²»ÄÇÃ´²»ÓÃ³õÊ¼»¯ËÙ¶ÈãĞÖµÁË
+ 123           ×¢Òâ£¬Ğ¡ĞÄ²»ÒªºÍ³ÌĞò»ìÆğÀ´£¬IAPÏµÁĞÓÃ»§³ÌĞòºÍEEPROM»ìÔÚÒ»ÆğµÄ...
+ 124           Ê×Êı¾İ´æÈëE000h
+ 125           ²ÎÊı:ËÙ¶È,ÊÇ·ñ¿ªÊ¼µÄ³õÊ¼»¯
+ 126           */     
+ 127          void SetVelocityThreshold(unsigned int Velocity,unsigned char IsInit)
+ 128          {
+ 129   1          unsigned char TempData[4];                                          //ÁÙÊ±±äÁ¿
+ 130   1              //ÅĞ¶ÏÊÇ·ñÒÑ¾­ÓĞÁËºÏ·¨ËÙ¶ÈãĞÖµ
+ 131   1          EEPROM_read_n(0xE000,TempData,4);
+ 132   1              if(IsInit&&(TempData[0]!=0xFF||TempData[1]!=0xFF||TempData[2]!=0xFF||TempData[3]!=0xFF))         //³õÊ¼»¯Ê±µ÷ÓÃ²
+             -¢ÇÒÒÑ¾­´æ¹ıÊı¾İÁË
+ 133   1              {
+ 134   2                      ;
+ 135   2              }
+ 136   1              else
+ 137   1              {
+ 138   2                  EEPROM_SectorErase(0xE000);                                 //ÏÈ²Á³ı
+ 139   2              P20 = !P20;
+ 140   2                      //×ªÎª10½øÖÆÊı´æ´¢
+ 141   2                      //VelocityData[7]=DDis%100000/10000 + 48;
+ 142   2                      TempData[0] = Velocity%10000/1000;
+ 143   2                      TempData[1] = Velocity%1000/100;
+ 144   2                      TempData[2] = Velocity%100/10;
+ 145   2                      TempData[3] = Velocity%10;
+ 146   2                      EEPROM_write_n(0xE000,TempData,4);
+ 147   2              }
+ 148   1      }
+ 149          
+ 150          /**********************¶ÁÈ¡ËÙ¶ÈãĞÖµ******************************/
+ 151          /*
+ 152           ×¢Òâ£¬Ğ¡ĞÄ²»ÒªºÍ³ÌĞò»ìÆğÀ´£¬IAPÏµÁĞÓÃ»§³ÌĞòºÍEEPROM»ìÔÚÒ»ÆğµÄ...
+ 153           Ê×Êı¾İ´æÈëE000h
+ 154           */     
+ 155          unsigned int GetVelocityThreshold()
+ 156          {
+ 157   1              unsigned char TempData[4];                               //ÁÙÊ±±äÁ¿
+ 158   1              unsigned int Velocity;
+ 159   1              EEPROM_read_n(0xE000,TempData,4);
+ 160   1              Velocity = 1000*TempData[0] + 100*TempData[1] + 10*TempData[2] + TempData[3];   //¼ÆËãËÙ¶ÈãĞÖµ
+ 161   1              
+ 162   1              return Velocity;
+ 163   1      }
+ 164          
+ 165          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    427    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----      23
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

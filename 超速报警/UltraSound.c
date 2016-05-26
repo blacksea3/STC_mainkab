@@ -4,6 +4,7 @@
 #include "Delay.h"
 #include "LCD12864.h"
 #include "main.h"
+#include "FLASH.h"
 
 sbit trig=P1^0;	//触发输入 至少为10us以上
 sbit echo=P1^1;	//输出回响信号
@@ -64,22 +65,26 @@ void UltraSoundDisplay()
 	//unsigned char bat2[8]={0,0,0,0,0,0};
 	//unsigned char bat3[10]={'+',0,'.',0,0,0,'m','/','s','\0'};
 	  
-	unsigned char VelocityData[] = {"速度为000000000"};
-	unsigned long Dis1,Dis2,DDis;
-	unsigned char i;
+	unsigned char VelocityData[] = {"速度为000000000"};			//字符串初始化
+	unsigned long Dis1,Dis2,DDis;								//临时变量
+	unsigned char i;											//临时变量
+
+	unsigned char TempVelocityThreshold;						//速度阈值
+
+    TempVelocityThreshold = GetVelocityThreshold();				//获取当前速度阈值
 
 	//for(i=0;i<5;i++)
     //{
 	//	Delay10ms();
 	//}
-    Dis1=DisUltraSound();          	  //超声波模块测距
+    Dis1=DisUltraSound();          	  							//超声波模块测距
     for(i=0;i<5;i++)
 	{
 		Delay50ms();
 	}
-    Dis2=DisUltraSound();          	  //超声波模块测距
+    Dis2=DisUltraSound();          	  							//超声波模块测距
 
-    if(Dis1>4000 || Dis2>4000)								  //单位mm
+    if(Dis1>4000 || Dis2>4000)								  	//单位mm
 	{
 		VelocityData[7] = 'N';
 		VelocityData[8] = '/';
@@ -95,30 +100,6 @@ void UltraSoundDisplay()
 	}
 	else
 	{
-	//bat1[0]=Dis1/10000 + 48;
-	//bat1[1]=Dis1%10000/1000 + 48;
-	/*bat1[0]=Dis1%10000/1000 + 48;
-	bat1[1]=(unsigned char)('.');								
-	bat1[2]=Dis1%1000/100 + 48;
-	bat1[3]=Dis1%100/10 + 48;
-	bat1[4]=Dis1%10 + 48;
-	bat1[5]=(unsigned char)('m');
-	bat1[6]='\0';
-    Display_String(2,bat1);
-
-    Delay1ms();
-																	 
-	bat2[0]=Dis2%10000/1000 + 48;
-	bat2[1]=(unsigned char)('.');								
-	bat2[2]=Dis2%1000/100 + 48;
-	bat2[3]=Dis2%100/10 + 48;
-	bat2[4]=Dis2%10 + 48;
-	bat2[5]=(unsigned char)('m');
-	bat2[6]='\0';
-	Display_String(3,bat2);
-
-    Delay1ms();*/
-
     	if(Dis1>Dis2)
 		{
 			DDis=Dis1-Dis2;
@@ -129,21 +110,22 @@ void UltraSoundDisplay()
 			DDis=Dis2-Dis1;
 			VelocityData[6] = '-';
 		}
-														   //单位mm  时间 50ms      4000mm/50ms  ->  4000*20=80m/s
-		DDis*=4;
-	
+		DDis*=4;											//单位mm  时间差是250ms,要乘1000ms/250ms=4
+        DDis*=3.6;											//转为km/h,取整即可
+		//VelocityData[7]=DDis%100000/10000 + 48;
 		VelocityData[7]=DDis%10000/1000 + 48;
-		VelocityData[8]=(unsigned char)('.');							
-		VelocityData[9]=DDis%1000/100 + 48;
+		VelocityData[8]=(unsigned char)('.');
+		VelocityData[9]=DDis%1000/100 + 48;						
 		VelocityData[10]=DDis%100/10 + 48;
-		VelocityData[11]=DDis%10 + 48;
+		//VelocityData[10]=DDis%10 + 48;
+		VelocityData[11]=(unsigned char)('k');							 
 		VelocityData[12]=(unsigned char)('m');
 		VelocityData[13]=(unsigned char)('/');
-		VelocityData[14]=(unsigned char)('s');
+		VelocityData[14]=(unsigned char)('h');
 		VelocityData[15]='\0';
 
 		Display_String(1,VelocityData);
-		if(DDis%10000/1000>0)					            //超过1m/s
+		if(DDis > TempVelocityThreshold)					 //超过速度阈值,单位m/h,1000mm/s=1m/s=3.6km/h
 		{
 			FASTSPEED = 1;
 			//P20 = !P20;                                      
