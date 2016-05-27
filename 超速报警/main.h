@@ -9,6 +9,10 @@ extern unsigned char BUZZERTIMER3STOP;				//1==蜂鸣器使用的定时器3需要停止
 extern unsigned char ISSETTING;						//1==进入设置模式,0==进入普通模式
 extern unsigned char EXITSETTING;					//1==已经退出设置模式
 
+extern unsigned char ADCSTARTREADY;
+extern unsigned char ADCSTOPREADY;
+extern unsigned char ADCDISPLAYREADY;
+
 extern unsigned char VelocityThreshold;			   	//速度阈值km/h
 
 #endif

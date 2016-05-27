@@ -11,7 +11,8 @@
 
 unsigned int T0times0;     	//定时器0中断次数0
 unsigned int T0times1;     	//定时器0中断次数1
-unsigned int T0times2;      //定时器0中断次数2
+unsigned int T0times2;          //定时器0中断次数2
+unsigned int T0times3;          //定时器0中断次数3
 unsigned int T1times;     	//定时器1中断次数
 unsigned int T3times;     	//定时器3中断次数
 unsigned int T4times;     	//定时器4中断次数
@@ -81,6 +82,16 @@ void Timer0_ISR() interrupt 1
 		DS3231ISREADY = 1;
 	}
 	
+	if(T0times3<3200)							//3.2s间隔 MQ-135
+	{
+	    T0times3++;
+	}
+	else
+	{
+	    T0times3=0;
+	    ADCSTARTREADY = 1;
+	}
+
 	//EA = 1;
 }
 

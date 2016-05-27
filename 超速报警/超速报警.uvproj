@@ -411,6 +411,11 @@
               <FileType>1</FileType>
               <FilePath>.\FLASH.C</FilePath>
             </File>
+            <File>
+              <FileName>STC_AD.C</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\STC_AD.C</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>

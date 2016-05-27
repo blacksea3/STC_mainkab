@@ -9,6 +9,7 @@
 #include "UltraSound.h"
 #include "DS1302.h"
 #include "Button.h"
+#include "STC_AD.h"
 #include "FLASH.h"				 
 //#include "Wifi.h"
 //#include "Force.h"
@@ -19,6 +20,11 @@ unsigned char code StrHello[]="HELLOWORLD!";
 unsigned char DS3231ISREADY;  
 unsigned char DHT11ISREADY;
 unsigned char ULTRAISREADY;
+
+unsigned char ADCSTARTREADY;
+unsigned char ADCSTOPREADY;
+unsigned char ADCDISPLAYREADY;
+
 unsigned char FASTSPEED;
 unsigned char BUZZERTIMER3STOP;
 unsigned char ISSETTING;							//设置,1为设置状态 0为运行状态
@@ -40,18 +46,21 @@ void main()
     //unsigned char code FUCKSTOP[]={"FUCKSTOOP!"};
 	//unsigned char code FUCKSTART[]={"FUCKSTAART!"};
 
-    port_mode();		  					//端口设置全部弱上拉
+    port_mode();		  						//端口设置全部弱上拉
 
-    //DS1302ISREADY = 0;    				//DS1302未激活
-    
-	DHT11ISREADY = 0;	  					//DHT11未激活
-	ULTRAISREADY = 0;	  					//超声波未激活,他们两个由Timer0中断激活
-	FASTSPEED = 0;		  					//超速蜂鸣器未激活
+    DS3231ISREADY = 0;							//DS1302未激活
+	DHT11ISREADY = 0;	  						//DHT11未激活
+	ULTRAISREADY = 0;	  						//超声波未激活,他们两个由Timer0中断激活
+	FASTSPEED = 0;		  						//超速蜂鸣器未激活
 	BUZZERTIMER3STOP = 0;
     ISSETTING = 0;
 	EXITSETTING = 0;
+	ADCSTARTREADY = 0;
+	ADCSTOPREADY = 0;
+	ADCDISPLAYREADY = 0;
 	P20 = 1;
 	UltraSoundInit();	  						//超声波初始化
+	ADC_P12_init();                             //ADC P12口初始化,MQ-135空气质量传感器
 	SetVelocityThreshold(FirstSetVelocity,1);	//速度EEPROM初始化,可以自动识别是否初始化过
 	
 	//DS1302Init(StartTime);					//DS1302初始化,初始化一次就行了
@@ -106,9 +115,22 @@ void main()
 			else if(DS3231ISREADY)
 			{
 				DS3231read_time();
+				DS3231ISREADY = 0;
+			}
+			else if(ADCSTARTREADY)
+			{
+				ADCStart();
+			}
+			else if(ADCSTOPREADY)
+			{
+				ADCStop();
+			}
+			else if(ADCDISPLAYREADY)
+			{
+				ADCDisplay();
 			}
 			else ;
-			}
+		}
 		/*********************************设置状态*****************************/
 		else
 		{

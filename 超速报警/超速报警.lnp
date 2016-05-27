@@ -10,6 +10,7 @@
 "myfun.obj",
 "DS1302.obj",
 "Button.obj",
-"FLASH.obj" 
+"FLASH.obj",
+"STC_AD.obj" 
 TO "³¬ËÙ±¨¾¯" 
 RAMSIZE(256) 
