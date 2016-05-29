@@ -1,0 +1,70 @@
+C51 COMPILER V9.00   FIFO                                                                  05/29/2016 10:12:11 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE FIFO
+OBJECT MODULE PLACED IN fifo.OBJ
+COMPILER INVOKED BY: E:\software\DevelopmentSoftware\InstallSrc\KeilC51\C51\BIN\C51.EXE fifo.c LARGE BROWSE DEBUG OBJECT
+                    -EXTEND
+
+line level    source
+
+   1          #include "fifo.h"
+   2          #include "myfun.h"
+   3          
+   4          int FIFO_Reset_Read_Addr(void)
+   5          {
+   6   1       FIFO_RRST=0;
+   7   1       delay(10);
+   8   1       FIFO_RCLK=0; 
+   9   1       delay(10);
+  10   1       FIFO_RCLK=1;
+  11   1       delay(10); 
+  12   1       FIFO_RCLK=0; 
+  13   1       delay(10);
+  14   1      
+  15   1       FIFO_RRST=1;  
+  16   1       delay(10);
+  17   1       FIFO_RCLK=1; 
+  18   1       delay(10);
+  19   1       return 0; 
+  20   1      }
+  21          
+  22          int FIFO_Read_Words(unsigned int len,unsigned char *pbuf)
+  23          {
+  24   1       unsigned int idata i=0;
+  25   1      
+  26   1       DATA_PORT=0XFF;
+  27   1      
+  28   1       for(i=0;i<len;i++)
+  29   1       {
+  30   2        FIFO_RCLK=0;
+  31   2        *(pbuf+1)=DATA_PORT;
+  32   2      
+  33   2        FIFO_RCLK=1;
+  34   2        FIFO_RCLK=0;
+  35   2        *(pbuf)=DATA_PORT;
+  36   2      
+  37   2        FIFO_RCLK=1;
+  38   2      
+  39   2        pbuf+=2;
+  40   2       }
+  41   1      
+  42   1       return 0;
+  43   1      }
+  44          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    141    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       2
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----       2
+   BIT SIZE         =   ----    ----
+C51 COMPILER V9.00   FIFO                                                                  05/29/2016 10:12:11 PAGE 2   
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,161 @@
+C51 COMPILER V9.00   SCCB                                                                  05/29/2016 10:12:11 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE SCCB
+OBJECT MODULE PLACED IN sccb.OBJ
+COMPILER INVOKED BY: E:\software\DevelopmentSoftware\InstallSrc\KeilC51\C51\BIN\C51.EXE sccb.c LARGE BROWSE DEBUG OBJECT
+                    -EXTEND
+
+line level    source
+
+   1          #include "sccb.h"
+   2          #include "myfun.h"
+   3          
+   4          //sfr P0M0 = 0x94; // 0000,0000
+   5          //sfr P0M1 = 0x93; // 0000,0000
+   6          
+   7          /*
+   8          -----------------------------------------------
+   9             功能: start命令,SCCB的起始信号
+  10             参数: 无
+  11           返回值: 无
+  12          -----------------------------------------------
+  13          */
+  14          void startSCCB()
+  15          {
+  16   1       SCCB_SID=1;
+  17   1       delay(DELAYTIME);
+  18   1       SCCB_SIC=1;
+  19   1       delay(DELAYTIME);
+  20   1       SCCB_SID=0;
+  21   1       delay(DELAYTIME);
+  22   1       SCCB_SIC=0;
+  23   1       delay(DELAYTIME);
+  24   1      }
+  25          /*
+  26          -----------------------------------------------
+  27             功能: stop命令,SCCB的停止信号
+  28             参数: 无
+  29           返回值: 无
+  30          -----------------------------------------------
+  31          */
+  32          void stopSCCB()
+  33          {
+  34   1       SCCB_SID=0;
+  35   1       delay(DELAYTIME);
+  36   1       SCCB_SIC=1;
+  37   1       delay(DELAYTIME);
+  38   1       SCCB_SID=1;
+  39   1       delay(DELAYTIME);  
+  40   1      }
+  41          
+  42          /*
+  43          -----------------------------------------------
+  44             功能: noAck,用于连续读取中的最后一个结束周期
+  45             参数: 无
+  46           返回值: 无
+  47          -----------------------------------------------
+  48          */
+  49          void noAck(void)
+  50          {
+  51   1       SCCB_SID=1;
+  52   1       delay(DELAYTIME);
+  53   1       SCCB_SIC=1;
+  54   1       delay(DELAYTIME);
+C51 COMPILER V9.00   SCCB                                                                  05/29/2016 10:12:11 PAGE 2   
+
+  55   1       SCCB_SIC=0;
+  56   1       delay(DELAYTIME);
+  57   1       SCCB_SID=0;
+  58   1       delay(DELAYTIME);
+  59   1      }
+  60          
+  61          unsigned char getAck() 
+  62          {
+  63   1       unsigned char idata Error;
+  64   1      
+  65   1       P0M1=0x02;
+  66   1       SCCB_SID=1;//设置SCCB_SID为输入
+  67   1      
+  68   1       delay(DELAYTIME); 
+  69   1       SCCB_SIC=1; 
+  70   1       delay(DELAYTIME);
+  71   1       Error=SCCB_SID;
+  72   1       //if(SCCB_SID) P2=0x00; 
+  73   1       //else P2=0xff;
+  74   1       delay(DELAYTIME);
+  75   1       SCCB_SIC=0; 
+  76   1       delay(DELAYTIME);
+  77   1      
+  78   1       P0M1=0x00;
+  79   1       SCCB_SID=0;
+  80   1       return !Error;
+  81   1      }
+  82          
+  83          /*
+  84          -----------------------------------------------
+  85             功能: 写入一个字节的数据到SCCB
+  86             参数: 写入数据
+  87           返回值: 发送成功返回1，发送失败返回0
+  88          -----------------------------------------------
+  89          */
+  90          unsigned char SCCBwriteByte(unsigned char dat)
+  91          {
+  92   1       unsigned char idata i;
+  93   1       for(i=0;i<8;i++)
+  94   1       {
+  95   2        SCCB_SID=((dat<<i)&0x80);
+  96   2        delay(DELAYTIME);
+  97   2        SCCB_SIC=1;
+  98   2        delay(DELAYTIME);
+  99   2        SCCB_SIC=0;
+ 100   2        delay(DELAYTIME);
+ 101   2       }
+ 102   1       SCCB_SID=0;
+ 103   1       return getAck();
+ 104   1      }
+ 105          
+ 106          /*
+ 107          -----------------------------------------------
+ 108             功能: 一个字节数据读取并且返回
+ 109             参数: 无
+ 110           返回值: 读取到的数据
+ 111          -----------------------------------------------
+ 112          */
+ 113          unsigned char SCCBreadByte(void)
+ 114          {
+ 115   1       unsigned char idata i,rbyte=0;
+ 116   1      
+C51 COMPILER V9.00   SCCB                                                                  05/29/2016 10:12:11 PAGE 3   
+
+ 117   1       P0M1=0x02;
+ 118   1       SCCB_SID=1;//设置SCCB_SID为输入
+ 119   1      
+ 120   1       for(i=0;i<8;i++)
+ 121   1       {
+ 122   2        SCCB_SIC=1;
+ 123   2        delay(DELAYTIME);
+ 124   2        if(SCCB_SID) rbyte|=(0x80>>i);
+ 125   2        delay(DELAYTIME);
+ 126   2        SCCB_SIC=0;
+ 127   2        delay(DELAYTIME);
+ 128   2       } 
+ 129   1      
+ 130   1       P0M1=0x00;
+ 131   1       SCCB_SID=0;
+ 132   1       return rbyte;
+ 133   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    308    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----       1
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----       4
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,9 @@
+"STARTUP.obj",
+"main.obj",
+"uart_debug.obj",
+"Sensor.obj",
+"sccb.obj",
+"fifo.obj",
+"myfun.obj" 
+TO "Camera" 
+RAMSIZE(256) 

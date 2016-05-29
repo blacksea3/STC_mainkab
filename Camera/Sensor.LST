@@ -1,0 +1,518 @@
+C51 COMPILER V9.00   SENSOR                                                                05/29/2016 11:02:07 PAGE 1   
+
+
+C51 COMPILER V9.00, COMPILATION OF MODULE SENSOR
+OBJECT MODULE PLACED IN Sensor.OBJ
+COMPILER INVOKED BY: E:\software\DevelopmentSoftware\InstallSrc\KeilC51\C51\BIN\C51.EXE Sensor.c LARGE BROWSE DEBUG OBJE
+                    -CTEXTEND
+
+line level    source
+
+   1          #include "Sensor.h"
+   2          #include "myfun.h"
+   3          #include "stc15.h"
+   4          #include "uart_debug.h"
+   5          const  char OV7670_reg[OV7670_REG_NUM][2]=
+   6          {       
+   7                 
+   8                  {0x3a, 0x04},
+   9                  {0x40, 0xd0},
+  10                  {0x12, 0x14},
+  11                  {0x32, 0x80},
+  12                  {0x17, 0x16},
+  13                  {0x18, 0x04},
+  14                  {0x19, 0x02},
+  15                  {0x1a, 0x7b},//0x7a,
+  16                  {0x03, 0x06},//0x0a,
+  17                  {0x0c, 0x00},
+  18                  {0x3e, 0x00},//
+  19                  {0x70, 0x00},
+  20                  {0x71, 0x81},
+  21                  {0x72, 0x11},
+  22                  {0x73, 0x00},//
+  23                  {0xa2, 0x02},
+  24                  {0x11, 0x81},
+  25                  {0x7a, 0x20},
+  26                  {0x7b, 0x1c},
+  27                  {0x7c, 0x28},
+  28                  {0x7d, 0x3c},
+  29                  {0x7e, 0x55},
+  30                  {0x7f, 0x68},
+  31                  {0x80, 0x76},
+  32                  {0x81, 0x80},
+  33                  {0x82, 0x88},
+  34                  {0x83, 0x8f},
+  35                  {0x84, 0x96},
+  36                  {0x85, 0xa3},
+  37                  {0x86, 0xaf},
+  38                  {0x87, 0xc4},
+  39                  {0x88, 0xd7},
+  40                  {0x89, 0xe8},
+  41                  {0x13, 0xe0},
+  42                  {0x00, 0x00},//AGC
+  43                  {0x10, 0x00},
+  44                  {0x0d, 0x00},
+  45                  {0x14, 0x28},//0x38, limit the max gain
+  46                  {0xa5, 0x05},
+  47                  {0xab, 0x07},
+  48                  {0x24, 0x75},
+  49                  {0x25, 0x63},
+  50                  {0x26, 0xA5},
+  51                  {0x9f, 0x78},
+  52                  {0xa0, 0x68},
+  53                  {0xa1, 0x03},//0x0b,
+  54                  {0xa6, 0xdf},//0xd8,
+C51 COMPILER V9.00   SENSOR                                                                05/29/2016 11:02:07 PAGE 2   
+
+  55                  {0xa7, 0xdf},//0xd8,
+  56                  {0xa8, 0xf0},
+  57                  {0xa9, 0x90},
+  58                  {0xaa, 0x94},
+  59                  {0x13, 0xe5},
+  60                  {0x0e, 0x61},
+  61                  {0x0f, 0x4b},
+  62                  {0x16, 0x02},
+  63                  {0x1e, 0x07},//0x07,
+  64                  {0x21, 0x02},
+  65                  {0x22, 0x91},
+  66                  {0x29, 0x07},
+  67                  {0x33, 0x0b},
+  68                  {0x35, 0x0b},
+  69                  {0x37, 0x1d},
+  70                  {0x38, 0x71},
+  71                  {0x39, 0x2a},
+  72                  {0x3c, 0x78},
+  73                  {0x4d, 0x40},
+  74                  {0x4e, 0x20},
+  75                  {0x69, 0x55},
+  76                  {0x6b, 0x40},//PLL
+  77                  {0x74, 0x19},
+  78                  {0x8d, 0x4f},
+  79                  {0x8e, 0x00},
+  80                  {0x8f, 0x00},
+  81                  {0x90, 0x00},
+  82                  {0x91, 0x00},
+  83                  {0x92, 0x00},//0x19,//0x66
+  84                  {0x96, 0x00},
+  85                  {0x9a, 0x80},
+  86                  {0xb0, 0x84},
+  87                  {0xb1, 0x0c},
+  88                  {0xb2, 0x0e},
+  89                  {0xb3, 0x82},
+  90                  {0xb8, 0x0a},
+  91                  {0x43, 0x14},
+  92                  {0x44, 0xf0},
+  93                  {0x45, 0x34},
+  94                  {0x46, 0x58},
+  95                  {0x47, 0x28},
+  96                  {0x48, 0x3a},
+  97                  {0x59, 0x88},
+  98                  {0x5a, 0x88},
+  99                  {0x5b, 0x44},
+ 100                  {0x5c, 0x67},
+ 101                  {0x5d, 0x49},
+ 102                  {0x5e, 0x0e},
+ 103                  {0x64, 0x04},
+ 104                  {0x65, 0x20},
+ 105                  {0x66, 0x05},
+ 106                  {0x94, 0x04},
+ 107                  {0x95, 0x08},
+ 108                  {0x6c, 0x0a},
+ 109                  {0x6d, 0x55},
+ 110                  {0x6e, 0x11},
+ 111                  {0x6f, 0x9f},//0x9e for advance AWB
+ 112                  {0x6a, 0x40},
+ 113                  {0x01, 0x40},
+ 114                  {0x02, 0x40},
+ 115                  {0x13, 0xe7},
+ 116                  {0x15, 0x00},
+C51 COMPILER V9.00   SENSOR                                                                05/29/2016 11:02:07 PAGE 3   
+
+ 117                  {0x4f, 0x80},
+ 118                  {0x50, 0x80},
+ 119                  {0x51, 0x00},
+ 120                  {0x52, 0x22},
+ 121                  {0x53, 0x5e},
+ 122                  {0x54, 0x80},
+ 123                  {0x55, 0x0A},//亮度
+ 124                  {0x56, 0x4A},//对比度
+ 125                  {0x58, 0x9e},       
+ 126                  {0x41, 0x08},
+ 127                  {0x3f, 0x05},//边缘增强调整
+ 128                  {0x75, 0x05},
+ 129                  {0x76, 0xe1},
+ 130                  {0x4c, 0x0F},//噪声抑制强度
+ 131                  {0x77, 0x0a},
+ 132                  {0x3d, 0xc2},        //0xc0,
+ 133                  {0x4b, 0x09},
+ 134                  {0xc9, 0x60},
+ 135                  {0x41, 0x38},
+ 136                  {0x56, 0x40},//0x40,  change according to Jim's request       
+ 137                  {0x34, 0x11},
+ 138                  {0x3b, 0x02},//0x00,//0x02,
+ 139                  {0xa4, 0x89},//0x88,
+ 140                  {0x96, 0x00},
+ 141                  {0x97, 0x30},
+ 142                  {0x98, 0x20},
+ 143                  {0x99, 0x30},
+ 144                  {0x9a, 0x84},
+ 145                  {0x9b, 0x29},
+ 146                  {0x9c, 0x03},
+ 147                  {0x9d, 0x4c},
+ 148                  {0x9e, 0x3f},
+ 149                  {0x78, 0x04},       
+ 150                  {0x79, 0x01},
+ 151                  {0xc8, 0xf0},
+ 152                  {0x79, 0x0f},
+ 153                  {0xc8, 0x00},
+ 154                  {0x79, 0x10},
+ 155                  {0xc8, 0x7e},
+ 156                  {0x79, 0x0a},
+ 157                  {0xc8, 0x80},
+ 158                  {0x79, 0x0b},
+ 159                  {0xc8, 0x01},
+ 160                  {0x79, 0x0c},
+ 161                  {0xc8, 0x0f},
+ 162                  {0x79, 0x0d},
+ 163                  {0xc8, 0x20},
+ 164                  {0x79, 0x09},
+ 165                  {0xc8, 0x80},
+ 166                  {0x79, 0x02},
+ 167                  {0xc8, 0xc0},
+ 168                  {0x79, 0x03},
+ 169                  {0xc8, 0x40},
+ 170                  {0x79, 0x05},
+ 171                  {0xc8, 0x30},
+ 172                  {0x79, 0x26},
+ 173                  {0x09, 0x02},
+ 174                  {0x3b, 0x42},//0x82,//0xc0,//0xc2,        //night mode
+ 175          };
+ 176          
+ 177          
+ 178          
+C51 COMPILER V9.00   SENSOR                                                                05/29/2016 11:02:07 PAGE 4   
+
+ 179          
+ 180          /*char code OV7670_reg[OV7670_REG_NUM][2]=
+ 181          {        
+ 182           
+ 183               *//*以下为OV7670 QVGA RGB565参数 
+ 184                  {0x3a, 0x04},//dummy
+ 185                  {0x40, 0x10},//565
+ 186                  {0x12, 0x14},//@
+ 187                  {0x32, 0x80},//HREF control     bit[2:0] HREF start 3 LSB        bit[5:3] HSTOP HREF end 3LSB
+ 188                  {0x17, 0x16},//              HSTART start high 8-bit MSB
+ 189                  
+ 190                  {0x18, 0x04},//5         HSTOP end high 8-bit
+ 191                  {0x19, 0x02},
+ 192                  {0x1a, 0x7b},//0x7a,
+ 193                  {0x03, 0x06},//0x0a,
+ 194                  {0x0c, 0x0c},
+ 195                  {0x15, 0x02},
+ 196                  {0x3e, 0x00},//10
+ 197                  {0x70, 0x00},
+ 198                  {0x71, 0x01},
+ 199                  {0x72, 0x11},
+ 200                  {0x73, 0x09},//
+ 201                  
+ 202                  {0xa2, 0x02},//15
+ 203                  {0x11, 0x03}, //fenpin
+ 204                  {0x7a, 0x20},
+ 205                  {0x7b, 0x1c},
+ 206                  {0x7c, 0x28},
+ 207                  
+ 208                  {0x7d, 0x3c},//20
+ 209                  {0x7e, 0x55},
+ 210                  {0x7f, 0x68},
+ 211                  {0x80, 0x76},
+ 212                  {0x81, 0x80},
+ 213                  
+ 214                  {0x82, 0x88},
+ 215                  {0x83, 0x8f},
+ 216                  {0x84, 0x96},
+ 217                  {0x85, 0xa3},
+ 218                  {0x86, 0xaf},
+ 219                  
+ 220                  {0x87, 0xc4},//30
+ 221                  {0x88, 0xd7},
+ 222                  {0x89, 0xe8},
+ 223                  {0x13, 0xe0},
+ 224                  {0x00, 0x00},//AGC
+ 225                  
+ 226                  {0x10, 0x00},
+ 227                  {0x0d, 0x00},
+ 228                  {0x14, 0x20},//0x38, limit the max gain
+ 229                  {0xa5, 0x05},
+ 230                  {0xab, 0x07},
+ 231                  
+ 232                  {0x24, 0x75},//40
+ 233                  {0x25, 0x63},
+ 234                  {0x26, 0xA5},
+ 235                  {0x9f, 0x78},
+ 236                  {0xa0, 0x68},
+ 237                  
+ 238                  {0xa1, 0x03},//0x0b,
+ 239                  {0xa6, 0xdf},//0xd8,
+ 240                  {0xa7, 0xdf},//0xd8,
+C51 COMPILER V9.00   SENSOR                                                                05/29/2016 11:02:07 PAGE 5   
+
+ 241                  {0xa8, 0xf0},
+ 242                  {0xa9, 0x90},
+ 243                  
+ 244                  {0xaa, 0x94},//50
+ 245                  {0x13, 0xe5},
+ 246                  {0x0e, 0x61},
+ 247                  {0x0f, 0x4b},
+ 248                  {0x16, 0x02},
+ 249                  
+ 250                  {0x1e, 0x37},//0x07,
+ 251                  {0x21, 0x02},
+ 252                  {0x22, 0x91},
+ 253                  {0x29, 0x07},
+ 254                  {0x33, 0x0b},
+ 255                  
+ 256                  {0x35, 0x0b},//60
+ 257                  {0x37, 0x1d},
+ 258                  {0x38, 0x71},
+ 259                  {0x39, 0x2a},
+ 260                  {0x3c, 0x78},
+ 261                  
+ 262                  {0x4d, 0x40},
+ 263                  {0x4e, 0x20},
+ 264                  {0x69, 0x5d},
+ 265                  {0x6b, 0x40},//PLL
+ 266                  {0x74, 0x19},
+ 267                  {0x8d, 0x4f},
+ 268                  
+ 269                  {0x8e, 0x00},//70
+ 270                  {0x8f, 0x00},
+ 271                  {0x90, 0x00},
+ 272                  {0x91, 0x00},
+ 273                  {0x92, 0x00},//0x19,//0x66
+ 274                  
+ 275                  {0x96, 0x00},
+ 276                  {0x9a, 0x80},
+ 277                  {0xb0, 0x84},
+ 278                  {0xb1, 0x0c},
+ 279                  {0xb2, 0x0e},
+ 280                  
+ 281                  {0xb3, 0x82},//80
+ 282                  {0xb8, 0x0a},
+ 283                  {0x43, 0x14},
+ 284                  {0x44, 0xf0},
+ 285                  {0x45, 0x34},
+ 286                  
+ 287                  {0x46, 0x58},
+ 288                  {0x47, 0x28},
+ 289                  {0x48, 0x3a},
+ 290                  {0x59, 0x88},
+ 291                  {0x5a, 0x88},
+ 292                  
+ 293                  {0x5b, 0x44},//90
+ 294                  {0x5c, 0x67},
+ 295                  {0x5d, 0x49},
+ 296                  {0x5e, 0x0e},
+ 297                  {0x64, 0x04},
+ 298                  {0x65, 0x20},
+ 299                  
+ 300                  {0x66, 0x05},
+ 301                  {0x94, 0x04},
+ 302                  {0x95, 0x08},
+C51 COMPILER V9.00   SENSOR                                                                05/29/2016 11:02:07 PAGE 6   
+
+ 303                  {0x6c, 0x0a},
+ 304                  {0x6d, 0x55},
+ 305                  
+ 306                  
+ 307                  {0x4f, 0x80},
+ 308                  {0x50, 0x80},
+ 309                  {0x51, 0x00},
+ 310                  {0x52, 0x22},
+ 311                  {0x53, 0x5e},
+ 312                  {0x54, 0x80},
+ 313                  
+ 314                  //{0x54, 0x40},//110
+ 315                  
+ 316                  
+ 317                  {0x6e, 0x11},//100
+ 318                  {0x6f, 0x9f},//0x9e for advance AWB
+ 319                  {0x55, 0x00},//亮度
+ 320                  {0x56, 0x20},//对比度
+ 321                  {0x57, 0x40},//0x40,  change according to Jim's request       
+ 322          
+ 323          };*/
+ 324          
+ 325          //=================================================
+ 326          //功能：写OV7660寄存器
+ 327          //返回：1-成功  0-失败
+ 328          //=================================================
+ 329          
+ 330          unsigned char wr_Sensor_Reg(unsigned char regID, unsigned char regDat)
+ 331          {
+ 332   1       startSCCB(); //发送SCCB 总线开始传输命令
+ 333   1      
+ 334   1       if(0==SCCBwriteByte(0x42))//写地址
+ 335   1       {      
+ 336   2        stopSCCB();//发送SCCB 总线停止传输命令
+ 337   2        return(0);//错误返回
+ 338   2       }
+ 339   1      
+ 340   1       //delay(50000);
+ 341   1      
+ 342   1       UART_Put_Inf("wr_Sensor_Reg:",1);
+ 343   1       //SendString("wr_Sensor_Reg:");
+ 344   1      
+ 345   1       if(0==SCCBwriteByte(regID))//积存器ID
+ 346   1       {
+ 347   2        stopSCCB();//发送SCCB 总线停止传输命令
+ 348   2        return(0); //错误返回
+ 349   2       }
+ 350   1      
+ 351   1       //delay(50000);
+ 352   1       UART_Put_Inf("wr_Sensor_Reg:",2);
+ 353   1       //SendString("wr_Sensor_Reg:");
+ 354   1      
+ 355   1       if(0==SCCBwriteByte(regDat))//写数据到积存器
+ 356   1       {
+ 357   2        stopSCCB();//发送SCCB 总线停止传输命令
+ 358   2        return(0);//错误返回
+ 359   2       }
+ 360   1      
+ 361   1       stopSCCB();//发送SCCB 总线停止传输命令
+ 362   1      
+ 363   1       UART_Put_Inf("wr_Sensor_Reg:",3);
+ 364   1       //SendString("wr_Sensor_Reg:");
+C51 COMPILER V9.00   SENSOR                                                                05/29/2016 11:02:07 PAGE 7   
+
+ 365   1      
+ 366   1       return(1);//成功返回
+ 367   1      }
+ 368          
+ 369          //=================================================
+ 370          //功能：读OV7660寄存器
+ 371          //返回：1-成功  0-失败
+ 372          //===================================================
+ 373          unsigned char rd_Sensor_Reg(unsigned char regID, unsigned char *regDat)
+ 374          {
+ 375   1       //通过写操作设置寄存器地址
+ 376   1      
+ 377   1       startSCCB();
+ 378   1      
+ 379   1       if(0==SCCBwriteByte(0x42))//写地址
+ 380   1       {
+ 381   2        stopSCCB();//发送SCCB 总线停止传输命令
+ 382   2        return(0);//错误返回
+ 383   2       }
+ 384   1              
+ 385   1       //delay(50000);
+ 386   1      
+ 387   1       if(0==SCCBwriteByte(regID))//积存器ID
+ 388   1       {
+ 389   2        stopSCCB();//发送SCCB 总线停止传输命令
+ 390   2        return(0);//错误返回
+ 391   2       }
+ 392   1       stopSCCB();//发送SCCB 总线停止传输命令
+ 393   1              
+ 394   1       //delay(50000);
+ 395   1              
+ 396   1       //设置寄存器地址后，才是读
+ 397   1       startSCCB();
+ 398   1      
+ 399   1       if(0==SCCBwriteByte(0x43))//读地址
+ 400   1       {
+ 401   2        stopSCCB();//发送SCCB 总线停止传输命令
+ 402   2        return(0);//错误返回
+ 403   2       }
+ 404   1              
+ 405   1       //delay(50000);
+ 406   1       *regDat=SCCBreadByte();//返回读到的值
+ 407   1      
+ 408   1       noAck();//发送NACK命令
+ 409   1       stopSCCB();//发送SCCB 总线停止传输命令
+ 410   1      
+ 411   1       return(1);//成功返回
+ 412   1      }
+ 413          
+ 414          //===============================================
+ 415          //Sensor_init()  摄像头芯片初始化
+ 416          //返回1成功，返回0失败
+ 417          //=================================================
+ 418          unsigned char Sensor_init(void)
+ 419          {
+ 420   1       unsigned char idata temp;      
+ 421   1       unsigned int idata i=0;
+ 422   1      
+ 423   1       //XCLK_init_ON();//开启MCO功能 提供时钟给CMOS传感器
+ 424   1       //uchar ovidmsb=0,ovidlsb=0;
+ 425   1       //Sensor_GPIO_Init();
+ 426   1       //SCCB_GPIO_Config();//io init..
+C51 COMPILER V9.00   SENSOR                                                                05/29/2016 11:02:07 PAGE 8   
+
+ 427   1              
+ 428   1       temp=0x80;
+ 429   1              
+ 430   1       if(0==wr_Sensor_Reg(0x12,temp)) //Reset SCCB
+ 431   1       {
+ 432   2        UART_Put_Inf("Reset SCCB error",temp);
+ 433   2        return 0 ;//错误返回
+ 434   2       }
+ 435   1              
+ 436   1       //delay(50000);
+ 437   1       UART_Put_Inf("Sensor_init:",1);
+ 438   1       //SendString("Sensor_init:");
+ 439   1      
+ 440   1      
+ 441   1              
+ 442   1       
+ 443   1       //SendString("Sensor_init2:");
+ 444   1      
+ 445   1       while(temp!=0x73)
+ 446   1       {
+ 447   2              if(0==rd_Sensor_Reg(0x0b, &temp))//读ID
+ 448   2              {
+ 449   3               UART_Put_Inf("Read Id error",temp);
+ 450   3               return 0 ;//错误返回
+ 451   3              }
+ 452   2              UART_Put_Inf("Sensor_init:",temp);
+ 453   2       }
+ 454   1      
+ 455   1       if(temp==0x73)//OV7670
+ 456   1       {
+ 457   2        for(i=0;i<OV7670_REG_NUM;i++)
+ 458   2        {
+ 459   3         //delay(500);
+ 460   3         UART_Put_Inf("Sensor_init:cycle",i);
+ 461   3         //SendString("Sensor_init:cycle");
+ 462   3      
+ 463   3         if(0==wr_Sensor_Reg(OV7670_reg[i][0],OV7670_reg[i][1]))
+ 464   3         {
+ 465   4          UART_Put_Inf("Sensor_init:cycle error",i);
+ 466   4              return 0;//错误返回
+ 467   4         }
+ 468   3        }
+ 469   2       }
+ 470   1      
+ 471   1       UART_Put_Inf("Sensor_init:ok",0);
+ 472   1       //SendString("Sensor_init:ok");
+ 473   1      
+ 474   1       return 1; //ok
+ 475   1      } 
+ 476          
+ 477          ///////////////////
+ 478          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    427    ----
+   CONSTANT SIZE    =    116    ----
+   XDATA SIZE       =    334       6
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----       3
+   BIT SIZE         =   ----    ----
+C51 COMPILER V9.00   SENSOR                                                                05/29/2016 11:02:07 PAGE 9   
+
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

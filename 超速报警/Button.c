@@ -79,6 +79,8 @@ void EnterSetting()
 	do	                             			             	      	//矩阵键盘按键扫描
 	{
 	    KeyOut1 = 0;
+		KeyOut2 = 1;
+		Delay20ms();
 		if(KeyIn1 == 0)									   	       		//调节左右
 		{  	
     		Delay20ms();
@@ -102,17 +104,89 @@ void EnterSetting()
 			}
 			while(KeyIn1==0);
 		}
-		else										//调节值
+
+		if(KeyIn2 == 0)									   	       		//调节左右
+		{  	
+    		Delay20ms();
+			Delay20ms();
+			if(KeyIn2 == 1) continue;
+			//P20 = !P20;
+			if(Loc == 3)						   
+			{
+				Loc = 2;
+				LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+			}
+			else if(Loc == 1)
+			{
+				Loc = 3;
+				LCD12864DisplayChar(2,4,VelocityValue3 + 48);				
+			}
+			else
+			{
+				Loc = 1;
+				LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+			}
+			while(KeyIn2==0);
+		}
+																	//调节值
+	    KeyOut1 = 1;
+		KeyOut2 = 0;
+		Delay20ms();
+ 		if(KeyIn1 == 0)
+		{
+    		Delay20ms();
+			Delay20ms();
+			if(KeyIn1 == 1) continue;
+			if(Loc == 1)						   
+			{
+		    	if(VelocityValue1==0)
+				{	
+				    VelocityValue1 = 9;
+		    		LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+					}
+				else
+				{
+					LCD12864DisplayChar(2,1,--VelocityValue1 + 48);
+				}
+			}
+			else if(Loc == 2)
+			{
+			    if(VelocityValue2==0)
+				{	
+				    VelocityValue2 = 9;
+			    	LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+				}
+				else
+				{
+					LCD12864DisplayChar(2,3,--VelocityValue2 + 48);
+				}				
+			}
+			else
+			{
+			    if(VelocityValue3==0)
+				{	
+				    VelocityValue3 = 9;
+			    	LCD12864DisplayChar(2,4,VelocityValue3 + 48);
+				}
+				else
+				{
+					LCD12864DisplayChar(2,4,--VelocityValue3 + 48);
+				}										   
+			}
+			while(KeyIn1==0);
+		}
+
+		if(KeyIn2 == 0)
 		{
     		Delay20ms();
 			Delay20ms();
 			if(KeyIn2 == 1) continue;
 			if(Loc == 1)						   
 			{
-			    if(VelocityValue1==9)
+		    	if(VelocityValue1==9)
 				{	
 				    VelocityValue1 = 0;
-			    	LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+		    		LCD12864DisplayChar(2,1,VelocityValue1 + 48);
 				}
 				else
 				{
@@ -136,15 +210,15 @@ void EnterSetting()
 			    if(VelocityValue3==9)
 				{	
 				    VelocityValue3 = 0;
-			    	LCD12864DisplayChar(2,4,VelocityValue3 + 48);
+			    	LCD12864DisplayChar(2,4,VelocityValue3 + 48);		    
 				}
 				else
 				{
 					LCD12864DisplayChar(2,4,++VelocityValue3 + 48);
 				}										   
 			}
-			while(KeyIn2==0);			
-		}
+			while(KeyIn2==0);
+		}			
 	}	
 	while(EXITSETTING == 0);					   	//当没有退出循环时在里面
 	

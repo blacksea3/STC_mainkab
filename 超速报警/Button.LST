@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   BUTTON                                                                05/27/2016 22:47:11 PAGE 1   
+C51 COMPILER V9.00   BUTTON                                                                05/28/2016 21:55:45 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE BUTTON
@@ -62,7 +62,7 @@ line level    source
   52   1          unsigned char Loc = 1;
   53   1              //unsigned char VelocityUp[] = {"速度上限：   m/s"};
   54   1              //LCD12864ClearScreen();
-C51 COMPILER V9.00   BUTTON                                                                05/27/2016 22:47:11 PAGE 2   
+C51 COMPILER V9.00   BUTTON                                                                05/28/2016 21:55:45 PAGE 2   
 
   55   1              //unsigned char Velocity1 = (unsigned char)(0 + 48);
   56   1              //unsigned char Velocity2 = (unsigned char)(0 + 48);
@@ -91,86 +91,162 @@ line level    source
   79   1              do                                                                              //矩阵键盘按键扫描
   80   1              {
   81   2                  KeyOut1 = 0;
-  82   2                      if(KeyIn1 == 0)                                                                                         //调节左右
-  83   2                      {       
-  84   3                      Delay20ms();
-  85   3                              Delay20ms();
-  86   3                              if(KeyIn1 == 1) continue;
-  87   3                              //P20 = !P20;
-  88   3                              if(Loc == 1)                                               
-  89   3                              {
-  90   4                                      Loc = 2;
-  91   4                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
-  92   4                              }
-  93   3                              else if(Loc == 2)
-  94   3                              {
-  95   4                                      Loc = 3;
-  96   4                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);                           
-  97   4                              }
-  98   3                              else
-  99   3                              {
- 100   4                                      Loc = 1;
- 101   4                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
- 102   4                              }
- 103   3                              while(KeyIn1==0);
- 104   3                      }
- 105   2                      else                                                                            //调节值
- 106   2                      {
- 107   3                      Delay20ms();
- 108   3                              Delay20ms();
- 109   3                              if(KeyIn2 == 1) continue;
- 110   3                              if(Loc == 1)                                               
- 111   3                              {
- 112   4                                  if(VelocityValue1==9)
- 113   4                                      {       
- 114   5                                          VelocityValue1 = 0;
- 115   5                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
- 116   5                                      }
-C51 COMPILER V9.00   BUTTON                                                                05/27/2016 22:47:11 PAGE 3   
+  82   2                      KeyOut2 = 1;
+  83   2                      Delay20ms();
+  84   2                      if(KeyIn1 == 0)                                                                                         //调节左右
+  85   2                      {       
+  86   3                      Delay20ms();
+  87   3                              Delay20ms();
+  88   3                              if(KeyIn1 == 1) continue;
+  89   3                              //P20 = !P20;
+  90   3                              if(Loc == 1)                                               
+  91   3                              {
+  92   4                                      Loc = 2;
+  93   4                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+  94   4                              }
+  95   3                              else if(Loc == 2)
+  96   3                              {
+  97   4                                      Loc = 3;
+  98   4                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);                           
+  99   4                              }
+ 100   3                              else
+ 101   3                              {
+ 102   4                                      Loc = 1;
+ 103   4                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+ 104   4                              }
+ 105   3                              while(KeyIn1==0);
+ 106   3                      }
+ 107   2      
+ 108   2                      if(KeyIn2 == 0)                                                                                         //调节左右
+ 109   2                      {       
+ 110   3                      Delay20ms();
+ 111   3                              Delay20ms();
+ 112   3                              if(KeyIn2 == 1) continue;
+ 113   3                              //P20 = !P20;
+ 114   3                              if(Loc == 3)                                               
+ 115   3                              {
+ 116   4                                      Loc = 2;
+C51 COMPILER V9.00   BUTTON                                                                05/28/2016 21:55:45 PAGE 3   
 
- 117   4                                      else
- 118   4                                      {
- 119   5                                              LCD12864DisplayChar(2,1,++VelocityValue1 + 48);
- 120   5                                      }
- 121   4                              }
- 122   3                              else if(Loc == 2)
- 123   3                              {
- 124   4                                  if(VelocityValue2==9)
- 125   4                                      {       
- 126   5                                          VelocityValue2 = 0;
- 127   5                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
- 128   5                                      }
- 129   4                                      else
- 130   4                                      {
- 131   5                                              LCD12864DisplayChar(2,3,++VelocityValue2 + 48);
- 132   5                                      }                               
- 133   4                              }
- 134   3                              else
- 135   3                              {
- 136   4                                  if(VelocityValue3==9)
- 137   4                                      {       
- 138   5                                          VelocityValue3 = 0;
- 139   5                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);
- 140   5                                      }
- 141   4                                      else
- 142   4                                      {
- 143   5                                              LCD12864DisplayChar(2,4,++VelocityValue3 + 48);
- 144   5                                      }                                                                                  
- 145   4                              }
- 146   3                              while(KeyIn2==0);                       
- 147   3                      }
- 148   2              }       
- 149   1              while(EXITSETTING == 0);                                                //当没有退出循环时在里面
- 150   1              
- 151   1              TempVelocity = 1000*VelocityValue1 + 100*VelocityValue2 + 10*VelocityValue3;    //计算速度阈值
- 152   1              SetVelocityThreshold(TempVelocity,0);           //保存速度阈值
- 153   1              LCD12864SettingExit();
- 154   1              EXITSETTING = 0;
- 155   1      }
+ 117   4                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+ 118   4                              }
+ 119   3                              else if(Loc == 1)
+ 120   3                              {
+ 121   4                                      Loc = 3;
+ 122   4                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);                           
+ 123   4                              }
+ 124   3                              else
+ 125   3                              {
+ 126   4                                      Loc = 1;
+ 127   4                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+ 128   4                              }
+ 129   3                              while(KeyIn2==0);
+ 130   3                      }
+ 131   2                                                                                                                                              //调节值
+ 132   2                  KeyOut1 = 1;
+ 133   2                      KeyOut2 = 0;
+ 134   2                      Delay20ms();
+ 135   2                      if(KeyIn1 == 0)
+ 136   2                      {
+ 137   3                      Delay20ms();
+ 138   3                              Delay20ms();
+ 139   3                              if(KeyIn1 == 1) continue;
+ 140   3                              if(Loc == 1)                                               
+ 141   3                              {
+ 142   4                              if(VelocityValue1==0)
+ 143   4                                      {       
+ 144   5                                          VelocityValue1 = 9;
+ 145   5                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+ 146   5                                              }
+ 147   4                                      else
+ 148   4                                      {
+ 149   5                                              LCD12864DisplayChar(2,1,--VelocityValue1 + 48);
+ 150   5                                      }
+ 151   4                              }
+ 152   3                              else if(Loc == 2)
+ 153   3                              {
+ 154   4                                  if(VelocityValue2==0)
+ 155   4                                      {       
+ 156   5                                          VelocityValue2 = 9;
+ 157   5                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+ 158   5                                      }
+ 159   4                                      else
+ 160   4                                      {
+ 161   5                                              LCD12864DisplayChar(2,3,--VelocityValue2 + 48);
+ 162   5                                      }                               
+ 163   4                              }
+ 164   3                              else
+ 165   3                              {
+ 166   4                                  if(VelocityValue3==0)
+ 167   4                                      {       
+ 168   5                                          VelocityValue3 = 9;
+ 169   5                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);
+ 170   5                                      }
+ 171   4                                      else
+ 172   4                                      {
+ 173   5                                              LCD12864DisplayChar(2,4,--VelocityValue3 + 48);
+ 174   5                                      }                                                                                  
+ 175   4                              }
+ 176   3                              while(KeyIn1==0);
+ 177   3                      }
+ 178   2      
+C51 COMPILER V9.00   BUTTON                                                                05/28/2016 21:55:45 PAGE 4   
+
+ 179   2                      if(KeyIn2 == 0)
+ 180   2                      {
+ 181   3                      Delay20ms();
+ 182   3                              Delay20ms();
+ 183   3                              if(KeyIn2 == 1) continue;
+ 184   3                              if(Loc == 1)                                               
+ 185   3                              {
+ 186   4                              if(VelocityValue1==9)
+ 187   4                                      {       
+ 188   5                                          VelocityValue1 = 0;
+ 189   5                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+ 190   5                                      }
+ 191   4                                      else
+ 192   4                                      {
+ 193   5                                              LCD12864DisplayChar(2,1,++VelocityValue1 + 48);
+ 194   5                                      }
+ 195   4                              }
+ 196   3                              else if(Loc == 2)
+ 197   3                              {
+ 198   4                                  if(VelocityValue2==9)
+ 199   4                                      {       
+ 200   5                                          VelocityValue2 = 0;
+ 201   5                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+ 202   5                                      }
+ 203   4                                      else
+ 204   4                                      {
+ 205   5                                              LCD12864DisplayChar(2,3,++VelocityValue2 + 48);
+ 206   5                                      }                               
+ 207   4                              }
+ 208   3                              else
+ 209   3                              {
+ 210   4                                  if(VelocityValue3==9)
+ 211   4                                      {       
+ 212   5                                          VelocityValue3 = 0;
+ 213   5                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);
+ 214   5                                      }
+ 215   4                                      else
+ 216   4                                      {
+ 217   5                                              LCD12864DisplayChar(2,4,++VelocityValue3 + 48);
+ 218   5                                      }                                                                                  
+ 219   4                              }
+ 220   3                              while(KeyIn2==0);
+ 221   3                      }                       
+ 222   2              }       
+ 223   1              while(EXITSETTING == 0);                                                //当没有退出循环时在里面
+ 224   1              
+ 225   1              TempVelocity = 1000*VelocityValue1 + 100*VelocityValue2 + 10*VelocityValue3;    //计算速度阈值
+ 226   1              SetVelocityThreshold(TempVelocity,0);           //保存速度阈值
+ 227   1              LCD12864SettingExit();
+ 228   1              EXITSETTING = 0;
+ 229   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    553    ----
+   CODE SIZE        =    737    ----
    CONSTANT SIZE    =     31    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----      30
@@ -178,6 +254,8 @@ MODULE INFORMATION:   STATIC OVERLAYABLE
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
+
+C51 COMPILER V9.00   BUTTON                                                                05/28/2016 21:55:45 PAGE 5   
 
 
 C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
