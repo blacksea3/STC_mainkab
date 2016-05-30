@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   MAIN                                                                  05/28/2016 21:55:45 PAGE 1   
+C51 COMPILER V9.00   MAIN                                                                  05/30/2016 16:08:02 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
@@ -62,7 +62,7 @@ line level    source
   52   1              DHT11ISREADY = 0;                                                       //DHT11未激活
   53   1              ULTRAISREADY = 0;                                                       //超声波未激活,他们两个由Timer0中断激活
   54   1              FASTSPEED = 0;                                                          //超速蜂鸣器未激活
-C51 COMPILER V9.00   MAIN                                                                  05/28/2016 21:55:45 PAGE 2   
+C51 COMPILER V9.00   MAIN                                                                  05/30/2016 16:08:02 PAGE 2   
 
   55   1              BUZZERTIMER3STOP = 0;
   56   1          ISSETTING = 0;
@@ -126,7 +126,7 @@ line level    source
  114   4                              }
  115   3                              else if(DS3231ISREADY)
  116   3                              {
-C51 COMPILER V9.00   MAIN                                                                  05/28/2016 21:55:45 PAGE 3   
+C51 COMPILER V9.00   MAIN                                                                  05/30/2016 16:08:02 PAGE 3   
 
  117   4                                      DS3231read_time();
  118   4                                      DS3231ISREADY = 0;

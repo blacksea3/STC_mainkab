@@ -5,6 +5,7 @@
 #include "Timer.h"
 #include "Button.h"
 #include "FLASH.h"
+#include "DS1302.h"
 
 unsigned char code SetString[] = {"设置："};
 
@@ -41,11 +42,127 @@ void EXT0(void) interrupt 0
 	} 	
 }
 
+/*调整时间部分,注意:不会自动调整星期的！因为用不到它,时间不会进位、不会退位
+  不判断闰年...自行调整,别调过了*/
+void AddYear(unsigned char *year, signed char mode)
+{
+	if(mode==1)
+	{
+		if(year<30)
+			(*year)++;
+		else
+			(*year)=0;
+	}
+	else
+	{
+		if(year>0)
+			(*year)--;
+		else
+			(*year)=30;
+	}
+}
+
+void AddMonth(unsigned char *month, signed char mode)
+{
+	if(mode==1)
+	{
+		if(month<12)
+			(*month)++;
+		else
+			(*month)=0;
+	}
+	else
+	{
+		if(month>0)
+			(*month)--;
+		else
+			(*month)=12;
+	}
+}
+
+void AddDay(unsigned char *day, signed char mode)
+{
+	if(mode==1)
+	{
+		if(day<31)
+			(*day)++;
+		else
+			(*day)=0;
+	}
+	else
+	{
+		if(day>0)
+			(*day)--;
+		else
+			(*day)=31;
+	}
+}
+
+void AddHour(unsigned char *hour, signed char mode)
+{
+	if(mode==1)
+	{
+		if(hour<24)
+			(*hour)++;
+		else
+			(*hour)=0;
+	}
+	else
+	{
+		if(hour>0)
+			(*hour)--;
+		else
+			(*hour)=24;
+	}
+}
+
+void AddMinute(unsigned char *minute, signed char mode)
+{
+	if(mode==1)
+	{
+		if(minute<59)
+			(*minute)++;
+		else
+			(*minute)=0;
+	}
+	else
+	{
+		if(minute>0)
+			(*minute)--;
+		else
+			(*minute)=59;
+	}
+}
+
+void AddSecond(unsigned char *second, signed char mode)
+{
+	if(mode==1)
+	{
+		if(second<59)
+			(*second)++;
+		else
+			(*second)=0;
+	}
+	else
+	{
+		if(second>0)
+			(*second)--;
+		else
+			(*second)=59;
+	}
+}
+
+/*
+ * 进入设置模式
+ */
 void EnterSetting()
 {
     unsigned char VeloCitySettingFull1[] = {"速度上限："};
 	unsigned char VeloCitySettingFull2[] = {"6 . 6 6 km/h"};
+	unsigned char TimeSettingFull1[] = {"00年00月00日"};
+	unsigned char TimeSettingFull2[] = {"00时00分00秒"};
 	unsigned int TempVelocity;				                			//临时变量
+	unsigned char TempTime[6] = {0,0,0,0,0,0};	
 	unsigned char VelocityValue1 = 0;									//个位
 	unsigned char VelocityValue2 = 0;									//十分之一位
 	unsigned char VelocityValue3 = 0; 				  					//百分之一位
@@ -64,6 +181,7 @@ void EnterSetting()
 	Display_String(2,VeloCitySettingFull2);
 
     TempVelocity = GetVelocityThreshold();
+	DS1302_readoutTime(TempTime);
 	//SendData(VelocityValue1);
 	//SendData(VelocityValue1);
 	//SendData(VelocityValue1);
@@ -97,6 +215,42 @@ void EnterSetting()
 				Loc = 3;
 				LCD12864DisplayChar(2,4,VelocityValue3 + 48);				
 			}
+			else if(Loc == 3)
+			{
+				Loc = 4;
+				LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
+				//年
+			}
+			else if(Loc == 4)
+			{
+				Loc = 5;
+				LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
+				//月
+			}
+			else if(Loc == 5)
+			{
+				Loc = 6;
+				LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
+				//日
+			}
+			else if(Loc == 6)
+			{
+				Loc = 7;
+				LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
+				//时
+			}
+			else if(Loc == 7)
+			{
+				Loc = 8;
+				LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
+				//分
+			}
+			else if(Loc == 8)
+			{
+				Loc = 9;
+				LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
+				//秒
+			}
 			else
 			{
 				Loc = 1;
@@ -109,17 +263,53 @@ void EnterSetting()
 		{  	
     		Delay20ms();
 			Delay20ms();
-			if(KeyIn2 == 1) continue;
+			if(KeyIn1 == 1) continue;
 			//P20 = !P20;
 			if(Loc == 3)						   
 			{
 				Loc = 2;
 				LCD12864DisplayChar(2,3,VelocityValue2 + 48);
 			}
-			else if(Loc == 1)
+			else if(Loc == 4)
 			{
 				Loc = 3;
 				LCD12864DisplayChar(2,4,VelocityValue3 + 48);				
+			}
+			else if(Loc == 5)
+			{
+				Loc = 4;
+				LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
+				//年
+			}
+			else if(Loc == 6)
+			{
+				Loc = 5;
+				LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
+				//月
+			}
+			else if(Loc == 7)
+			{
+				Loc = 6;
+				LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
+				//日
+			}
+			else if(Loc == 8)
+			{
+				Loc = 7;
+				LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
+				//时
+			}
+			else if(Loc == 9)
+			{
+				Loc = 8;
+				LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
+				//分
+			}
+			else if(Loc == 1)
+			{
+				Loc = 9;
+				LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
+				//秒
 			}
 			else
 			{
@@ -161,7 +351,7 @@ void EnterSetting()
 					LCD12864DisplayChar(2,3,--VelocityValue2 + 48);
 				}				
 			}
-			else
+			else if(Loc == 3)
 			{
 			    if(VelocityValue3==0)
 				{	
@@ -172,6 +362,44 @@ void EnterSetting()
 				{
 					LCD12864DisplayChar(2,4,--VelocityValue3 + 48);
 				}										   
+			}
+			else if(Loc == 4)
+			{
+			    //年份加一
+				AddYear(&TempTime[0],1);
+				LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
+			}
+			else if(Loc == 5)
+			{
+			    //月份加一
+				AddMonth(&TempTime[1],1);
+				LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
+			}
+			else if(Loc == 6)
+			{
+			    //日期加一
+				AddDay(&TempTime[2],1);
+				LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
+			}
+			
+			else if(Loc == 7)
+			{
+			    //小时加一
+				AddHour(&TempTime[3],1);
+				LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
+			}
+			else if(Loc == 8)
+			{
+			    //分钟加一
+				AddMinute(&TempTime[4],1);
+				LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
+			}
+			
+			else
+			{
+			    //秒加一
+				AddSecond(&TempTime[5],1);
+				LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
 			}
 			while(KeyIn1==0);
 		}
@@ -205,7 +433,7 @@ void EnterSetting()
 					LCD12864DisplayChar(2,3,++VelocityValue2 + 48);
 				}				
 			}
-			else
+			else if(Loc == 3)
 			{
 			    if(VelocityValue3==9)
 				{	
@@ -216,6 +444,44 @@ void EnterSetting()
 				{
 					LCD12864DisplayChar(2,4,++VelocityValue3 + 48);
 				}										   
+			}
+			else if(Loc == 4)
+			{
+			    //年份减一
+				AddYear(&TempTime[0],-1);
+				LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
+			}
+			else if(Loc == 5)
+			{
+			    //月份减一
+				AddMonth(&TempTime[1],-1);
+				LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
+			}
+			else if(Loc == 6)
+			{
+			    //日期减一
+				AddDay(&TempTime[2],-1);
+				LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
+			}
+			
+			else if(Loc == 7)
+			{
+			    //小时减一
+				AddHour(&TempTime[3],-1);
+				LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
+			}
+			else if(Loc == 8)
+			{
+			    //分钟减一
+				AddMinute(&TempTime[4],-1);
+				LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
+			}
+			
+			else
+			{
+			    //秒减一
+				AddSecond(&TempTime[5],-1);
+				LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
 			}
 			while(KeyIn2==0);
 		}			

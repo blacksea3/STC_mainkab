@@ -184,6 +184,36 @@ void delay_1S(void)
 }
 
 /*
+ * DS1302读出时间
+ * 参数:无
+ * 返回:[年,月,日,时,分,秒]
+ */
+void DS1302_readoutTime(unsigned char result[6])
+{
+    unsigned char i;
+	unsigned char TempData[8] = {0,0,0,0,0,0,0,0};
+	//unsigned char result[6] = {0,0,0,0,0,0};
+	//unsigned char TimeData[8] = {0,0,0,0,0,0,0,0};  
+	RST=0;
+	SCK=0;
+    RST = 1;
+    write_ds1302_byte(0xBF);  //发送突发读寄存器指令
+    for (i=0; i<8; i++)     //连续读取8个字节
+    {
+        TempData[i] = read_ds1302_byte();
+    }
+    RST = 0;
+	//转换格式
+	result[0] = 10*(TempData[6] >> 4) + TempData[6]&0x0F;
+	result[1] = 10*(TempData[4] >> 4) + TempData[4]&0x0F;
+	result[2] = 10*(TempData[3] >> 4) + TempData[3]&0x0F;
+	result[3] = 10*(TempData[2] >> 4) + TempData[2]&0x0F;
+	result[4] = 10*(TempData[1] >> 4) + TempData[1]&0x0F;
+	result[5] = 10*(TempData[0] >> 4) + TempData[0]&0x0F;
+
+}
+
+/*
  * DS1302初始化
  * 参数:时间数组StartTime[7]=	{14,11,30,23,50,59,7} 
  */

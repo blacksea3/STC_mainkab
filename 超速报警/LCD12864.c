@@ -102,6 +102,44 @@ void LCD12864DisplayChar(unsigned char line, unsigned char column, unsigned char
 	Wr_Data(Str);
 }
 
+/*
+ *LCD12864显示两个字符
+ *参数:行,列,第一个字符,第二个字符
+ */
+void LCD12864DisplayTwoChar(unsigned char line, unsigned char column, unsigned char Str1, unsigned char Str2)
+{	
+	switch(line)
+	{
+		case 1:
+		{   
+			Wr_Command(0x80 + column -1 ,1);
+			break;  
+		}
+		case 2:
+		{
+			Wr_Command(0x90 + column -1 ,1);
+			break;
+		}
+		case 3:
+		{
+			Wr_Command(0x88 + column -1 ,1);
+			break;  
+		}
+		case 4:
+		{
+			Wr_Command(0x98 + column -1 ,1);
+			break;
+		}
+		default:
+		{
+			;
+		}	
+	}
+	
+	Wr_Data(Str1);
+	Wr_Data(Str2);
+}
+
 void LCD12864SettingInit()
 {
    	//unsigned char VeloCityFullSetting[] = {"速度上限：0.0m/s"};
