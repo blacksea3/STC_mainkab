@@ -14,7 +14,9 @@ void DisableTimer3();
 void Timer4Init();
 void EnableTimer4();
 void DisableTimer4();
+void RefreshTimer4();
 
+extern unsigned char T4times;
 extern unsigned int T1times;
 
 #endif

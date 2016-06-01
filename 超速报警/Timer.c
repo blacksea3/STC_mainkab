@@ -7,7 +7,8 @@
 #include "main.h"
 
 #define TFOSC 11059200L
-#define TIMS (65536-TFOSC/1000)  //1TÄ£Ê½
+#define TIMS (65536-TFOSC/1000)  		//1TÄ£Ê½,1ms
+#define TIMS50US (65536-TFOSC/20000)	//1TÄ£Ê½,100us
 
 unsigned int T0times0;     	//¶¨Ê±Æ÷0ÖĞ¶Ï´ÎÊı0
 unsigned int T0times1;     	//¶¨Ê±Æ÷0ÖĞ¶Ï´ÎÊı1
@@ -185,12 +186,12 @@ void Timer3_ISR() interrupt 19       			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµ
 }
 
 //¿É±ä¶¨Ê±Æ÷Timer4
-void Timer4Init(void)		//1ºÁÃë@11.0592MHz
+void Timer4Init(void)		//100Î¢Ãë@11.0592MHz
 {
 	T4T3M &= 0xbf;		    //¶¨Ê±Æ÷4ÄÚ²¿ÏµÍ³Ê±ÖÓ
 	T4T3M |= 0x20;          //¶¨Ê±Æ÷4 1TÄ£Ê½
-	T4L = TIMS;				//ÉèÖÃ¶¨Ê±³õÖµ
-	T4H = TIMS>>8;			//ÉèÖÃ¶¨Ê±³õÖµ
+	T4L = TIMS;		//ÉèÖÃ¶¨Ê±³õÖµ
+	T4H = TIMS>>8;		//ÉèÖÃ¶¨Ê±³õÖµ
 	T4T3M &= 0x7f;		    //¶¨Ê±Æ÷4Í£Ö¹¼ÆÊ±
 	IE2 &= 0xbf;            //¹Ø±Õ¶¨Ê±Æ÷4ÖĞ¶Ï
 }
@@ -208,6 +209,11 @@ void DisableTimer4()
 	IE2 &= 0xbf;            //¹Ø±Õ¶¨Ê±Æ÷4ÖĞ¶Ï	
 }
 
+void RefreshTimer4()
+{
+	T4times = 0;
+}
+
 //Timer4ÖĞ¶Ïº¯Êı
 void Timer4_ISR() interrupt 20       			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµÄÖĞ¶ÏÀïÖ±½Ó·¢Êı¾İ
 {
@@ -219,6 +225,9 @@ void Timer4_ISR() interrupt 20       			//ÓÉÓÚ·¢ËÍÊı¾İÊ¹ÓÃ´®¿ÚÖĞ¶Ï,¾¡Á¿±ÜÃâÔÚ±ğµ
 	else
 	{
 		T4times=0;
+		DisableTimer4();
+		WIFINEEDDELAY = 0;
+		P20 = !P20;
 		//SendString("ABCDE");
 		//ReadTemperature();                    //¶ÁÈ¡ÎÂ¶ÈÊª¶È´«¸ĞÆ÷Öµ
 		//ReadAir();                            //¶ÁÈ¡¿ÕÆø´«¸ĞÆ÷Öµ

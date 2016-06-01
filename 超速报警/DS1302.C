@@ -120,17 +120,18 @@ void LCD12864_Send_TIME(unsigned char *tmp)
 {
 	unsigned char str[19];           // 字符串转换缓冲区
 	unsigned char *nowstrloc;
-	nowstrloc = &str[2];
+	nowstrloc = &str[4];
 	//str[0] = '2';                    // 添加年份的高2位：20
     //str[1] = '0';
-    str[2] = (tmp[6] >> 4) + '0';    //“年”高位数字转换为ASCII码
-    str[3] = (tmp[6]&0x0F) + '0';    //“年”低位数字转换为ASCII码
-    str[4] = '-';  //添加日期分隔符
-    str[5] = (tmp[4] >> 4) + '0';    //“月”
-    str[6] = (tmp[4]&0x0F) + '0';
-    str[7] = '-';
-    str[8] = (tmp[3] >> 4) + '0';    //“日”
-    str[9] = (tmp[3]&0x0F) + '0';
+    str[1] = (tmp[6] >> 4) + '0';    //“年”高位数字转换为ASCII码
+    str[2] = (tmp[6]&0x0F) + '0';    //“年”低位数字转换为ASCII码
+    str[3] = '-';  //添加日期分隔符
+    str[4] = (tmp[4] >> 4) + '0';    //“月”
+    str[5] = (tmp[4]&0x0F) + '0';
+    str[6] = '-';
+    str[7] = (tmp[3] >> 4) + '0';    //“日”
+    str[8] = (tmp[3]&0x0F) + '0';
+    str[9] = ',';
     //str[10] = '\0';					 // 字符串结束符
 	//UART_Send_Str(str);				 // 输出  年、月、日
 	//UART_Send_Str("   ");
@@ -203,13 +204,19 @@ void DS1302_readoutTime(unsigned char result[6])
         TempData[i] = read_ds1302_byte();
     }
     RST = 0;
-	//转换格式
-	result[0] = 10*(TempData[6] >> 4) + TempData[6]&0x0F;
-	result[1] = 10*(TempData[4] >> 4) + TempData[4]&0x0F;
-	result[2] = 10*(TempData[3] >> 4) + TempData[3]&0x0F;
-	result[3] = 10*(TempData[2] >> 4) + TempData[2]&0x0F;
-	result[4] = 10*(TempData[1] >> 4) + TempData[1]&0x0F;
-	result[5] = 10*(TempData[0] >> 4) + TempData[0]&0x0F;
+	//转换格式					  
+	result[0] = (unsigned char)(10*(TempData[6] >> 4)) + (unsigned char)(TempData[6]&0x0F);
+	result[1] = (unsigned char)(10*(TempData[4] >> 4)) + (unsigned char)(TempData[4]&0x0F);
+	result[2] = (unsigned char)(10*(TempData[3] >> 4)) + (unsigned char)(TempData[3]&0x0F);
+	result[3] = (unsigned char)(10*(TempData[2] >> 4)) + (unsigned char)(TempData[2]&0x0F);
+	result[4] = (unsigned char)(10*(TempData[1] >> 4)) + (unsigned char)(TempData[1]&0x0F);
+	result[5] = (unsigned char)(10*(TempData[0] >> 4)) + (unsigned char)(TempData[0]&0x0F);
+	/*result[0] = (unsigned char)(TempData[2]&0x0F);
+	result[1] = (unsigned char)(TempData[1]&0x0F);
+	result[2] = (unsigned char)(TempData[0]&0x0F);
+	result[3] = (unsigned char)(10*(TempData[2] >> 4));
+	result[4] = (unsigned char)(10*(TempData[1] >> 4));
+	result[5] = (unsigned char)(10*(TempData[0] >> 4)) + (unsigned char)(TempData[0]&0x0F);*/
 
 }
 

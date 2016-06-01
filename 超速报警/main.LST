@@ -1,10 +1,10 @@
-C51 COMPILER V9.00   MAIN                                                                  05/30/2016 16:08:02 PAGE 1   
+C51 COMPILER V9.00   MAIN                                                                  06/02/2016 00:46:32 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE MAIN
 OBJECT MODULE PLACED IN main.OBJ
-COMPILER INVOKED BY: E:\software\DevelopmentSoftware\InstallSrc\KeilC51\C51\BIN\C51.EXE main.c COMPACT BROWSE DEBUG OBJE
-                    -CTEXTEND
+COMPILER INVOKED BY: E:\software\DevelopmentSoftware\InstallSrc\KeilC51\C51\BIN\C51.EXE main.c LARGE BROWSE DEBUG OBJECT
+                    -EXTEND
 
 line level    source
 
@@ -22,143 +22,189 @@ line level    source
   12          #include "STC_AD.h"
   13          #include "FLASH.h"                               
   14          //#include "Wifi.h"
-  15          //#include "Force.h"
-  16          //#include "Camera.h"
-  17          #include "UART.h"
-  18          
-  19          unsigned char code StrHello[]="HELLOWORLD!";
-  20          unsigned char DS3231ISREADY;  
-  21          unsigned char DHT11ISREADY;
-  22          unsigned char ULTRAISREADY;
-  23          
-  24          unsigned char ADCSTARTREADY;
-  25          unsigned char ADCSTOPREADY;
-  26          unsigned char ADCDISPLAYREADY;
-  27          
-  28          unsigned char FASTSPEED;
-  29          unsigned char BUZZERTIMER3STOP;
-  30          unsigned char ISSETTING;                                                        //设置,1为设置状态 0为运行状态
-  31          unsigned char EXITSETTING;                                                      //退出设置标志1为激活0为未激活
-  32          
-  33          unsigned char StartTime[7]=     {16,5,25,23,52,0,3};    // 年月日时分秒周 14-11-30 23:50:59   DS1302起始时间
-  34          unsigned int FirstSetVelocity = 3600;                           // 初始速度阈值约为3600m/h
-  35          
-  36          void port_mode()            // 端口模式
-  37          {
-  38   1              P0M1=0x00; P0M0=0x00;P1M1=0x00; P1M0=0x00;P2M1=0x00; P2M0=0x00;P3M1=0x00; P3M0=0x00;
-  39   1              P4M1=0x00; P4M0=0x00;
-  40   1              //P5M1=0x00; P5M0=0x00;P6M1=0x00; P6M0=0x00;P7M1=0x00; P7M0=0x00; 
-  41   1      }
-  42          
-  43          void main()
-  44          {       
-  45   1          
-  46   1          //unsigned char code FUCKSTOP[]={"FUCKSTOOP!"};
-  47   1              //unsigned char code FUCKSTART[]={"FUCKSTAART!"};
-  48   1      
-  49   1          port_mode();                                                                //端口设置全部弱上拉
-  50   1      
-  51   1          DS3231ISREADY = 0;                                                  //DS1302未激活
-  52   1              DHT11ISREADY = 0;                                                       //DHT11未激活
-  53   1              ULTRAISREADY = 0;                                                       //超声波未激活,他们两个由Timer0中断激活
-  54   1              FASTSPEED = 0;                                                          //超速蜂鸣器未激活
-C51 COMPILER V9.00   MAIN                                                                  05/30/2016 16:08:02 PAGE 2   
+  15          
+  16          #include "UART.h"
+  17          
+  18          unsigned char code StrHello[]="HELLOWORLD!";
+  19          unsigned char DS3231ISREADY;  
+  20          unsigned char DHT11ISREADY;
+  21          unsigned char ULTRAISREADY;
+  22          
+  23          unsigned char ADCSTARTREADY;
+  24          unsigned char ADCSTOPREADY;
+  25          unsigned char ADCDISPLAYREADY;
+  26          
+  27          unsigned char FASTSPEED;
+  28          unsigned char BUZZERTIMER3STOP;
+  29          unsigned char ISSETTING;                                                        //设置,1为设置状态 0为运行状态
+  30          unsigned char EXITSETTING;                                                      //退出设置标志1为激活0为未激活
+  31          
+  32          unsigned char UART2RIREADY;
+  33          unsigned char UART1RIREADY;
+  34          
+  35          unsigned char WIFINEEDDELAY;
+  36                                                            
+  37          unsigned char TEMPSTOP;
+  38                                                            
+  39          unsigned char StartTime[7]=     {16,5,25,23,52,45,3};   // 年月日时分秒周 14-11-30 23:50:59   DS1302起始时间
+  40          unsigned int FirstSetVelocity = 3600;                           // 初始速度阈值约为3600m/h
+  41          
+  42          void port_mode()            // 端口模式
+  43          {
+  44   1              P0M1=0x00; P0M0=0x00;P1M1=0x00; P1M0=0x00;P2M1=0x00; P2M0=0x00;P3M1=0x00; P3M0=0x00;
+  45   1              P4M1=0x00; P4M0=0x00;
+  46   1              //P5M1=0x00; P5M0=0x00;P6M1=0x00; P6M0=0x00;P7M1=0x00; P7M0=0x00; 
+  47   1      }
+  48          
+  49          void main()
+  50          {       
+  51   1          
+  52   1          //unsigned char code FUCKSTOP[]={"FUCKSTOOP!"};
+  53   1              //unsigned char code FUCKSTART[]={"FUCKSTAART!"};
+  54   1      
+C51 COMPILER V9.00   MAIN                                                                  06/02/2016 00:46:32 PAGE 2   
 
-  55   1              BUZZERTIMER3STOP = 0;
-  56   1          ISSETTING = 0;
-  57   1              EXITSETTING = 0;
-  58   1              ADCSTARTREADY = 0;
-  59   1              ADCSTOPREADY = 0;
-  60   1              ADCDISPLAYREADY = 0;
-  61   1              P20 = 1;
-  62   1              UltraSoundInit();                                                       //超声波初始化
-  63   1              ADC_P12_init();                             //ADC P12口初始化,MQ-135空气质量传感器
-  64   1              SetVelocityThreshold(FirstSetVelocity,1);       //速度EEPROM初始化,可以自动识别是否初始化过
-  65   1              
-  66   1              //DS1302Init(StartTime);                                        //DS1302初始化,初始化一次就行了
-  67   1              
-  68   1              //P20 = 0;
-  69   1              
-  70   1              //DHT11Init();          //DHT11没有初始化程序
-  71   1          //UARTInit();                       //UART初始化
-  72   1          
-  73   1          Delay1000ms();                      //延时3s
-  74   1          Delay1000ms();   
-  75   1          Lcm_Init();                         //LCD12864以及初始化
+  55   1          port_mode();                                                                //端口设置全部弱上拉
+  56   1              UARTInit();                                                                     //UART初始化
+  57   1              UART2Init();                                                            //UART2初始化
+  58   1      
+  59   1      
+  60   1          DS3231ISREADY = 0;                                                  //DS1302未激活
+  61   1              DHT11ISREADY = 0;                                                       //DHT11未激活
+  62   1              ULTRAISREADY = 0;                                                       //超声波未激活,他们两个由Timer0中断激活
+  63   1              FASTSPEED = 0;                                                          //超速蜂鸣器未激活
+  64   1              BUZZERTIMER3STOP = 0;
+  65   1          ISSETTING = 0;
+  66   1              EXITSETTING = 0;
+  67   1              ADCSTARTREADY = 0;
+  68   1              ADCSTOPREADY = 0;
+  69   1              ADCDISPLAYREADY = 0;
+  70   1              UART2RIREADY = 0;
+  71   1              UART1RIREADY = 0;
+  72   1      
+  73   1              WIFINEEDDELAY = 0;
+  74   1              //P20 = 1;
+  75   1              /*//DS1302Init(StartTime);                                      //DS1302初始化,初始化一次就行了*/
   76   1      
-  77   1          Timer3Init();               //蜂鸣器定时器初始化但不开启,开启由变量FASTSPEED指示
-  78   1              INT0_Init();            //按键外部中断0开启
-  79   1              Timer0Init();                   //DHT11和超声波
-  80   1              EA = 1;                         //使能总中断
-  81   1          
-  82   1      
-  83   1              Display_String(1,StrHello);                                         //LCD显示HelloWorld!
-  84   1              Display_String(2,StrHello);                                         //LCD显示HelloWorld!
-  85   1              Display_String(3,StrHello);                                         //LCD显示HelloWorld!
-  86   1              Display_String(4,StrHello);                                         //LCD显示HelloWorld!
-  87   1              //P20 = 0;
-  88   1              while(1)
-  89   1              {       
-  90   2                      /**********************设置状态*****************************/
-  91   2                  if(ISSETTING == 0)                                                  
-  92   2                      {
-  93   3                      if(BUZZERTIMER3STOP)
-  94   3                              {
-  95   4                                      DisableTimer3();
-  96   4                                      //Display_String(4,FUCKSTOP);
-  97   4                              }
-  98   3      
-  99   3                              if(DHT11ISREADY)
- 100   3                              {
- 101   4                                      DisplayDHT11();                         //读取温度湿度传感器值
- 102   4                                      DHT11ISREADY = 0;
- 103   4                              }
- 104   3                              else if(ULTRAISREADY)
- 105   3                              {
- 106   4                                      UltraSoundDisplay();                    //超声波
- 107   4                                      ULTRAISREADY = 0;
- 108   4                                      if(FASTSPEED)
- 109   4                                      {
- 110   5                                          BUZZERTIMER3STOP = 0;
- 111   5                                              EnableTimer3();
- 112   5                                              //Display_String(4,FUCKSTART);
- 113   5                                      }
+  77   1              UltraSoundInit();                                                       //超声波初始化
+  78   1              ADC_P12_init();                             //ADC P12口初始化,MQ-135空气质量传感器
+  79   1              SetVelocityThreshold(FirstSetVelocity,1);       //速度EEPROM初始化,可以自动识别是否初始化过
+  80   1              //P20 = 0;
+  81   1              
+  82   1              //DHT11Init();          //DHT11没有初始化程序
+  83   1          
+  84   1          
+  85   1          Delay1000ms();                      //延时3s
+  86   1          Delay1000ms();   
+  87   1          Lcm_Init();                         //LCD12864以及初始化
+  88   1      
+  89   1          Timer3Init();               //蜂鸣器定时器初始化但不开启,开启由变量FASTSPEED指示
+  90   1              INT0_Init();            //按键外部中断0开启
+  91   1              Timer0Init();                   //DHT11和超声波                         
+  92   1          Timer4Init();                       //Wifi超时用定时器
+  93   1      
+  94   1              Display_String(1,StrHello);                                         //LCD显示HelloWorld!
+  95   1              Display_String(2,StrHello);                                         //LCD显示HelloWorld!
+  96   1              Display_String(3,StrHello);                                         //LCD显示HelloWorld!
+  97   1              Display_String(4,StrHello);                                         //LCD显示HelloWorld!
+  98   1              
+  99   1              //P20 = 0;
+ 100   1              INT0_Init();
+ 101   1              EA = 1;                             //使能总中断
+ 102   1              
+ 103   1              //SendString2("AT+CIPSTART=\"TCP\",\"192.168.4.2\",8070\r\n");
+ 104   1      
+ 105   1              while(1)
+ 106   1              {       
+ 107   2                      if(WIFINEEDDELAY)
+ 108   2                      {
+ 109   3                              if(UART2RIREADY)
+ 110   3                              {
+ 111   4                                      Uart1SendUart2String();
+ 112   4                                      UART2RIREADY = 0;
+ 113   4                                      P20 = !P20;
  114   4                              }
- 115   3                              else if(DS3231ISREADY)
+ 115   3                              if(UART1RIREADY)
  116   3                              {
-C51 COMPILER V9.00   MAIN                                                                  05/30/2016 16:08:02 PAGE 3   
+C51 COMPILER V9.00   MAIN                                                                  06/02/2016 00:46:32 PAGE 3   
 
- 117   4                                      DS3231read_time();
- 118   4                                      DS3231ISREADY = 0;
- 119   4                              }
- 120   3                              else if(ADCSTARTREADY)
- 121   3                              {
- 122   4                                      ADCStart();
- 123   4                              }
- 124   3                              else if(ADCSTOPREADY)
- 125   3                              {
- 126   4                                      ADCStop();
- 127   4                              }
- 128   3                              else if(ADCDISPLAYREADY)
- 129   3                              {
- 130   4                                      ADCDisplay();
- 131   4                              }
- 132   3                              else ;
- 133   3                      }
- 134   2                      /*********************************设置状态*****************************/
- 135   2                      else
- 136   2                      {
- 137   3                              EnterSetting();                                                          //这里设置成死循环!
- 138   3                      }
- 139   2              }
- 140   1      }
+ 117   4                              //SendString2Length("AT+RST\r\n",8);
+ 118   4                                      Uart2SendUart1String();
+ 119   4                                      UART1RIREADY = 0;
+ 120   4                                      P25 = !P25;
+ 121   4                              }
+ 122   3                      }
+ 123   2                      else
+ 124   2                      {
+ 125   3                      /**********************设置状态*****************************/
+ 126   3                  if(ISSETTING == 0)                                                  
+ 127   3                      {
+ 128   4      
+ 129   4                      if(BUZZERTIMER3STOP)
+ 130   4                              {
+ 131   5                                      DisableTimer3();
+ 132   5                                      //Display_String(4,FUCKSTOP);
+ 133   5                              }
+ 134   4      
+ 135   4                              if(DHT11ISREADY)
+ 136   4                              {
+ 137   5                                      DisplayDHT11();                         //读取温度湿度传感器值
+ 138   5                                      DHT11ISREADY = 0;
+ 139   5                              }
+ 140   4                              else if(ULTRAISREADY)
+ 141   4                              {
+ 142   5                                      UltraSoundDisplay();                    //超声波
+ 143   5                                      ULTRAISREADY = 0;
+ 144   5                                      if(FASTSPEED)
+ 145   5                                      {
+ 146   6                                          BUZZERTIMER3STOP = 0;
+ 147   6                                              EnableTimer3();
+ 148   6                                              SendString2("AT+CIPSEND=4\r\n");
+ 149   6                                              SendString2("BOOM");
+ 150   6                                              //Display_String(4,FUCKSTART);
+ 151   6                                      }
+ 152   5                              }
+ 153   4                              else if(DS3231ISREADY)
+ 154   4                              {
+ 155   5                                      DS3231read_time();
+ 156   5                                      DS3231ISREADY = 0;
+ 157   5                              }
+ 158   4                              else if(ADCSTARTREADY)
+ 159   4                              {
+ 160   5                                      ADCStart();
+ 161   5                              }
+ 162   4                              else if(ADCSTOPREADY)
+ 163   4                              {
+ 164   5                                      ADCStop();
+ 165   5                              }
+ 166   4                              else if(ADCDISPLAYREADY)
+ 167   4                              {
+ 168   5                                      ADCDisplay();
+ 169   5                              }
+ 170   4                              else ;
+ 171   4                      }
+ 172   3                      
+ 173   3                      else
+ 174   3                      {
+ 175   4                              //WIFI在发送各数据时延时一会儿应该us级就行的
+ 176   4                              //WIFINEEDDELAY = 1;
+ 177   4                              //;
+ 178   4                              
+C51 COMPILER V9.00   MAIN                                                                  06/02/2016 00:46:32 PAGE 4   
+
+ 179   4                              EnterSetting();                                                          //这里设置成死循环!
+ 180   4                      }
+ 181   3      
+ 182   3                      }
+ 183   2              }
+ 184   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    242    ----
-   CONSTANT SIZE    =     12    ----
-   XDATA SIZE       =   ----    ----
-   PDATA SIZE       =     19    ----
+   CODE SIZE        =    357    ----
+   CONSTANT SIZE    =     32    ----
+   XDATA SIZE       =     23    ----
+   PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----

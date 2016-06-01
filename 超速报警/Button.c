@@ -18,11 +18,26 @@ void EXT0(void) interrupt 0
 {
     Delay20ms();
 	Delay20ms();
+	//P20 = !P20;
 	if(P32==0)							// 仍然是按下状态
 	{
 		if(ISSETTING==0)
+		{
+			ISSETTING=1;
+			//P21 = !P21;
+			DisableTimer0();			// 关闭超声波 温湿度的定时器中断
+			DisableTimer3();			// 关闭蜂鸣器的定时器中断				
+		}
+		else
+		{
+			ISSETTING=0;
+			EXITSETTING=1; 
+			EnableTimer0();				// 开启超声波 温湿度的定时器中断
+			EnableTimer3();				// 开启蜂鸣器的定时器中断
+		}
+		/*if(ISSETTING==1)
 		{ 
-		    P20 = !P20;
+		    P21 = !P21;
 			ISSETTING=1;
 			DisableTimer0();			// 关闭超声波 温湿度的定时器中断
 			DisableTimer3();			// 关闭蜂鸣器的定时器中断
@@ -32,13 +47,13 @@ void EXT0(void) interrupt 0
 		    //P26 = !P26;
 		    ISSETTING=0;
 			EXITSETTING=1; 
-			EnableTimer0();				// 关闭超声波 温湿度的定时器中断
-			EnableTimer3();				// 关闭蜂鸣器的定时器中断			
-		}
+			EnableTimer0();				// 开启超声波 温湿度的定时器中断
+			EnableTimer3();				// 开启蜂鸣器的定时器中断			
+		}*/
 	}
 	else								// 抖动
 	{
-		; 
+		P22 = !P22; 
 	} 	
 }
 
@@ -48,14 +63,14 @@ void AddYear(unsigned char *year, signed char mode)
 {
 	if(mode==1)
 	{
-		if(year<30)
+		if((*year)<30)
 			(*year)++;
 		else
 			(*year)=0;
 	}
 	else
 	{
-		if(year>0)
+		if((*year)>0)
 			(*year)--;
 		else
 			(*year)=30;
@@ -66,14 +81,14 @@ void AddMonth(unsigned char *month, signed char mode)
 {
 	if(mode==1)
 	{
-		if(month<12)
+		if((*month)<12)
 			(*month)++;
 		else
-			(*month)=0;
+			(*month)=1;
 	}
 	else
 	{
-		if(month>0)
+		if((*month)>1)
 			(*month)--;
 		else
 			(*month)=12;
@@ -84,14 +99,14 @@ void AddDay(unsigned char *day, signed char mode)
 {
 	if(mode==1)
 	{
-		if(day<31)
+		if((*day)<31)
 			(*day)++;
 		else
-			(*day)=0;
+			(*day)=1;
 	}
 	else
 	{
-		if(day>0)
+		if((*day)>1)
 			(*day)--;
 		else
 			(*day)=31;
@@ -102,17 +117,17 @@ void AddHour(unsigned char *hour, signed char mode)
 {
 	if(mode==1)
 	{
-		if(hour<24)
+		if((*hour)<23)
 			(*hour)++;
 		else
 			(*hour)=0;
 	}
 	else
 	{
-		if(hour>0)
+		if((*hour)>0)
 			(*hour)--;
 		else
-			(*hour)=24;
+			(*hour)=23;
 	}
 }
 
@@ -120,14 +135,14 @@ void AddMinute(unsigned char *minute, signed char mode)
 {
 	if(mode==1)
 	{
-		if(minute<59)
+		if((*minute)<59)
 			(*minute)++;
 		else
 			(*minute)=0;
 	}
 	else
 	{
-		if(minute>0)
+		if((*minute)>0)
 			(*minute)--;
 		else
 			(*minute)=59;
@@ -138,14 +153,14 @@ void AddSecond(unsigned char *second, signed char mode)
 {
 	if(mode==1)
 	{
-		if(second<59)
+		if((*second)<59)
 			(*second)++;
 		else
 			(*second)=0;
 	}
 	else
 	{
-		if(second>0)
+		if((*second)>0)
 			(*second)--;
 		else
 			(*second)=59;
@@ -162,7 +177,8 @@ void EnterSetting()
 	unsigned char TimeSettingFull1[] = {"00年00月00日"};
 	unsigned char TimeSettingFull2[] = {"00时00分00秒"};
 	unsigned int TempVelocity;				                			//临时变量
-	unsigned char TempTime[6] = {0,0,0,0,0,0};	
+	unsigned char TempTime[6] = {0,0,0,0,0,0};
+	unsigned char SaveTime[7] = {0,0,0,0,0,0,0};	
 	unsigned char VelocityValue1 = 0;									//个位
 	unsigned char VelocityValue2 = 0;									//十分之一位
 	unsigned char VelocityValue3 = 0; 				  					//百分之一位
@@ -193,6 +209,13 @@ void EnterSetting()
 	LCD12864DisplayChar(2,3,VelocityValue2 + 48);
 	LCD12864DisplayChar(2,4,VelocityValue3 + 48);
 	LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+	
+	LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
+	LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
+	LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
+	LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
+	LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
+	LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
 	 
 	do	                             			             	      	//矩阵键盘按键扫描
 	{
@@ -263,7 +286,7 @@ void EnterSetting()
 		{  	
     		Delay20ms();
 			Delay20ms();
-			if(KeyIn1 == 1) continue;
+			if(KeyIn2 == 1) continue;
 			//P20 = !P20;
 			if(Loc == 3)						   
 			{
@@ -490,6 +513,16 @@ void EnterSetting()
 	
 	TempVelocity = 1000*VelocityValue1 + 100*VelocityValue2 + 10*VelocityValue3;	//计算速度阈值
 	SetVelocityThreshold(TempVelocity,0);         	//保存速度阈值
+
+    SaveTime[0] = TempTime[5];
+	SaveTime[1] = TempTime[4];
+	SaveTime[2] = TempTime[3];
+	SaveTime[3] = TempTime[2];
+	SaveTime[4] = TempTime[1];
+	SaveTime[5] = TempTime[0];
+
+    set_time(SaveTime);
+
 	LCD12864SettingExit();
 	EXITSETTING = 0;
 }

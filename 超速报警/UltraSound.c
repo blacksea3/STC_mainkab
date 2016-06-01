@@ -6,8 +6,8 @@
 #include "main.h"
 #include "FLASH.h"
 
-sbit trig=P1^0;	//触发输入 至少为10us以上
-sbit echo=P1^1;	//输出回响信号
+sbit trig=P1^3;	//触发输入 至少为10us以上
+sbit echo=P1^4 ;	//输出回响信号
 
 unsigned long RawTime;
 signed int RealDistance;
@@ -22,7 +22,8 @@ void delay(unsigned int i)
 
 void UltraSoundInit()
 {
-	Timer1Init();
+	;
+	//Timer1Init();
 }
 
 void super_start()	//触发超声波开始工作
