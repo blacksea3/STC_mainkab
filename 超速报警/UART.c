@@ -34,6 +34,8 @@ sfr IE2 = 0xaf;								//中断控制寄存器2
 
 sfr IP2 = 0xB5;   							//xxxx,xx00 中断优先级寄存器2
 
+sbit P15        =   P1^5;
+
 #define S2RI 0x01							//S2CON.0
 #define S2TI 0x02							//S2CON.1
 #define S2RB8 0x04							//S2CON.2
@@ -61,25 +63,17 @@ void UARTInit()
 	SCON = 0xd2;                   			//9位可变波特率,校验位初始为0
 #endif
 	
-    //T2L = (65536-(FOSC/4/BAUD));    		//设置波特率重装值
-	//T2H = (65536-(FOSC/4/BAUD))>>8;
-	TL1 = (65536-(FOSC/4/BAUD));
-	TH1 = (65536-(FOSC/4/BAUD))>>8;
+    T2L = (65536-(FOSC/4/BAUD));    		//设置波特率重装值
+	T2H = (65536-(FOSC/4/BAUD))>>8;
+	//TL1 = (65536-(FOSC/4/BAUD));
+	//TH1 = (65536-(FOSC/4/BAUD))>>8;
 	TMOD = 0x00;
-	//AUXR |= 0x14;                   		//T2 1T模式,启动定时器2
-	//AUXR |= 0x01;                  			//定时器2为串口1的波特率发生器
-	AUXR |= 0x40;                    		//定时器1为串口1波特率发生器
-	AUXR &= ~0xbf;                    		//定时器1为串口1波特率发生器
+	AUXR |= 0x14;                   		//T2 1T模式,启动定时器2
+	AUXR |= 0x01;                  			//定时器2为串口1的波特率发生器
 
-	TR1 = 1;								//启动定时器1
 	ES = 1;                        			//使能串口1中断
 	PS = 1;                               	//UART中断调整为高优先级
-	//EA = 1;                        		//使能总中断
-	//SendString("SSDSDSD");
-	//while(1)
-	//{
-	//	 SendString("A");
-	//}
+	ET1 = 0; 
 }
 
 void UART2Init()
@@ -107,6 +101,7 @@ UART1 中断服务程序
 -------------------------*/
 void Uart() interrupt 4
 {
+	P15 = 1;
 	if(RI)
 	{
 		RI = 0;                     //清除RI位
@@ -163,9 +158,15 @@ void SendData(BYTE dat)
 --------------------------*/
 void SendString(char *s)
 {
+    unsigned char FUCK = 0;
 	while(*s)                        //检测字符串结束标志
 	{
 		SendData(*s++);              //发送当前字符
+		FUCK ++;
+		if(FUCK==1)
+		{
+			P15 = 0;
+		}
 	}
 	
 }
@@ -193,7 +194,7 @@ void Uart2() interrupt 8
 	{
 		S2CON&=~S2RI;                 	//清除RI位
 		//UART2Temp[UART2Loc++] = S2BUF;   
-		UART2RIREADY = 1;
+		//UART2RIREADY = 1;
 		UART2Temp = S2BUF;
 		if(WIFINEEDDELAY == 0)
 		{
@@ -260,7 +261,7 @@ void SendString2Length(char s[], unsigned char length)
 	{
 		SendData2(s[i]);              	//发送当前字符
 	}
-	
+	//WIFINEEDDELAY = 0;
 }
 
 /*

@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   BUTTON                                                                06/02/2016 00:42:05 PAGE 1   
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE BUTTON
@@ -31,531 +31,539 @@ line level    source
   21   1              //P20 = !P20;
   22   1              if(P32==0)                                                      // 仍然是按下状态
   23   1              {
-  24   2                      if(ISSETTING==0)
+  24   2                      /*if(ISSETTING==0)
   25   2                      {
-  26   3                              ISSETTING=1;
-  27   3                              //P21 = !P21;
-  28   3                              DisableTimer0();                        // 关闭超声波 温湿度的定时器中断
-  29   3                              DisableTimer3();                        // 关闭蜂鸣器的定时器中断                               
-  30   3                      }
-  31   2                      else
+  26   2                              ISSETTING=1;
+  27   2                              //P21 = !P21;
+  28   2                              DisableTimer0();                        // 关闭超声波 温湿度的定时器中断
+  29   2                              DisableTimer3();                        // 关闭蜂鸣器的定时器中断                               
+  30   2                      }
+  31   2                      else if(ISSETTING==1)
   32   2                      {
-  33   3                              ISSETTING=0;
-  34   3                              EXITSETTING=1; 
-  35   3                              EnableTimer0();                         // 开启超声波 温湿度的定时器中断
-  36   3                              EnableTimer3();                         // 开启蜂鸣器的定时器中断
-  37   3                      }
-  38   2                      /*if(ISSETTING==1)
-  39   2                      { 
-  40   2                          P21 = !P21;
-  41   2                              ISSETTING=1;
-  42   2                              DisableTimer0();                        // 关闭超声波 温湿度的定时器中断
-  43   2                              DisableTimer3();                        // 关闭蜂鸣器的定时器中断
-  44   2                      }
-  45   2                      else
-  46   2                      {
-  47   2                          //P26 = !P26;
-  48   2                          ISSETTING=0;
-  49   2                              EXITSETTING=1; 
-  50   2                              EnableTimer0();                         // 开启超声波 温湿度的定时器中断
-  51   2                              EnableTimer3();                         // 开启蜂鸣器的定时器中断                       
-  52   2                      }*/
-  53   2              }
-  54   1              else                                                            // 抖动
-C51 COMPILER V9.00   BUTTON                                                                06/02/2016 00:42:05 PAGE 2   
+  33   2                              ISSETTING=2;
+  34   2                              EXITSETTING=1;
+  35   2                              //WIFINEEDDELAY=1;
+  36   2                      }
+  37   2                      else
+  38   2                      {
+  39   2                              ISSETTING=0;
+  40   2                              //WIFINEEDDELAY=0; 
+  41   2                              EnableTimer0();                         // 开启超声波 温湿度的定时器中断
+  42   2                              EnableTimer3();                         // 开启蜂鸣器的定时器中断                       
+  43   2                      }*/
+  44   2                      if(ISSETTING==0)
+  45   2                      { 
+  46   3                          //P21 = !P21;
+  47   3                              ISSETTING=1;
+  48   3                              DisableTimer0();                        // 关闭超声波 温湿度的定时器中断
+  49   3                              DisableTimer3();                        // 关闭蜂鸣器的定时器中断
+  50   3                      }
+  51   2                      else
+  52   2                      {
+  53   3                          //P26 = !P26;
+  54   3                          ISSETTING=0;
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 2   
 
-  55   1              {
-  56   2                      P22 = !P22; 
-  57   2              }       
-  58   1      }
-  59          
-  60          /*调整时间部分,注意:不会自动调整星期的！因为用不到它,时间不会进位、不会退位
-  61            不判断闰年...自行调整,别调过了*/
-  62          void AddYear(unsigned char *year, signed char mode)
-  63          {
-  64   1              if(mode==1)
-  65   1              {
-  66   2                      if((*year)<30)
-  67   2                              (*year)++;
-  68   2                      else
-  69   2                              (*year)=0;
-  70   2              }
-  71   1              else
-  72   1              {
-  73   2                      if((*year)>0)
-  74   2                              (*year)--;
-  75   2                      else
-  76   2                              (*year)=30;
-  77   2              }
-  78   1      }
-  79          
-  80          void AddMonth(unsigned char *month, signed char mode)
-  81          {
-  82   1              if(mode==1)
-  83   1              {
-  84   2                      if((*month)<12)
-  85   2                              (*month)++;
-  86   2                      else
-  87   2                              (*month)=1;
-  88   2              }
-  89   1              else
-  90   1              {
-  91   2                      if((*month)>1)
-  92   2                              (*month)--;
-  93   2                      else
-  94   2                              (*month)=12;
-  95   2              }
-  96   1      }
-  97          
-  98          void AddDay(unsigned char *day, signed char mode)
-  99          {
- 100   1              if(mode==1)
- 101   1              {
- 102   2                      if((*day)<31)
- 103   2                              (*day)++;
- 104   2                      else
- 105   2                              (*day)=1;
- 106   2              }
- 107   1              else
- 108   1              {
- 109   2                      if((*day)>1)
- 110   2                              (*day)--;
- 111   2                      else
- 112   2                              (*day)=31;
- 113   2              }
- 114   1      }
- 115          
- 116          void AddHour(unsigned char *hour, signed char mode)
-C51 COMPILER V9.00   BUTTON                                                                06/02/2016 00:42:05 PAGE 3   
+  55   3                              EXITSETTING=1; 
+  56   3                              EnableTimer0();                         // 开启超声波 温湿度的定时器中断
+  57   3                              EnableTimer3();                         // 开启蜂鸣器的定时器中断                       
+  58   3                      }
+  59   2              }
+  60   1              else                                                            // 抖动
+  61   1              {
+  62   2                      P22 = !P22; 
+  63   2              }       
+  64   1      }
+  65          
+  66          /*调整时间部分,注意:不会自动调整星期的！因为用不到它,时间不会进位、不会退位
+  67            不判断闰年...自行调整,别调过了*/
+  68          void AddYear(unsigned char *year, signed char mode)
+  69          {
+  70   1              if(mode==1)
+  71   1              {
+  72   2                      if((*year)<30)
+  73   2                              (*year)++;
+  74   2                      else
+  75   2                              (*year)=0;
+  76   2              }
+  77   1              else
+  78   1              {
+  79   2                      if((*year)>0)
+  80   2                              (*year)--;
+  81   2                      else
+  82   2                              (*year)=30;
+  83   2              }
+  84   1      }
+  85          
+  86          void AddMonth(unsigned char *month, signed char mode)
+  87          {
+  88   1              if(mode==1)
+  89   1              {
+  90   2                      if((*month)<12)
+  91   2                              (*month)++;
+  92   2                      else
+  93   2                              (*month)=1;
+  94   2              }
+  95   1              else
+  96   1              {
+  97   2                      if((*month)>1)
+  98   2                              (*month)--;
+  99   2                      else
+ 100   2                              (*month)=12;
+ 101   2              }
+ 102   1      }
+ 103          
+ 104          void AddDay(unsigned char *day, signed char mode)
+ 105          {
+ 106   1              if(mode==1)
+ 107   1              {
+ 108   2                      if((*day)<31)
+ 109   2                              (*day)++;
+ 110   2                      else
+ 111   2                              (*day)=1;
+ 112   2              }
+ 113   1              else
+ 114   1              {
+ 115   2                      if((*day)>1)
+ 116   2                              (*day)--;
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 3   
 
- 117          {
- 118   1              if(mode==1)
- 119   1              {
- 120   2                      if((*hour)<23)
- 121   2                              (*hour)++;
- 122   2                      else
- 123   2                              (*hour)=0;
- 124   2              }
- 125   1              else
- 126   1              {
- 127   2                      if((*hour)>0)
- 128   2                              (*hour)--;
- 129   2                      else
- 130   2                              (*hour)=23;
- 131   2              }
- 132   1      }
- 133          
- 134          void AddMinute(unsigned char *minute, signed char mode)
- 135          {
- 136   1              if(mode==1)
- 137   1              {
- 138   2                      if((*minute)<59)
- 139   2                              (*minute)++;
- 140   2                      else
- 141   2                              (*minute)=0;
- 142   2              }
- 143   1              else
- 144   1              {
- 145   2                      if((*minute)>0)
- 146   2                              (*minute)--;
- 147   2                      else
- 148   2                              (*minute)=59;
- 149   2              }
- 150   1      }
- 151          
- 152          void AddSecond(unsigned char *second, signed char mode)
- 153          {
- 154   1              if(mode==1)
- 155   1              {
- 156   2                      if((*second)<59)
- 157   2                              (*second)++;
- 158   2                      else
- 159   2                              (*second)=0;
- 160   2              }
- 161   1              else
- 162   1              {
- 163   2                      if((*second)>0)
- 164   2                              (*second)--;
- 165   2                      else
- 166   2                              (*second)=59;
- 167   2              }
- 168   1      }
- 169          
- 170          /*
- 171           * 进入设置模式
- 172           */
- 173          void EnterSetting()
- 174          {
- 175   1          unsigned char VeloCitySettingFull1[] = {"速度上限："};
- 176   1              unsigned char VeloCitySettingFull2[] = {"6 . 6 6 km/h"};
- 177   1              unsigned char TimeSettingFull1[] = {"00年00月00日"};
- 178   1              unsigned char TimeSettingFull2[] = {"00时00分00秒"};
-C51 COMPILER V9.00   BUTTON                                                                06/02/2016 00:42:05 PAGE 4   
+ 117   2                      else
+ 118   2                              (*day)=31;
+ 119   2              }
+ 120   1      }
+ 121          
+ 122          void AddHour(unsigned char *hour, signed char mode)
+ 123          {
+ 124   1              if(mode==1)
+ 125   1              {
+ 126   2                      if((*hour)<23)
+ 127   2                              (*hour)++;
+ 128   2                      else
+ 129   2                              (*hour)=0;
+ 130   2              }
+ 131   1              else
+ 132   1              {
+ 133   2                      if((*hour)>0)
+ 134   2                              (*hour)--;
+ 135   2                      else
+ 136   2                              (*hour)=23;
+ 137   2              }
+ 138   1      }
+ 139          
+ 140          void AddMinute(unsigned char *minute, signed char mode)
+ 141          {
+ 142   1              if(mode==1)
+ 143   1              {
+ 144   2                      if((*minute)<59)
+ 145   2                              (*minute)++;
+ 146   2                      else
+ 147   2                              (*minute)=0;
+ 148   2              }
+ 149   1              else
+ 150   1              {
+ 151   2                      if((*minute)>0)
+ 152   2                              (*minute)--;
+ 153   2                      else
+ 154   2                              (*minute)=59;
+ 155   2              }
+ 156   1      }
+ 157          
+ 158          void AddSecond(unsigned char *second, signed char mode)
+ 159          {
+ 160   1              if(mode==1)
+ 161   1              {
+ 162   2                      if((*second)<59)
+ 163   2                              (*second)++;
+ 164   2                      else
+ 165   2                              (*second)=0;
+ 166   2              }
+ 167   1              else
+ 168   1              {
+ 169   2                      if((*second)>0)
+ 170   2                              (*second)--;
+ 171   2                      else
+ 172   2                              (*second)=59;
+ 173   2              }
+ 174   1      }
+ 175          
+ 176          /*
+ 177           * 进入设置模式
+ 178           */
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 4   
 
- 179   1              unsigned int TempVelocity;                                                                      //临时变量
- 180   1              unsigned char TempTime[6] = {0,0,0,0,0,0};
- 181   1              unsigned char SaveTime[7] = {0,0,0,0,0,0,0};    
- 182   1              unsigned char VelocityValue1 = 0;                                                                       //个位
- 183   1              unsigned char VelocityValue2 = 0;                                                                       //十分之一位
- 184   1              unsigned char VelocityValue3 = 0;                                                                       //百分之一位
- 185   1          unsigned char Loc = 1;
- 186   1              //unsigned char VelocityUp[] = {"速度上限：   m/s"};
- 187   1              //LCD12864ClearScreen();
- 188   1              //unsigned char Velocity1 = (unsigned char)(0 + 48);
- 189   1              //unsigned char Velocity2 = (unsigned char)(0 + 48);
- 190   1              //unsigned char VeloCitySetting1[] = {"速度上限：0."};
- 191   1              //unsigned char VeloCitySetting2[] = {"速度上限：0.0m"};
- 192   1              
- 193   1          LCD12864SettingInit();
- 194   1              //Display_String(1,SetString);
- 195   1              //Display_String(2,VelocityUp);
- 196   1              Display_String(1,VeloCitySettingFull1);
- 197   1              Display_String(2,VeloCitySettingFull2);
- 198   1      
- 199   1          TempVelocity = GetVelocityThreshold();
- 200   1              DS1302_readoutTime(TempTime);
- 201   1              //SendData(VelocityValue1);
- 202   1              //SendData(VelocityValue1);
- 203   1              //SendData(VelocityValue1);
- 204   1              VelocityValue1 = TempVelocity%10000/1000;
- 205   1              VelocityValue2 = TempVelocity%1000/100;
- 206   1              VelocityValue3 = TempVelocity%100/10;  
- 207   1              
- 208   1              //LCD12864DisplayChar(2,2,'.');
- 209   1              LCD12864DisplayChar(2,3,VelocityValue2 + 48);
- 210   1              LCD12864DisplayChar(2,4,VelocityValue3 + 48);
- 211   1              LCD12864DisplayChar(2,1,VelocityValue1 + 48);
- 212   1              
- 213   1              LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
- 214   1              LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
- 215   1              LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
- 216   1              LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
- 217   1              LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
- 218   1              LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
- 219   1               
- 220   1              do                                                                              //矩阵键盘按键扫描
- 221   1              {
- 222   2                  KeyOut1 = 0;
- 223   2                      KeyOut2 = 1;
- 224   2                      Delay20ms();
- 225   2                      if(KeyIn1 == 0)                                                                                         //调节左右
- 226   2                      {       
- 227   3                      Delay20ms();
- 228   3                              Delay20ms();
- 229   3                              if(KeyIn1 == 1) continue;
- 230   3                              //P20 = !P20;
- 231   3                              if(Loc == 1)                                               
- 232   3                              {
- 233   4                                      Loc = 2;
- 234   4                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
- 235   4                              }
- 236   3                              else if(Loc == 2)
- 237   3                              {
- 238   4                                      Loc = 3;
- 239   4                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);                           
- 240   4                              }
-C51 COMPILER V9.00   BUTTON                                                                06/02/2016 00:42:05 PAGE 5   
+ 179          void EnterSetting()
+ 180          {
+ 181   1          unsigned char VeloCitySettingFull1[] = {"速度上限："};
+ 182   1              unsigned char VeloCitySettingFull2[] = {"6 . 6 6 km/h"};
+ 183   1              unsigned char TimeSettingFull1[] = {"00年00月00日"};
+ 184   1              unsigned char TimeSettingFull2[] = {"00时00分00秒"};
+ 185   1              unsigned int TempVelocity;                                                                      //临时变量
+ 186   1              unsigned char TempTime[6] = {0,0,0,0,0,0};
+ 187   1              unsigned char SaveTime[7] = {0,0,0,0,0,0,0};    
+ 188   1              unsigned char VelocityValue1 = 0;                                                                       //个位
+ 189   1              unsigned char VelocityValue2 = 0;                                                                       //十分之一位
+ 190   1              unsigned char VelocityValue3 = 0;                                                                       //百分之一位
+ 191   1          unsigned char Loc = 1;
+ 192   1              //unsigned char VelocityUp[] = {"速度上限：   m/s"};
+ 193   1              //LCD12864ClearScreen();
+ 194   1              //unsigned char Velocity1 = (unsigned char)(0 + 48);
+ 195   1              //unsigned char Velocity2 = (unsigned char)(0 + 48);
+ 196   1              //unsigned char VeloCitySetting1[] = {"速度上限：0."};
+ 197   1              //unsigned char VeloCitySetting2[] = {"速度上限：0.0m"};
+ 198   1              
+ 199   1          LCD12864SettingInit();
+ 200   1              //Display_String(1,SetString);
+ 201   1              //Display_String(2,VelocityUp);
+ 202   1              Display_String(1,VeloCitySettingFull1);
+ 203   1              Display_String(2,VeloCitySettingFull2);
+ 204   1              Display_String(3,TimeSettingFull1);
+ 205   1              Display_String(4,TimeSettingFull2);
+ 206   1      
+ 207   1          TempVelocity = GetVelocityThreshold();
+ 208   1              DS1302_readoutTime(TempTime);
+ 209   1              //SendData(VelocityValue1);
+ 210   1              //SendData(VelocityValue1);
+ 211   1              //SendData(VelocityValue1);
+ 212   1              VelocityValue1 = TempVelocity%10000/1000;
+ 213   1              VelocityValue2 = TempVelocity%1000/100;
+ 214   1              VelocityValue3 = TempVelocity%100/10;  
+ 215   1              
+ 216   1              //LCD12864DisplayChar(2,2,'.');
+ 217   1              LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+ 218   1              LCD12864DisplayChar(2,4,VelocityValue3 + 48);
+ 219   1              LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+ 220   1              
+ 221   1              LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
+ 222   1              LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
+ 223   1              LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
+ 224   1              LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
+ 225   1              LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
+ 226   1              LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
+ 227   1               
+ 228   1              do                                                                              //矩阵键盘按键扫描
+ 229   1              {
+ 230   2                  KeyOut1 = 0;
+ 231   2                      KeyOut2 = 1;
+ 232   2                      Delay20ms();
+ 233   2                      if(KeyIn1 == 0)                                                                                         //调节左右
+ 234   2                      {       
+ 235   3                      Delay20ms();
+ 236   3                              Delay20ms();
+ 237   3                              if(KeyIn1 == 1) continue;
+ 238   3                              //P20 = !P20;
+ 239   3                              if(Loc == 1)                                               
+ 240   3                              {
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 5   
 
- 241   3                              else if(Loc == 3)
- 242   3                              {
- 243   4                                      Loc = 4;
- 244   4                                      LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
- 245   4                                      //年
- 246   4                              }
- 247   3                              else if(Loc == 4)
- 248   3                              {
- 249   4                                      Loc = 5;
- 250   4                                      LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
- 251   4                                      //月
- 252   4                              }
- 253   3                              else if(Loc == 5)
- 254   3                              {
- 255   4                                      Loc = 6;
- 256   4                                      LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
- 257   4                                      //日
- 258   4                              }
- 259   3                              else if(Loc == 6)
- 260   3                              {
- 261   4                                      Loc = 7;
- 262   4                                      LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
- 263   4                                      //时
- 264   4                              }
- 265   3                              else if(Loc == 7)
- 266   3                              {
- 267   4                                      Loc = 8;
- 268   4                                      LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
- 269   4                                      //分
- 270   4                              }
- 271   3                              else if(Loc == 8)
- 272   3                              {
- 273   4                                      Loc = 9;
- 274   4                                      LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
- 275   4                                      //秒
- 276   4                              }
- 277   3                              else
- 278   3                              {
- 279   4                                      Loc = 1;
- 280   4                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
- 281   4                              }
- 282   3                              while(KeyIn1==0);
- 283   3                      }
- 284   2      
- 285   2                      if(KeyIn2 == 0)                                                                                         //调节左右
- 286   2                      {       
- 287   3                      Delay20ms();
- 288   3                              Delay20ms();
- 289   3                              if(KeyIn2 == 1) continue;
- 290   3                              //P20 = !P20;
- 291   3                              if(Loc == 3)                                               
- 292   3                              {
- 293   4                                      Loc = 2;
- 294   4                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
- 295   4                              }
- 296   3                              else if(Loc == 4)
- 297   3                              {
- 298   4                                      Loc = 3;
- 299   4                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);                           
- 300   4                              }
- 301   3                              else if(Loc == 5)
- 302   3                              {
-C51 COMPILER V9.00   BUTTON                                                                06/02/2016 00:42:05 PAGE 6   
+ 241   4                                      Loc = 2;
+ 242   4                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+ 243   4                              }
+ 244   3                              else if(Loc == 2)
+ 245   3                              {
+ 246   4                                      Loc = 3;
+ 247   4                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);                           
+ 248   4                              }
+ 249   3                              else if(Loc == 3)
+ 250   3                              {
+ 251   4                                      Loc = 4;
+ 252   4                                      LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
+ 253   4                                      //年
+ 254   4                              }
+ 255   3                              else if(Loc == 4)
+ 256   3                              {
+ 257   4                                      Loc = 5;
+ 258   4                                      LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
+ 259   4                                      //月
+ 260   4                              }
+ 261   3                              else if(Loc == 5)
+ 262   3                              {
+ 263   4                                      Loc = 6;
+ 264   4                                      LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
+ 265   4                                      //日
+ 266   4                              }
+ 267   3                              else if(Loc == 6)
+ 268   3                              {
+ 269   4                                      Loc = 7;
+ 270   4                                      LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
+ 271   4                                      //时
+ 272   4                              }
+ 273   3                              else if(Loc == 7)
+ 274   3                              {
+ 275   4                                      Loc = 8;
+ 276   4                                      LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
+ 277   4                                      //分
+ 278   4                              }
+ 279   3                              else if(Loc == 8)
+ 280   3                              {
+ 281   4                                      Loc = 9;
+ 282   4                                      LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
+ 283   4                                      //秒
+ 284   4                              }
+ 285   3                              else
+ 286   3                              {
+ 287   4                                      Loc = 1;
+ 288   4                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+ 289   4                              }
+ 290   3                              while(KeyIn1==0);
+ 291   3                      }
+ 292   2      
+ 293   2                      if(KeyIn2 == 0)                                                                                         //调节左右
+ 294   2                      {       
+ 295   3                      Delay20ms();
+ 296   3                              Delay20ms();
+ 297   3                              if(KeyIn2 == 1) continue;
+ 298   3                              //P20 = !P20;
+ 299   3                              if(Loc == 3)                                               
+ 300   3                              {
+ 301   4                                      Loc = 2;
+ 302   4                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 6   
 
- 303   4                                      Loc = 4;
- 304   4                                      LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
- 305   4                                      //年
- 306   4                              }
- 307   3                              else if(Loc == 6)
- 308   3                              {
- 309   4                                      Loc = 5;
- 310   4                                      LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
- 311   4                                      //月
- 312   4                              }
- 313   3                              else if(Loc == 7)
- 314   3                              {
- 315   4                                      Loc = 6;
- 316   4                                      LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
- 317   4                                      //日
- 318   4                              }
- 319   3                              else if(Loc == 8)
- 320   3                              {
- 321   4                                      Loc = 7;
- 322   4                                      LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
- 323   4                                      //时
- 324   4                              }
- 325   3                              else if(Loc == 9)
- 326   3                              {
- 327   4                                      Loc = 8;
- 328   4                                      LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
- 329   4                                      //分
- 330   4                              }
- 331   3                              else if(Loc == 1)
- 332   3                              {
- 333   4                                      Loc = 9;
- 334   4                                      LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
- 335   4                                      //秒
- 336   4                              }
- 337   3                              else
- 338   3                              {
- 339   4                                      Loc = 1;
- 340   4                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
- 341   4                              }
- 342   3                              while(KeyIn2==0);
- 343   3                      }
- 344   2                                                                                                                                              //调节值
- 345   2                  KeyOut1 = 1;
- 346   2                      KeyOut2 = 0;
- 347   2                      Delay20ms();
- 348   2                      if(KeyIn1 == 0)
- 349   2                      {
- 350   3                      Delay20ms();
- 351   3                              Delay20ms();
- 352   3                              if(KeyIn1 == 1) continue;
- 353   3                              if(Loc == 1)                                               
- 354   3                              {
- 355   4                              if(VelocityValue1==0)
- 356   4                                      {       
- 357   5                                          VelocityValue1 = 9;
- 358   5                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
- 359   5                                              }
- 360   4                                      else
- 361   4                                      {
- 362   5                                              LCD12864DisplayChar(2,1,--VelocityValue1 + 48);
- 363   5                                      }
- 364   4                              }
-C51 COMPILER V9.00   BUTTON                                                                06/02/2016 00:42:05 PAGE 7   
+ 303   4                              }
+ 304   3                              else if(Loc == 4)
+ 305   3                              {
+ 306   4                                      Loc = 3;
+ 307   4                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);                           
+ 308   4                              }
+ 309   3                              else if(Loc == 5)
+ 310   3                              {
+ 311   4                                      Loc = 4;
+ 312   4                                      LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
+ 313   4                                      //年
+ 314   4                              }
+ 315   3                              else if(Loc == 6)
+ 316   3                              {
+ 317   4                                      Loc = 5;
+ 318   4                                      LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
+ 319   4                                      //月
+ 320   4                              }
+ 321   3                              else if(Loc == 7)
+ 322   3                              {
+ 323   4                                      Loc = 6;
+ 324   4                                      LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
+ 325   4                                      //日
+ 326   4                              }
+ 327   3                              else if(Loc == 8)
+ 328   3                              {
+ 329   4                                      Loc = 7;
+ 330   4                                      LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
+ 331   4                                      //时
+ 332   4                              }
+ 333   3                              else if(Loc == 9)
+ 334   3                              {
+ 335   4                                      Loc = 8;
+ 336   4                                      LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
+ 337   4                                      //分
+ 338   4                              }
+ 339   3                              else if(Loc == 1)
+ 340   3                              {
+ 341   4                                      Loc = 9;
+ 342   4                                      LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
+ 343   4                                      //秒
+ 344   4                              }
+ 345   3                              else
+ 346   3                              {
+ 347   4                                      Loc = 1;
+ 348   4                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+ 349   4                              }
+ 350   3                              while(KeyIn2==0);
+ 351   3                      }
+ 352   2                                                                                                                                              //调节值
+ 353   2                  KeyOut1 = 1;
+ 354   2                      KeyOut2 = 0;
+ 355   2                      Delay20ms();
+ 356   2                      if(KeyIn1 == 0)
+ 357   2                      {
+ 358   3                      Delay20ms();
+ 359   3                              Delay20ms();
+ 360   3                              if(KeyIn1 == 1) continue;
+ 361   3                              if(Loc == 1)                                               
+ 362   3                              {
+ 363   4                              if(VelocityValue1==0)
+ 364   4                                      {       
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 7   
 
- 365   3                              else if(Loc == 2)
- 366   3                              {
- 367   4                                  if(VelocityValue2==0)
- 368   4                                      {       
- 369   5                                          VelocityValue2 = 9;
- 370   5                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+ 365   5                                          VelocityValue1 = 9;
+ 366   5                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+ 367   5                                              }
+ 368   4                                      else
+ 369   4                                      {
+ 370   5                                              LCD12864DisplayChar(2,1,--VelocityValue1 + 48);
  371   5                                      }
- 372   4                                      else
- 373   4                                      {
- 374   5                                              LCD12864DisplayChar(2,3,--VelocityValue2 + 48);
- 375   5                                      }                               
- 376   4                              }
- 377   3                              else if(Loc == 3)
- 378   3                              {
- 379   4                                  if(VelocityValue3==0)
- 380   4                                      {       
- 381   5                                          VelocityValue3 = 9;
- 382   5                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);
- 383   5                                      }
- 384   4                                      else
- 385   4                                      {
- 386   5                                              LCD12864DisplayChar(2,4,--VelocityValue3 + 48);
- 387   5                                      }                                                                                  
- 388   4                              }
- 389   3                              else if(Loc == 4)
- 390   3                              {
- 391   4                                  //年份加一
- 392   4                                      AddYear(&TempTime[0],1);
- 393   4                                      LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
- 394   4                              }
- 395   3                              else if(Loc == 5)
- 396   3                              {
- 397   4                                  //月份加一
- 398   4                                      AddMonth(&TempTime[1],1);
- 399   4                                      LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
- 400   4                              }
- 401   3                              else if(Loc == 6)
- 402   3                              {
- 403   4                                  //日期加一
- 404   4                                      AddDay(&TempTime[2],1);
- 405   4                                      LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
- 406   4                              }
- 407   3                              
- 408   3                              else if(Loc == 7)
- 409   3                              {
- 410   4                                  //小时加一
- 411   4                                      AddHour(&TempTime[3],1);
- 412   4                                      LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
- 413   4                              }
- 414   3                              else if(Loc == 8)
- 415   3                              {
- 416   4                                  //分钟加一
- 417   4                                      AddMinute(&TempTime[4],1);
- 418   4                                      LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
- 419   4                              }
- 420   3                              
- 421   3                              else
- 422   3                              {
- 423   4                                  //秒加一
- 424   4                                      AddSecond(&TempTime[5],1);
- 425   4                                      LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
- 426   4                              }
-C51 COMPILER V9.00   BUTTON                                                                06/02/2016 00:42:05 PAGE 8   
+ 372   4                              }
+ 373   3                              else if(Loc == 2)
+ 374   3                              {
+ 375   4                                  if(VelocityValue2==0)
+ 376   4                                      {       
+ 377   5                                          VelocityValue2 = 9;
+ 378   5                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+ 379   5                                      }
+ 380   4                                      else
+ 381   4                                      {
+ 382   5                                              LCD12864DisplayChar(2,3,--VelocityValue2 + 48);
+ 383   5                                      }                               
+ 384   4                              }
+ 385   3                              else if(Loc == 3)
+ 386   3                              {
+ 387   4                                  if(VelocityValue3==0)
+ 388   4                                      {       
+ 389   5                                          VelocityValue3 = 9;
+ 390   5                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);
+ 391   5                                      }
+ 392   4                                      else
+ 393   4                                      {
+ 394   5                                              LCD12864DisplayChar(2,4,--VelocityValue3 + 48);
+ 395   5                                      }                                                                                  
+ 396   4                              }
+ 397   3                              else if(Loc == 4)
+ 398   3                              {
+ 399   4                                  //年份加一
+ 400   4                                      AddYear(&TempTime[0],1);
+ 401   4                                      LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
+ 402   4                              }
+ 403   3                              else if(Loc == 5)
+ 404   3                              {
+ 405   4                                  //月份加一
+ 406   4                                      AddMonth(&TempTime[1],1);
+ 407   4                                      LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
+ 408   4                              }
+ 409   3                              else if(Loc == 6)
+ 410   3                              {
+ 411   4                                  //日期加一
+ 412   4                                      AddDay(&TempTime[2],1);
+ 413   4                                      LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
+ 414   4                              }
+ 415   3                              
+ 416   3                              else if(Loc == 7)
+ 417   3                              {
+ 418   4                                  //小时加一
+ 419   4                                      AddHour(&TempTime[3],1);
+ 420   4                                      LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
+ 421   4                              }
+ 422   3                              else if(Loc == 8)
+ 423   3                              {
+ 424   4                                  //分钟加一
+ 425   4                                      AddMinute(&TempTime[4],1);
+ 426   4                                      LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 8   
 
- 427   3                              while(KeyIn1==0);
- 428   3                      }
- 429   2      
- 430   2                      if(KeyIn2 == 0)
- 431   2                      {
- 432   3                      Delay20ms();
- 433   3                              Delay20ms();
- 434   3                              if(KeyIn2 == 1) continue;
- 435   3                              if(Loc == 1)                                               
- 436   3                              {
- 437   4                              if(VelocityValue1==9)
- 438   4                                      {       
- 439   5                                          VelocityValue1 = 0;
- 440   5                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
- 441   5                                      }
- 442   4                                      else
- 443   4                                      {
- 444   5                                              LCD12864DisplayChar(2,1,++VelocityValue1 + 48);
- 445   5                                      }
- 446   4                              }
- 447   3                              else if(Loc == 2)
- 448   3                              {
- 449   4                                  if(VelocityValue2==9)
- 450   4                                      {       
- 451   5                                          VelocityValue2 = 0;
- 452   5                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+ 427   4                              }
+ 428   3                              
+ 429   3                              else
+ 430   3                              {
+ 431   4                                  //秒加一
+ 432   4                                      AddSecond(&TempTime[5],1);
+ 433   4                                      LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
+ 434   4                              }
+ 435   3                              while(KeyIn1==0);
+ 436   3                      }
+ 437   2      
+ 438   2                      if(KeyIn2 == 0)
+ 439   2                      {
+ 440   3                      Delay20ms();
+ 441   3                              Delay20ms();
+ 442   3                              if(KeyIn2 == 1) continue;
+ 443   3                              if(Loc == 1)                                               
+ 444   3                              {
+ 445   4                              if(VelocityValue1==9)
+ 446   4                                      {       
+ 447   5                                          VelocityValue1 = 0;
+ 448   5                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
+ 449   5                                      }
+ 450   4                                      else
+ 451   4                                      {
+ 452   5                                              LCD12864DisplayChar(2,1,++VelocityValue1 + 48);
  453   5                                      }
- 454   4                                      else
- 455   4                                      {
- 456   5                                              LCD12864DisplayChar(2,3,++VelocityValue2 + 48);
- 457   5                                      }                               
- 458   4                              }
- 459   3                              else if(Loc == 3)
- 460   3                              {
- 461   4                                  if(VelocityValue3==9)
- 462   4                                      {       
- 463   5                                          VelocityValue3 = 0;
- 464   5                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);               
- 465   5                                      }
- 466   4                                      else
- 467   4                                      {
- 468   5                                              LCD12864DisplayChar(2,4,++VelocityValue3 + 48);
- 469   5                                      }                                                                                  
- 470   4                              }
- 471   3                              else if(Loc == 4)
- 472   3                              {
- 473   4                                  //年份减一
- 474   4                                      AddYear(&TempTime[0],-1);
- 475   4                                      LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
- 476   4                              }
- 477   3                              else if(Loc == 5)
- 478   3                              {
- 479   4                                  //月份减一
- 480   4                                      AddMonth(&TempTime[1],-1);
- 481   4                                      LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
- 482   4                              }
- 483   3                              else if(Loc == 6)
- 484   3                              {
- 485   4                                  //日期减一
- 486   4                                      AddDay(&TempTime[2],-1);
- 487   4                                      LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
- 488   4                              }
-C51 COMPILER V9.00   BUTTON                                                                06/02/2016 00:42:05 PAGE 9   
+ 454   4                              }
+ 455   3                              else if(Loc == 2)
+ 456   3                              {
+ 457   4                                  if(VelocityValue2==9)
+ 458   4                                      {       
+ 459   5                                          VelocityValue2 = 0;
+ 460   5                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
+ 461   5                                      }
+ 462   4                                      else
+ 463   4                                      {
+ 464   5                                              LCD12864DisplayChar(2,3,++VelocityValue2 + 48);
+ 465   5                                      }                               
+ 466   4                              }
+ 467   3                              else if(Loc == 3)
+ 468   3                              {
+ 469   4                                  if(VelocityValue3==9)
+ 470   4                                      {       
+ 471   5                                          VelocityValue3 = 0;
+ 472   5                                      LCD12864DisplayChar(2,4,VelocityValue3 + 48);               
+ 473   5                                      }
+ 474   4                                      else
+ 475   4                                      {
+ 476   5                                              LCD12864DisplayChar(2,4,++VelocityValue3 + 48);
+ 477   5                                      }                                                                                  
+ 478   4                              }
+ 479   3                              else if(Loc == 4)
+ 480   3                              {
+ 481   4                                  //年份减一
+ 482   4                                      AddYear(&TempTime[0],-1);
+ 483   4                                      LCD12864DisplayTwoChar(3,1,TempTime[0]/10 + 48,TempTime[0]%10 + 48);
+ 484   4                              }
+ 485   3                              else if(Loc == 5)
+ 486   3                              {
+ 487   4                                  //月份减一
+ 488   4                                      AddMonth(&TempTime[1],-1);
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 9   
 
- 489   3                              
- 490   3                              else if(Loc == 7)
- 491   3                              {
- 492   4                                  //小时减一
- 493   4                                      AddHour(&TempTime[3],-1);
- 494   4                                      LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
- 495   4                              }
- 496   3                              else if(Loc == 8)
- 497   3                              {
- 498   4                                  //分钟减一
- 499   4                                      AddMinute(&TempTime[4],-1);
- 500   4                                      LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
- 501   4                              }
- 502   3                              
- 503   3                              else
- 504   3                              {
- 505   4                                  //秒减一
- 506   4                                      AddSecond(&TempTime[5],-1);
- 507   4                                      LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
- 508   4                              }
- 509   3                              while(KeyIn2==0);
- 510   3                      }                       
- 511   2              }       
- 512   1              while(EXITSETTING == 0);                                                //当没有退出循环时在里面
- 513   1              
- 514   1              TempVelocity = 1000*VelocityValue1 + 100*VelocityValue2 + 10*VelocityValue3;    //计算速度阈值
- 515   1              SetVelocityThreshold(TempVelocity,0);           //保存速度阈值
- 516   1      
- 517   1          SaveTime[0] = TempTime[5];
- 518   1              SaveTime[1] = TempTime[4];
- 519   1              SaveTime[2] = TempTime[3];
- 520   1              SaveTime[3] = TempTime[2];
- 521   1              SaveTime[4] = TempTime[1];
- 522   1              SaveTime[5] = TempTime[0];
- 523   1      
- 524   1          set_time(SaveTime);
- 525   1      
- 526   1              LCD12864SettingExit();
- 527   1              EXITSETTING = 0;
- 528   1      }
+ 489   4                                      LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
+ 490   4                              }
+ 491   3                              else if(Loc == 6)
+ 492   3                              {
+ 493   4                                  //日期减一
+ 494   4                                      AddDay(&TempTime[2],-1);
+ 495   4                                      LCD12864DisplayTwoChar(3,5,TempTime[2]/10 + 48,TempTime[2]%10 + 48);
+ 496   4                              }
+ 497   3                              
+ 498   3                              else if(Loc == 7)
+ 499   3                              {
+ 500   4                                  //小时减一
+ 501   4                                      AddHour(&TempTime[3],-1);
+ 502   4                                      LCD12864DisplayTwoChar(4,1,TempTime[3]/10 + 48,TempTime[3]%10 + 48);
+ 503   4                              }
+ 504   3                              else if(Loc == 8)
+ 505   3                              {
+ 506   4                                  //分钟减一
+ 507   4                                      AddMinute(&TempTime[4],-1);
+ 508   4                                      LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
+ 509   4                              }
+ 510   3                              
+ 511   3                              else
+ 512   3                              {
+ 513   4                                  //秒减一
+ 514   4                                      AddSecond(&TempTime[5],-1);
+ 515   4                                      LCD12864DisplayTwoChar(4,5,TempTime[5]/10 + 48,TempTime[5]%10 + 48);
+ 516   4                              }
+ 517   3                              while(KeyIn2==0);
+ 518   3                      }                       
+ 519   2              }       
+ 520   1              while(EXITSETTING == 0);                                                //当没有退出循环时在里面
+ 521   1              
+ 522   1              TempVelocity = 1000*VelocityValue1 + 100*VelocityValue2 + 10*VelocityValue3;    //计算速度阈值
+ 523   1              SetVelocityThreshold(TempVelocity,0);           //保存速度阈值
+ 524   1      
+ 525   1          SaveTime[0] = TempTime[5];
+ 526   1              SaveTime[1] = TempTime[4];
+ 527   1              SaveTime[2] = TempTime[3];
+ 528   1              SaveTime[3] = TempTime[2];
+ 529   1              SaveTime[4] = TempTime[1];
+ 530   1              SaveTime[5] = TempTime[0];
+ 531   1      
+ 532   1          set_time(SaveTime);
+ 533   1      
+ 534   1              LCD12864SettingExit();
+ 535   1              EXITSETTING = 0;
+ 536   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   2412    ----
+   CODE SIZE        =   2434    ----
    CONSTANT SIZE    =     70    ----
    XDATA SIZE       =   ----      69
    PDATA SIZE       =   ----    ----

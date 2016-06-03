@@ -21,23 +21,29 @@ void EXT0(void) interrupt 0
 	//P20 = !P20;
 	if(P32==0)							// 仍然是按下状态
 	{
-		if(ISSETTING==0)
+		/*if(ISSETTING==0)
 		{
 			ISSETTING=1;
 			//P21 = !P21;
 			DisableTimer0();			// 关闭超声波 温湿度的定时器中断
 			DisableTimer3();			// 关闭蜂鸣器的定时器中断				
 		}
+		else if(ISSETTING==1)
+		{
+			ISSETTING=2;
+			EXITSETTING=1;
+			//WIFINEEDDELAY=1;
+		}
 		else
 		{
 			ISSETTING=0;
-			EXITSETTING=1; 
+			//WIFINEEDDELAY=0; 
 			EnableTimer0();				// 开启超声波 温湿度的定时器中断
-			EnableTimer3();				// 开启蜂鸣器的定时器中断
-		}
-		/*if(ISSETTING==1)
+			EnableTimer3();				// 开启蜂鸣器的定时器中断			
+		}*/
+		if(ISSETTING==0)
 		{ 
-		    P21 = !P21;
+		    //P21 = !P21;
 			ISSETTING=1;
 			DisableTimer0();			// 关闭超声波 温湿度的定时器中断
 			DisableTimer3();			// 关闭蜂鸣器的定时器中断
@@ -49,7 +55,7 @@ void EXT0(void) interrupt 0
 			EXITSETTING=1; 
 			EnableTimer0();				// 开启超声波 温湿度的定时器中断
 			EnableTimer3();				// 开启蜂鸣器的定时器中断			
-		}*/
+		}
 	}
 	else								// 抖动
 	{
@@ -195,6 +201,8 @@ void EnterSetting()
 	//Display_String(2,VelocityUp);
 	Display_String(1,VeloCitySettingFull1);
 	Display_String(2,VeloCitySettingFull2);
+	Display_String(3,TimeSettingFull1);
+	Display_String(4,TimeSettingFull2);
 
     TempVelocity = GetVelocityThreshold();
 	DS1302_readoutTime(TempTime);

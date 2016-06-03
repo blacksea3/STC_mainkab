@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   BUZZER                                                                05/30/2016 19:50:33 PAGE 1   
+C51 COMPILER V9.00   BUZZER                                                                06/03/2016 18:07:48 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE BUZZER
@@ -14,12 +14,14 @@ line level    source
    4          void Buzzer()
    5          {
    6   1              //P55 = !P55;                           //无源蜂鸣器
-   7   1              P55 = 0;                                        //有源蜂鸣器
-   8   1      }
+   7   1              P44 = 0;                                        //有源蜂鸣器
+   8   1              P54 = 0;                                        //有源蜂鸣器
+   9   1              P55 = 0;                                        //有源蜂鸣器
+  10   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =      3    ----
+   CODE SIZE        =      7    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----

@@ -11,7 +11,7 @@
 
 #include "stc15.h" 
 #include "LCD12864.h"
-
+#include "UART.h"
 #include "DS1302.h"
 
 #include <intrins.h> 
@@ -211,13 +211,47 @@ void DS1302_readoutTime(unsigned char result[6])
 	result[3] = (unsigned char)(10*(TempData[2] >> 4)) + (unsigned char)(TempData[2]&0x0F);
 	result[4] = (unsigned char)(10*(TempData[1] >> 4)) + (unsigned char)(TempData[1]&0x0F);
 	result[5] = (unsigned char)(10*(TempData[0] >> 4)) + (unsigned char)(TempData[0]&0x0F);
-	/*result[0] = (unsigned char)(TempData[2]&0x0F);
-	result[1] = (unsigned char)(TempData[1]&0x0F);
-	result[2] = (unsigned char)(TempData[0]&0x0F);
-	result[3] = (unsigned char)(10*(TempData[2] >> 4));
-	result[4] = (unsigned char)(10*(TempData[1] >> 4));
-	result[5] = (unsigned char)(10*(TempData[0] >> 4)) + (unsigned char)(TempData[0]&0x0F);*/
+}
 
+/*
+ * DS1302用Wifi发送时间
+ */
+void DS1302SendTimeByWifi()
+{
+	unsigned char Time[6];
+	unsigned char String[13];
+	DS1302_readoutTime(Time);
+	String[0] = Time[0]/10;
+	String[1] = Time[0]%10;
+	String[2] = Time[1]/10;
+	String[3] = Time[1]%10;
+	String[4] = Time[2]/10;
+	String[5] = Time[2]%10;
+	String[6] = Time[3]/10;
+	String[7] = Time[3]%10;
+	String[8] = Time[4]/10;
+	String[9] = Time[4]%10;
+	String[10] = Time[5]/10;
+	String[11] = Time[5]%10;
+	String[12] = '\0';
+	//SendString2(String);
+	SendData(String[0]+48);
+	SendData(String[1]+48);
+	SendData('-');
+	SendData(String[2]+48);
+	SendData(String[3]+48);
+	SendData('-');
+	SendData(String[4]+48);
+	SendData(String[5]+48);
+	SendData(' ');
+	SendData(String[6]+48);
+	SendData(String[7]+48);
+	SendData(':');
+	SendData(String[8]+48);
+	SendData(String[9]+48);
+	SendData(':');
+	SendData(String[10]+48);
+	SendData(String[11]+48);
 }
 
 /*

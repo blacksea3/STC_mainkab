@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   ULTRASOUND                                                            06/02/2016 00:42:04 PAGE 1   
+C51 COMPILER V9.00   ULTRASOUND                                                            06/03/2016 18:23:31 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE ULTRASOUND
@@ -16,8 +16,8 @@ line level    source
    6          #include "main.h"
    7          #include "FLASH.h"
    8          
-   9          sbit trig=P1^3; //触发输入 至少为10us以上
-  10          sbit echo=P1^4 ;        //输出回响信号
+   9          sbit trig=P4^1; //触发输入 至少为10us以上
+  10          sbit echo=P4^2 ;        //输出回响信号
   11          
   12          unsigned long RawTime;
   13          signed int RealDistance;
@@ -30,134 +30,128 @@ line level    source
   20   1              while(i--);
   21   1      }
   22          
-  23          void UltraSoundInit()
+  23          void super_start()      //触发超声波开始工作
   24          {
-  25   1              ;
-  26   1              //Timer1Init();
-  27   1      }
-  28          
-  29          void super_start()      //触发超声波开始工作
+  25   1              trig=1;
+  26   1              delay(10);       //至少10us
+  27   1              trig=0; 
+  28   1      }
+  29          signed int super_count()          //计算超声波回响的高电平持续时间,直接取出TH4和TL4              0-25m/s
   30          {
-  31   1              trig=1;
-  32   1              delay(10);       //至少10us
-  33   1              trig=0; 
-  34   1      }
-  35          signed int super_count()          //计算超声波回响的高电平持续时间,直接取出TH1和额TL1            0-25m/s
-  36          {
-  37   1          RawTime=65536*T1times+TH1*256+TL1;
-  38   1              RealDistance=(RawTime*FOSC_FENZHIYI*170);   //精确到mm                                                           3m         1/11059200 s  假设1m 则t=2m/340
+  31   1          RawTime=65536*T1times+TH1*256+TL1;
+  32   1              RealDistance=(RawTime*FOSC_FENZHIYI*170);   //精确到mm                                                           3m         1/11059200 s  假设1m 则t=2m/340
              -m/s  
-  39   1                                                                                                                                                                       //0-4000          pp *          9.0422e-8 s * 170m/s = 4000mm
-  40   1              //bat[0]=RealDistance/1000 + 48;
-  41   1              //bat[1]=(unsigned char)('.');
-  42   1              //bat[2]=RealDistance%1000/100 + 48;
-  43   1              //bat[3]=RealDistance%100/10 + 48;
-  44   1              //bat[4]=RealDistance%10 + 48;
-  45   1              //bat[5]=(unsigned char)('m');
-  46   1              //bat[6]=(unsigned char)('m');
-  47   1              //bat[7]='\0';
-  48   1              return RealDistance;
-  49   1      }
-  50          
-  51          signed int DisUltraSound()
-  52          {
-  53   1          signed int t;
-C51 COMPILER V9.00   ULTRASOUND                                                            06/02/2016 00:42:04 PAGE 2   
+  33   1                                                                                                                                                                                      //0-4000           pp *          9.0422e-8 s * 170m/s = 4000mm
+  34   1              //bat[0]=RealDistance/1000 + 48;
+  35   1              //bat[1]=(unsigned char)('.');
+  36   1              //bat[2]=RealDistance%1000/100 + 48;
+  37   1              //bat[3]=RealDistance%100/10 + 48;
+  38   1              //bat[4]=RealDistance%10 + 48;
+  39   1              //bat[5]=(unsigned char)('m');
+  40   1              //bat[6]=(unsigned char)('m');
+  41   1              //bat[7]='\0';
+  42   1              return RealDistance;
+  43   1      }
+  44          
+  45          signed int DisUltraSound()
+  46          {
+  47   1          signed int t;
+  48   1              super_start();
+  49   1              while(echo==0);   //等待高电平
+  50   1              EnableTimer1();   //打开定时器1开始计时
+  51   1              while(echo==1);   //等待高电平下去变成低电平（高电平持续）
+  52   1              DisableTimer1();  //关闭定时器1
+  53   1              t=super_count();
+C51 COMPILER V9.00   ULTRASOUND                                                            06/03/2016 18:23:31 PAGE 2   
 
-  54   1              super_start();
-  55   1              while(echo==0);   //等待高电平
-  56   1              EnableTimer1();   //打开定时器1开始计时
-  57   1              while(echo==1);   //等待高电平下去变成低电平（高电平持续）
-  58   1              DisableTimer1();  //关闭定时器1
-  59   1              t=super_count();
-  60   1              return t;
-  61   1      }
-  62          
-  63          void UltraSoundDisplay()
-  64          {     
-  65   1          //unsigned char bat1[8]={0,0,0,0,0,0};
-  66   1              //unsigned char bat2[8]={0,0,0,0,0,0};
-  67   1              //unsigned char bat3[10]={'+',0,'.',0,0,0,'m','/','s','\0'};
-  68   1                
-  69   1              unsigned char VelocityData[] = {"速度为000000000 "};                    //字符串初始化
-  70   1              unsigned long Dis1,Dis2,DDis;                                                           //临时变量
-  71   1              unsigned char i;                                                                                        //临时变量
-  72   1      
-  73   1              unsigned int TempVelocityThreshold;                                             //速度阈值
-  74   1      
-  75   1          TempVelocityThreshold = GetVelocityThreshold();                             //获取当前速度阈值
-  76   1      
-  77   1              //for(i=0;i<5;i++)
-  78   1          //{
-  79   1              //      Delay10ms();
-  80   1              //}
-  81   1          Dis1=DisUltraSound();                                                                       //超声波模块测距
-  82   1          for(i=0;i<5;i++)
+  54   1              return t;
+  55   1      }
+  56          
+  57          void UltraSoundDisplay()
+  58          {     
+  59   1          //unsigned char bat1[8]={0,0,0,0,0,0};
+  60   1              //unsigned char bat2[8]={0,0,0,0,0,0};
+  61   1              //unsigned char bat3[10]={'+',0,'.',0,0,0,'m','/','s','\0'};
+  62   1                
+  63   1              unsigned char VelocityData[] = {"速度为000000000 "};                    //字符串初始化
+  64   1              unsigned long Dis1,Dis2,DDis;                                                           //临时变量
+  65   1              unsigned char i;                                                                                        //临时变量
+  66   1      
+  67   1              unsigned int TempVelocityThreshold;                                             //速度阈值
+  68   1      
+  69   1          TempVelocityThreshold = GetVelocityThreshold();                             //获取当前速度阈值
+  70   1      
+  71   1              //for(i=0;i<5;i++)
+  72   1          //{
+  73   1              //      Delay10ms();
+  74   1              //}
+  75   1          Dis1=DisUltraSound();                                                                       //超声波模块测距
+  76   1          for(i=0;i<5;i++)
+  77   1              {
+  78   2                      Delay50ms();
+  79   2              }
+  80   1          Dis2=DisUltraSound();                                                                       //超声波模块测距
+  81   1      
+  82   1          if(Dis1>4000 || Dis2>4000)                                                                  //单位mm
   83   1              {
-  84   2                      Delay50ms();
-  85   2              }
-  86   1          Dis2=DisUltraSound();                                                                       //超声波模块测距
-  87   1      
-  88   1          if(Dis1>4000 || Dis2>4000)                                                                  //单位mm
-  89   1              {
-  90   2                      VelocityData[7] = 'N';
-  91   2                      VelocityData[8] = '/';
-  92   2                      VelocityData[9] = 'A';
-  93   2                      VelocityData[10] = 'N';
-  94   2                      VelocityData[11] = '/';
-  95   2                      VelocityData[12] = 'A';
-  96   2                      VelocityData[13] = 'N';
-  97   2                      VelocityData[14] = 'A';
-  98   2                      VelocityData[15]='\0';
-  99   2      
- 100   2                      Display_String(1,VelocityData);
- 101   2              }
- 102   1              else
- 103   1              {
- 104   2              if(Dis1>Dis2)
- 105   2                      {
- 106   3                              DDis=Dis1-Dis2;
- 107   3                              VelocityData[6] = '+';
- 108   3                      }
- 109   2                      else
- 110   2                      {
- 111   3                              DDis=Dis2-Dis1;
- 112   3                              VelocityData[6] = '-';
- 113   3                      }
- 114   2                      DDis*=4;                                                                                        //单位mm  时间差是250ms,要乘1000ms/250ms=4
- 115   2              DDis*=3.6;                                                                                      //转为km/h,取整即可
-C51 COMPILER V9.00   ULTRASOUND                                                            06/02/2016 00:42:04 PAGE 3   
+  84   2                      VelocityData[7] = 'N';
+  85   2                      VelocityData[8] = '/';
+  86   2                      VelocityData[9] = 'A';
+  87   2                      VelocityData[10] = 'N';
+  88   2                      VelocityData[11] = '/';
+  89   2                      VelocityData[12] = 'A';
+  90   2                      VelocityData[13] = 'N';
+  91   2                      VelocityData[14] = 'A';
+  92   2                      VelocityData[15]='\0';
+  93   2      
+  94   2                      Display_String(1,VelocityData);
+  95   2              }
+  96   1              else
+  97   1              {
+  98   2              if(Dis1>Dis2)
+  99   2                      {
+ 100   3                              DDis=Dis1-Dis2;
+ 101   3                              VelocityData[6] = '+';
+ 102   3                      }
+ 103   2                      else
+ 104   2                      {
+ 105   3                              DDis=Dis2-Dis1;
+ 106   3                              VelocityData[6] = '-';
+ 107   3                      }
+ 108   2                      DDis*=4;                                                                                        //单位mm  时间差是250ms,要乘1000ms/250ms=4
+ 109   2              DDis*=3.6;                                                                                      //转为km/h,取整即可
+ 110   2                      VelocityData[7]=DDis%100000/10000 + 48;
+ 111   2                      VelocityData[8]=DDis%10000/1000 + 48;
+ 112   2                      VelocityData[9]=(unsigned char)('.');
+ 113   2                      VelocityData[10]=DDis%1000/100 + 48;                                            
+ 114   2                      VelocityData[11]=DDis%100/10 + 48;
+ 115   2                      //VelocityData[10]=DDis%10 + 48;
+C51 COMPILER V9.00   ULTRASOUND                                                            06/03/2016 18:23:31 PAGE 3   
 
- 116   2                      VelocityData[7]=DDis%100000/10000 + 48;
- 117   2                      VelocityData[8]=DDis%10000/1000 + 48;
- 118   2                      VelocityData[9]=(unsigned char)('.');
- 119   2                      VelocityData[10]=DDis%1000/100 + 48;                                            
- 120   2                      VelocityData[11]=DDis%100/10 + 48;
- 121   2                      //VelocityData[10]=DDis%10 + 48;
- 122   2                      VelocityData[12]=(unsigned char)('k');                                                   
- 123   2                      VelocityData[13]=(unsigned char)('m');
- 124   2                      VelocityData[14]=(unsigned char)('/');
- 125   2                      VelocityData[15]=(unsigned char)('h');
- 126   2                      VelocityData[16]='\0';
- 127   2      
- 128   2                      Display_String(1,VelocityData);
- 129   2      
- 130   2                      if((unsigned int)DDis > TempVelocityThreshold)                                   //超过速度阈值,单位m/h,1000mm/s=1m/s=3.6km/h
- 131   2                      {        
- 132   3                              FASTSPEED = 1;
- 133   3                              P20 = !P20;
- 134   3                              //Display_String(1,VelocityData);
- 135   3                              //LCD12864DisplayChar(2,6,DDis%100000/10000 + 48);
- 136   3                              //LCD12864DisplayChar(2,7,DDis%10000/1000 + 48);
- 137   3                              //LCD12864DisplayChar(2,8,DDis%1000/100 + 48);
- 138   3                              //LCD12864DisplayChar(3,7,TempVelocityThreshold%1000/100 + 48);                                      
- 139   3                      }
- 140   2              }       
- 141   1      }
+ 116   2                      VelocityData[12]=(unsigned char)('k');                                                   
+ 117   2                      VelocityData[13]=(unsigned char)('m');
+ 118   2                      VelocityData[14]=(unsigned char)('/');
+ 119   2                      VelocityData[15]=(unsigned char)('h');
+ 120   2                      VelocityData[16]='\0';
+ 121   2      
+ 122   2                      Display_String(1,VelocityData);
+ 123   2      
+ 124   2                      if((unsigned int)DDis > TempVelocityThreshold)                                   //超过速度阈值,单位m/h,1000mm/s=1m/s=3.6km/h
+ 125   2                      {        
+ 126   3                              FASTSPEED = 1;
+ 127   3                              //P20 = !P20;
+ 128   3                              //Display_String(1,VelocityData);
+ 129   3                              //LCD12864DisplayChar(2,6,DDis%100000/10000 + 48);
+ 130   3                              //LCD12864DisplayChar(2,7,DDis%10000/1000 + 48);
+ 131   3                              //LCD12864DisplayChar(2,8,DDis%1000/100 + 48);
+ 132   3                              //LCD12864DisplayChar(3,7,TempVelocityThreshold%1000/100 + 48);                                      
+ 133   3                      }
+ 134   2              }       
+ 135   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    791    ----
+   CODE SIZE        =    788    ----
    CONSTANT SIZE    =     17    ----
    XDATA SIZE       =     13      32
    PDATA SIZE       =   ----    ----

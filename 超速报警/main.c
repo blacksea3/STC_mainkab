@@ -32,7 +32,12 @@ unsigned char EXITSETTING;							//退出设置标志1为激活0为未激活
 unsigned char UART2RIREADY;
 unsigned char UART1RIREADY;
 
+unsigned char SENDREADY;
+
 unsigned char WIFINEEDDELAY;
+//unsigned char WifiDataSendReady;
+//unsigned char WifiDataSendType = 0;
+
 						  
 unsigned char TEMPSTOP;
 						  
@@ -48,14 +53,16 @@ void port_mode()            // 端口模式
 
 void main()
 {	
-    
+    //unsigned char TimeStr[]={0,0,0,0,0,0,'\0'};
     //unsigned char code FUCKSTOP[]={"FUCKSTOOP!"};
 	//unsigned char code FUCKSTART[]={"FUCKSTAART!"};
 
     port_mode();		  						//端口设置全部弱上拉
 	UARTInit();		  							//UART初始化
-	UART2Init();								//UART2初始化
-
+	//UART2Init();								//UART2初始化
+    P44 = 1;									//蜂鸣器关闭
+	P54 = 1;									//蜂鸣器关闭
+	P55 = 1;									//蜂鸣器关闭
 
     DS3231ISREADY = 0;							//DS1302未激活
 	DHT11ISREADY = 0;	  						//DHT11未激活
@@ -69,116 +76,130 @@ void main()
 	ADCDISPLAYREADY = 0;
 	UART2RIREADY = 0;
 	UART1RIREADY = 0;
-
+	//WifiDataSendReady = 0;
 	WIFINEEDDELAY = 0;
+    SENDREADY = 0;
+	//WifiDataSendType = 0;
 	//P20 = 1;
-	/*//DS1302Init(StartTime);					//DS1302初始化,初始化一次就行了*/
+	//DS1302Init(StartTime);						//DS1302初始化,初始化一次就行了
 
-	UltraSoundInit();	  						//超声波初始化
+	
+	//UltraSoundInit();	  						//超声波初始化
+	Timer1Init();								//超声波计时定时器				  /
 	ADC_P12_init();                             //ADC P12口初始化,MQ-135空气质量传感器
 	SetVelocityThreshold(FirstSetVelocity,1);	//速度EEPROM初始化,可以自动识别是否初始化过
-	//P20 = 0;
 	
-	//DHT11Init();        	//DHT11没有初始化程序
-    
-    
     Delay1000ms();		  	//延时3s
     Delay1000ms();   
     Lcm_Init();			  	//LCD12864以及初始化
 
     Timer3Init();         	//蜂鸣器定时器初始化但不开启,开启由变量FASTSPEED指示
 	INT0_Init();            //按键外部中断0开启
-	Timer0Init();		  	//DHT11和超声波     		  	
-    Timer4Init();			//Wifi超时用定时器
+	Timer0Init();		  	//DHT11和超声波
+	     		  	
+    //Timer4Init();			//Wifi超时用定时器
 
 	Display_String(1,StrHello);			   		    //LCD显示HelloWorld!
 	Display_String(2,StrHello);			   		    //LCD显示HelloWorld!
 	Display_String(3,StrHello);			   		    //LCD显示HelloWorld!
 	Display_String(4,StrHello);			   		    //LCD显示HelloWorld!
 	
+	P15 = 1;
+	P14 = 1;
 	//P20 = 0;
 	INT0_Init();
 	EA = 1;				    //使能总中断
 	
 	//SendString2("AT+CIPSTART=\"TCP\",\"192.168.4.2\",8070\r\n");
+	
+   	//SendString2("AT+CIPMUX=1\r\n");
+	//SendString2("AT+CIPSERVER=1,333\r\n");
+	//SendString2("AT+CIPSTO=7200\r\n");
 
 	while(1)
-	{	
-		if(WIFINEEDDELAY)
+	{
+	    if(0)
 		{
-			if(UART2RIREADY)
-			{
-				Uart1SendUart2String();
-				UART2RIREADY = 0;
-				P20 = !P20;
-			}
-			if(UART1RIREADY)
-			{
-		    	//SendString2Length("AT+RST\r\n",8);
-				Uart2SendUart1String();
-				UART1RIREADY = 0;
-				P25 = !P25;
-			}
-		}
-		else
-		{
-		/**********************设置状态*****************************/
-	    if(ISSETTING == 0)							
-		{
-
-        	if(BUZZERTIMER3STOP)
-			{
-				DisableTimer3();
-				//Display_String(4,FUCKSTOP);
-			}
-
-			if(DHT11ISREADY)
-			{
-				DisplayDHT11();                         //读取温度湿度传感器值
-				DHT11ISREADY = 0;
-			}
-			else if(ULTRAISREADY)
-			{
-				UltraSoundDisplay();                    //超声波
-				ULTRAISREADY = 0;
-				if(FASTSPEED)
-				{
-				    BUZZERTIMER3STOP = 0;
-					EnableTimer3();
-					SendString2("AT+CIPSEND=4\r\n");
-					SendString2("BOOM");
-					//Display_String(4,FUCKSTART);
-				}
-			}
-			else if(DS3231ISREADY)
-			{
-				DS3231read_time();
-				DS3231ISREADY = 0;
-			}
-			else if(ADCSTARTREADY)
-			{
-				ADCStart();
-			}
-			else if(ADCSTOPREADY)
-			{
-				ADCStop();
-			}
-			else if(ADCDISPLAYREADY)
-			{
-				ADCDisplay();
-			}
-			else ;
-		}
-		
-		else
-		{
-			//WIFI在发送各数据时延时一会儿应该us级就行的
-			//WIFINEEDDELAY = 1;
-			//;
 			
-			EnterSetting();								 //这里设置成死循环!
 		}
+		/*if(WIFINEEDDELAY)
+		{
+			if()
+			{
+				Uart1SendUart2String();	
+			}
+			else()
+			{
+				
+			}	
+		}*/
+		else
+		{
+			/**********************设置状态*****************************/
+	    	if(ISSETTING == 0)							
+			{
 
-		}
+        		if(BUZZERTIMER3STOP)
+				{
+					DisableTimer3();
+					//Display_String(4,FUCKSTOP);
+				}
+
+				if(DHT11ISREADY)
+				{
+					DisplayDHT11();                         //读取温度湿度传感器值
+					DHT11ISREADY = 0;
+				}
+				else if(ULTRAISREADY)
+				{
+					UltraSoundDisplay();                    //超声波
+					ULTRAISREADY = 0;
+					if(FASTSPEED)
+					{
+					    BUZZERTIMER3STOP = 0;
+						EnableTimer3();
+
+						//DisableTimer0();
+					    //DisableTimer3();
+						//SENDREADY = 1;
+						SendString("超速");
+						SendString("时间为");
+						DS1302SendTimeByWifi();
+						//WIFINEEDDELAY = 1;
+						//SendString2Length("AT+CIPSEND=26\r\n",15);
+						//WIFINEEDDELAY = 1;
+						//SendString2Length("ABCDEFGHIJKLMNOPQRSTUVWXYZ",26);
+					}
+				}
+				else if(DS3231ISREADY)
+				{
+					DS3231read_time();
+					DS3231ISREADY = 0;
+				}
+				else if(ADCSTARTREADY)
+				{
+					ADCStart();
+				}
+				else if(ADCSTOPREADY)
+				{
+					ADCStop();
+				}
+				else if(ADCDISPLAYREADY)
+				{
+					ADCDisplay();
+				}
+				else ;
+			}
+		
+			else
+			{
+				//WIFI在发送各数据时延时一会儿应该us级就行的
+				//WIFINEEDDELAY = 1;
+				//;
+				
+				EnterSetting();								 //这里设置成死循环!
+			}
+        }
+		//}
 	}
 }

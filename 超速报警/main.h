@@ -13,6 +13,8 @@ extern unsigned char ADCSTARTREADY;
 extern unsigned char ADCSTOPREADY;
 extern unsigned char ADCDISPLAYREADY;
 
+extern unsigned char SENDREADY;
+
 extern unsigned char UART1RIREADY;
 extern unsigned char UART2RIREADY;
 extern unsigned char WIFINEEDDELAY;

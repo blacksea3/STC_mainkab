@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   STC_AD                                                                06/01/2016 23:32:59 PAGE 1   
+C51 COMPILER V9.00   STC_AD                                                                06/03/2016 18:23:32 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE STC_AD
@@ -13,7 +13,7 @@ line level    source
    3          #include "main.h"
    4          
    5          //#include "UART.H"   // 包含STC115F2K60S2单片机寄存器定义文件 
-   6          #define VCC 5.000   // 存放用万用表实测的单片机供电电压
+   6          #define VCC 4.670   // 存放用万用表实测的单片机供电电压
    7          unsigned int ADvalue;       // 存放AD转换返回的结果
    8          
    9          void  ADC_P12_init()
@@ -22,68 +22,86 @@ line level    source
   12   1              ADC_CONTR|=0x80;        // 开AD转换电源,第一次使用时要打开内部模拟电源
   13   1          for (i=0;i<10000;i++);  // 适当延时等待AD转换供电稳定，一般延时1ms以内即可，为了缩短AD
   14   1      // 调用时间，可把这2行剪切到主程序中去。
-  15   1              P1ASF|=0x04;                    // 选择P1.2作为AD转换通道，0x02= 0000 0100
-  16   1              P1ASF&=~0xfb;                   // 选择P1.2作为AD转换通道，0x02= 0000 0100      
-  17   1              ADC_CONTR=0xE1;         // 选择P1.2作为AD转换通道，最高转换速度，清转换完成标志。
-  18   1              for (i=0;i<1000;i++);   // 如果是多通道模拟量进行AD转换，则更换AD转换通道后要适当延时，
-  19   1              
-  20   1      // 使输入电压稳定，延时量取20μs～200μs即可，与输入电压源的内阻有关，如果输入电压信号源的内
-  21   1      // 阻在10K以下，可不加延时，如果是单通道模拟量转换，则不需要更换AD转换通道，也不需要加延时。    
-  22   1      }  
-  23          
-  24          /*
-  25           ADC启动
-  26           */
-  27          void ADCStart()
-  28          {
-  29   1              ADC_CONTR|=0x08;                        // 启动 A/D 转换，ADC_START=1。
-  30   1              EADC=1;
-  31   1              ADCSTARTREADY = 0; 
-  32   1      }
-  33          
-  34          void ADCStop()
-  35          {
-  36   1          ADC_CONTR&=0xf7;                    // 关闭 A/D 转换，ADC_START=0。
-  37   1              EADC=0;
-  38   1              ADCSTOPREADY = 0;                               
-  39   1              ADCDISPLAYREADY = 1;                    // ADC显示开启  
-  40   1      }
-  41          
-  42          void ADC(void) interrupt 5
-  43          {
-  44   1              unsigned int AD_Dat=0;                  // 10位AD转换值
-  45   1              unsigned char Tmp=0;                    // 临时变量用于将AD转换出来的2个字节合成一个字节
-  46   1              ADC_CONTR&=0xE7;                        // 将ADC_FLAG清0， 0xE7=1110 0111B，ADC_FLAG=0，ADC_START=0。   
-  47   1              AD_Dat = ADC_RES;                               // 默认高字节高8位。
-  48   1              AD_Dat <<= 2;
-  49   1              Tmp = ADC_RESL;                         // 默认低字节低2位。
-  50   1              Tmp &= 0x03;                            // 屏蔽无关位
-  51   1              AD_Dat|= Tmp;                           // 高低字节拼接成一个10位数。
-  52   1              ADvalue=AD_Dat;                                 // 值:0-1023
-  53   1              ADCSTOPREADY = 1;                               // ADC准备停止
-  54   1              P20 = !P20;
-C51 COMPILER V9.00   STC_AD                                                                06/01/2016 23:32:59 PAGE 2   
+  15   1              P1ASF = 0x00;
+  16   1              P1ASF|=0x08;                    // 选择P1.3作为AD转换通道，0x08= 0000 1000
+  17   1              P1ASF&=~0xfb;                   // 选择P1.3作为AD转换通道，0x08= 0000 1000      
+  18   1              ADC_CONTR=0xE3;         // 选择P1.3作为AD转换通道，最高转换速度，清转换完成标志。
+  19   1              for (i=0;i<1000;i++);   // 如果是多通道模拟量进行AD转换，则更换AD转换通道后要适当延时，
+  20   1              
+  21   1      // 使输入电压稳定，延时量取20μs～200μs即可，与输入电压源的内阻有关，如果输入电压信号源的内
+  22   1      // 阻在10K以下，可不加延时，如果是单通道模拟量转换，则不需要更换AD转换通道，也不需要加延时。    
+  23   1      }  
+  24          
+  25          /*
+  26           ADC启动
+  27           */
+  28          void ADCStart()
+  29          {
+  30   1              ADC_CONTR|=0x08;                        // 启动 A/D 转换，ADC_START=1。
+  31   1              EADC=1;
+  32   1              ADCSTARTREADY = 0; 
+  33   1      }
+  34          
+  35          void ADCStop()
+  36          {
+  37   1          ADC_CONTR&=0xf7;                    // 关闭 A/D 转换，ADC_START=0。
+  38   1              EADC=0;
+  39   1              ADCSTOPREADY = 0;                               
+  40   1              ADCDISPLAYREADY = 1;                    // ADC显示开启  
+  41   1      }
+  42          
+  43          void ADC(void) interrupt 5
+  44          {
+  45   1              unsigned int AD_Dat=0;                  // 10位AD转换值
+  46   1              unsigned char Tmp=0;                    // 临时变量用于将AD转换出来的2个字节合成一个字节
+  47   1              ADC_CONTR&=0xE7;                        // 将ADC_FLAG清0， 0xE7=1110 0111，ADC_FLAG=0，ADC_START=0。    
+  48   1              //ADC_CONTR&=~ADC_FLAG;
+  49   1              //ADC_CONTR&=~ADC_START;
+  50   1              AD_Dat = ADC_RES;                               // 默认高字节高8位。
+  51   1              AD_Dat <<= 2;
+  52   1              Tmp = ADC_RESL;                         // 默认低字节低2位。
+  53   1              Tmp &= 0x03;                            // 屏蔽无关位
+  54   1              AD_Dat|= Tmp;                           // 高低字节拼接成一个10位数。
+C51 COMPILER V9.00   STC_AD                                                                06/03/2016 18:23:32 PAGE 2   
 
-  55   1      }
-  56          
-  57          /* 
-  58           显示空气传感器数值
-  59           */
-  60          void ADCDisplay()
-  61          {
-  62   1          unsigned char TempData[]={"空气质量：0000"};
-  63   1          TempData[10]=ADvalue%10000/1000 + 48;                                                       
-  64   1              TempData[11]=ADvalue%1000/100 + 48;
-  65   1              TempData[12]=ADvalue%100/10 + 48;
-  66   1              TempData[13]=ADvalue%10 + 48;
-  67   1              Display_String(3,TempData);
-  68   1              ADCDISPLAYREADY = 0;                    
-  69   1      }
+  55   1              ADvalue=AD_Dat;                                 // 值:0-1023
+  56   1              ADCSTOPREADY = 1;                               // ADC准备停止
+  57   1      }
+  58          
+  59          /* 
+  60           显示空气传感器数值
+  61           */
+  62          void ADCDisplay()
+  63          {
+  64   1          unsigned char TempData[]={"空气质量：0000"};
+  65   1          TempData[10]=ADvalue%10000/1000 + 48;                                                       
+  66   1              TempData[11]=ADvalue%1000/100 + 48;
+  67   1              TempData[12]=ADvalue%100/10 + 48;
+  68   1              TempData[13]=ADvalue%10 + 48;
+  69   1              if(ADvalue<100)
+  70   1              {
+  71   2                      Display_String(3,"空气质量：优");
+  72   2              }
+  73   1              else if(ADvalue<300)
+  74   1              {
+  75   2                      Display_String(3,"空气质量：良");
+  76   2              }
+  77   1              else if(ADvalue<500)
+  78   1              {
+  79   2                      Display_String(3,"空气质量：中");
+  80   2              }
+  81   1              else
+  82   1              {
+  83   2                      Display_String(3,"空气质量：差");
+  84   2              }
+  85   1              //Display_String(3,TempData);
+  86   1              ADCDISPLAYREADY = 0;                    
+  87   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    302    ----
-   CONSTANT SIZE    =     15    ----
+   CODE SIZE        =    369    ----
+   CONSTANT SIZE    =     67    ----
    XDATA SIZE       =      2      15
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----

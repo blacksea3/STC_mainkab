@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   DS1302                                                                06/01/2016 22:38:01 PAGE 1   
+C51 COMPILER V9.00   DS1302                                                                06/03/2016 18:19:32 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE DS1302
@@ -21,7 +21,7 @@ line level    source
   11          
   12          #include "stc15.h" 
   13          #include "LCD12864.h"
-  14          
+  14          #include "UART.h"
   15          #include "DS1302.h"
   16          
   17          #include <intrins.h> 
@@ -62,7 +62,7 @@ line level    source
   52          void clear_ds1302_WP(void) 
   53          {
   54   1              RST = 0;           // RST引脚既是CE引脚
-C51 COMPILER V9.00   DS1302                                                                06/01/2016 22:38:01 PAGE 2   
+C51 COMPILER V9.00   DS1302                                                                06/03/2016 18:19:32 PAGE 2   
 
   55   1              SCK = 0;
   56   1              RST = 1;
@@ -126,7 +126,7 @@ line level    source
  114   1              return dat;
  115   1      } 
  116          
-C51 COMPILER V9.00   DS1302                                                                06/01/2016 22:38:01 PAGE 3   
+C51 COMPILER V9.00   DS1302                                                                06/03/2016 18:19:32 PAGE 3   
 
  117          // 单字节压缩BCD码转换成ASCII码另一常见格式示例，dat/16 + 0x30，
  118          // dat/16本质就是右移4位，数字0--9加上0x30即得数字0--9的ASCII码
@@ -190,7 +190,7 @@ line level    source
  176   1              LCD12864_Send_TIME(TempData);
  177   1      } 
  178           
-C51 COMPILER V9.00   DS1302                                                                06/01/2016 22:38:01 PAGE 4   
+C51 COMPILER V9.00   DS1302                                                                06/03/2016 18:19:32 PAGE 4   
 
  179          void delay_1S(void)
  180          {
@@ -227,35 +227,69 @@ line level    source
  211   1              result[3] = (unsigned char)(10*(TempData[2] >> 4)) + (unsigned char)(TempData[2]&0x0F);
  212   1              result[4] = (unsigned char)(10*(TempData[1] >> 4)) + (unsigned char)(TempData[1]&0x0F);
  213   1              result[5] = (unsigned char)(10*(TempData[0] >> 4)) + (unsigned char)(TempData[0]&0x0F);
- 214   1              /*result[0] = (unsigned char)(TempData[2]&0x0F);
- 215   1              result[1] = (unsigned char)(TempData[1]&0x0F);
- 216   1              result[2] = (unsigned char)(TempData[0]&0x0F);
- 217   1              result[3] = (unsigned char)(10*(TempData[2] >> 4));
- 218   1              result[4] = (unsigned char)(10*(TempData[1] >> 4));
- 219   1              result[5] = (unsigned char)(10*(TempData[0] >> 4)) + (unsigned char)(TempData[0]&0x0F);*/
- 220   1      
- 221   1      }
- 222          
- 223          /*
- 224           * DS1302初始化
- 225           * 参数:时间数组StartTime[7]=   {14,11,30,23,50,59,7} 
- 226           */
- 227          void DS1302Init(unsigned char StartTime[7])    
- 228          {
- 229   1              //unsigned char StartTime[7]=   {14,11,30,23,50,59,7};  // 年月日时分秒周 14-11-30 23:50:59
- 230   1              unsigned char time[8];                                                                  // 秒分时日月周年  
- 231   1              Data_Swap(StartTime,time);                                                      // 数据交换
- 232   1              set_time(time);                                                                         // 设定初始时间值 ,数组名就代表数组首地址               
- 233   1              //read_time();                                                                      // 秒分时日月周年   
- 234   1      }
+ 214   1      }
+ 215          
+ 216          /*
+ 217           * DS1302用Wifi发送时间
+ 218           */
+ 219          void DS1302SendTimeByWifi()
+ 220          {
+ 221   1              unsigned char Time[6];
+ 222   1              unsigned char String[13];
+ 223   1              DS1302_readoutTime(Time);
+ 224   1              String[0] = Time[0]/10;
+ 225   1              String[1] = Time[0]%10;
+ 226   1              String[2] = Time[1]/10;
+ 227   1              String[3] = Time[1]%10;
+ 228   1              String[4] = Time[2]/10;
+ 229   1              String[5] = Time[2]%10;
+ 230   1              String[6] = Time[3]/10;
+ 231   1              String[7] = Time[3]%10;
+ 232   1              String[8] = Time[4]/10;
+ 233   1              String[9] = Time[4]%10;
+ 234   1              String[10] = Time[5]/10;
+ 235   1              String[11] = Time[5]%10;
+ 236   1              String[12] = '\0';
+ 237   1              //SendString2(String);
+ 238   1              SendData(String[0]+48);
+ 239   1              SendData(String[1]+48);
+ 240   1              SendData('-');
+C51 COMPILER V9.00   DS1302                                                                06/03/2016 18:19:32 PAGE 5   
+
+ 241   1              SendData(String[2]+48);
+ 242   1              SendData(String[3]+48);
+ 243   1              SendData('-');
+ 244   1              SendData(String[4]+48);
+ 245   1              SendData(String[5]+48);
+ 246   1              SendData(' ');
+ 247   1              SendData(String[6]+48);
+ 248   1              SendData(String[7]+48);
+ 249   1              SendData(':');
+ 250   1              SendData(String[8]+48);
+ 251   1              SendData(String[9]+48);
+ 252   1              SendData(':');
+ 253   1              SendData(String[10]+48);
+ 254   1              SendData(String[11]+48);
+ 255   1      }
+ 256          
+ 257          /*
+ 258           * DS1302初始化
+ 259           * 参数:时间数组StartTime[7]=   {14,11,30,23,50,59,7} 
+ 260           */
+ 261          void DS1302Init(unsigned char StartTime[7])    
+ 262          {
+ 263   1              //unsigned char StartTime[7]=   {14,11,30,23,50,59,7};  // 年月日时分秒周 14-11-30 23:50:59
+ 264   1              unsigned char time[8];                                                                  // 秒分时日月周年  
+ 265   1              Data_Swap(StartTime,time);                                                      // 数据交换
+ 266   1              set_time(time);                                                                         // 设定初始时间值 ,数组名就代表数组首地址               
+ 267   1              //read_time();                                                                      // 秒分时日月周年   
+ 268   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   1026    ----
+   CODE SIZE        =   1315    ----
    CONSTANT SIZE    =     16    ----
-   XDATA SIZE       =   ----      64
-C51 COMPILER V9.00   DS1302                                                                06/01/2016 22:38:01 PAGE 5   
-
+   XDATA SIZE       =   ----      83
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----

@@ -207,7 +207,7 @@
       <Focus>0</Focus>
       <ColumnNumber>62</ColumnNumber>
       <tvExpOptDlg>0</tvExpOptDlg>
-      <TopLine>17</TopLine>
+      <TopLine>7</TopLine>
       <CurrentLine>23</CurrentLine>
       <bDave2>0</bDave2>
       <PathWithFileName>.\main.c</PathWithFileName>
@@ -268,7 +268,7 @@
   </Group>
 
   <AlienFiles>
-    <PathWithFilename>E:\Programfiles\MIC\51\STC15W4K32LCD1602\LCD1602.H</PathWithFilename>
+    <PathWithFilename>E:\Programfiles\MIC\51\Git\STC_mainkab\STC15W4K32LCD1602\LCD1602.H</PathWithFilename>
     <TopLine>1</TopLine>
     <CurrentLine>22</CurrentLine>
     <Constant>0</Constant>
@@ -1639,7 +1639,7 @@
         <Doc>
           <Name>.\main.c</Name>
           <ColumnNumber>62</ColumnNumber>
-          <TopLine>17</TopLine>
+          <TopLine>7</TopLine>
           <CurrentLine>23</CurrentLine>
         </Doc>
         <Doc>

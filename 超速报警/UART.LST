@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   UART                                                                  06/02/2016 00:46:33 PAGE 1   
+C51 COMPILER V9.00   UART                                                                  06/03/2016 18:24:02 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE UART
@@ -44,259 +44,260 @@ line level    source
   34          
   35          sfr IP2 = 0xB5;                                                         //xxxx,xx00 中断优先级寄存器2
   36          
-  37          #define S2RI 0x01                                                       //S2CON.0
-  38          #define S2TI 0x02                                                       //S2CON.1
-  39          #define S2RB8 0x04                                                      //S2CON.2
-  40          #define S2TB8 0x08                                                      //S2CON.3
-  41          
-  42          
-  43          void SendData(BYTE dat);
-  44          void SendString(char *s);
-  45          void UARTInit();
-  46          
-  47          //unsigned char UART2Temp[256];
-  48          //unsigned int UART2Loc = 0;
-  49          //unsigned char UART1Temp[256];
-  50          //unsigned int UART1Loc = 0;
-  51          unsigned char UART1Temp;
-  52          unsigned char UART2Temp;
-  53          
-  54          void UARTInit()
-C51 COMPILER V9.00   UART                                                                  06/02/2016 00:46:33 PAGE 2   
+  37          sbit P15        =   P1^5;
+  38          
+  39          #define S2RI 0x01                                                       //S2CON.0
+  40          #define S2TI 0x02                                                       //S2CON.1
+  41          #define S2RB8 0x04                                                      //S2CON.2
+  42          #define S2TB8 0x08                                                      //S2CON.3
+  43          
+  44          
+  45          void SendData(BYTE dat);
+  46          void SendString(char *s);
+  47          void UARTInit();
+  48          
+  49          //unsigned char UART2Temp[256];
+  50          //unsigned int UART2Loc = 0;
+  51          //unsigned char UART1Temp[256];
+  52          //unsigned int UART1Loc = 0;
+  53          unsigned char UART1Temp;
+  54          unsigned char UART2Temp;
+C51 COMPILER V9.00   UART                                                                  06/03/2016 18:24:02 PAGE 2   
 
-  55          {
-  56   1      #if(PARITYBIT == NONE_PARITY)
-  57   1              SCON = 0x50;                                    //8位可变波特率
-  58   1      #elif(PARITYBIT == ODD_PARITY)||(PARITYBIT == EVEN_PARITY)||(PARITYBIT == MARK_PARITY)
+  55          
+  56          void UARTInit()
+  57          {
+  58   1      #if(PARITYBIT == NONE_PARITY)
+  59   1              SCON = 0x50;                                    //8位可变波特率
+  60   1      #elif(PARITYBIT == ODD_PARITY)||(PARITYBIT == EVEN_PARITY)||(PARITYBIT == MARK_PARITY)
                       SCON = 0xda;                                    //9位可变波特率,校验位初始为1
               #elif(PARITYBIT == SPACE_PARITY)        
                       SCON = 0xd2;                                    //9位可变波特率,校验位初始为0
               #endif
-  63   1              
-  64   1          //T2L = (65536-(FOSC/4/BAUD));              //设置波特率重装值
-  65   1              //T2H = (65536-(FOSC/4/BAUD))>>8;
-  66   1              TL1 = (65536-(FOSC/4/BAUD));
-  67   1              TH1 = (65536-(FOSC/4/BAUD))>>8;
-  68   1              TMOD = 0x00;
-  69   1              //AUXR |= 0x14;                                 //T2 1T模式,启动定时器2
-  70   1              //AUXR |= 0x01;                                         //定时器2为串口1的波特率发生器
-  71   1              AUXR |= 0x40;                                   //定时器1为串口1波特率发生器
-  72   1              AUXR &= ~0xbf;                                  //定时器1为串口1波特率发生器
+  65   1              
+  66   1          T2L = (65536-(FOSC/4/BAUD));                //设置波特率重装值
+  67   1              T2H = (65536-(FOSC/4/BAUD))>>8;
+  68   1              //TL1 = (65536-(FOSC/4/BAUD));
+  69   1              //TH1 = (65536-(FOSC/4/BAUD))>>8;
+  70   1              TMOD = 0x00;
+  71   1              AUXR |= 0x14;                                   //T2 1T模式,启动定时器2
+  72   1              AUXR |= 0x01;                                   //定时器2为串口1的波特率发生器
   73   1      
-  74   1              TR1 = 1;                                                                //启动定时器1
-  75   1              ES = 1;                                         //使能串口1中断
-  76   1              PS = 1;                                 //UART中断调整为高优先级
-  77   1              //EA = 1;                                       //使能总中断
-  78   1              //SendString("SSDSDSD");
-  79   1              //while(1)
-  80   1              //{
-  81   1              //       SendString("A");
-  82   1              //}
-  83   1      }
-  84          
-  85          void UART2Init()
-  86          {
-  87   1      #if(PARITYBIT2 == NONE_PARITY)
-  88   1              S2CON = 0x50;                                   //8位可变波特率
-  89   1      #elif(PARITYBIT2 == ODD_PARITY)||(PARITYBIT2 == EVEN_PARITY)||(PARITYBIT2 == MARK_PARITY)
+  74   1              ES = 1;                                         //使能串口1中断
+  75   1              PS = 1;                                 //UART中断调整为高优先级
+  76   1              ET1 = 0; 
+  77   1      }
+  78          
+  79          void UART2Init()
+  80          {
+  81   1      #if(PARITYBIT2 == NONE_PARITY)
+  82   1              S2CON = 0x50;                                   //8位可变波特率
+  83   1      #elif(PARITYBIT2 == ODD_PARITY)||(PARITYBIT2 == EVEN_PARITY)||(PARITYBIT2 == MARK_PARITY)
                       S2CON = 0xda;                                   //9位可变波特率,校验位初始为1
               #elif(PARITYBIT2 == SPACE_PARITY)       
                       S2CON = 0xd2;                                   //9位可变波特率,校验位初始为0
               #endif
-  94   1          T2L = (65536-(FOSC/4/BAUD));                //设置波特率重装值
-  95   1              T2H = (65536-(FOSC/4/BAUD))>>8;
-  96   1              AUXR |= 0x14;                                   //T2 1T模式,启动定时器2
-  97   1              AUXR |= 0x01;                                   //定时器2为串口1的波特率发生器
-  98   1              IE2 |= 0x01;                            //使能串口2中断
-  99   1              //UART2Loc = 0;
- 100   1              IP2 |= 0x01;                                                    //UART2中断调整为高优先级
- 101   1              IP2 &= ~0xfe;
- 102   1              //PS2 = 1;                                              
- 103   1      }
- 104          
- 105          /*-------------------------
- 106          UART1 中断服务程序
- 107          -------------------------*/
- 108          void Uart() interrupt 4
- 109          {
- 110   1              if(RI)
- 111   1              {
- 112   2                      RI = 0;                     //清除RI位
- 113   2                      UART1Temp = SBUF;
- 114   2                      //UART1Temp[UART1Loc++] = SBUF;   
- 115   2                      UART1RIREADY = 1;
- 116   2                      if(WIFINEEDDELAY == 0)
-C51 COMPILER V9.00   UART                                                                  06/02/2016 00:46:33 PAGE 3   
+  88   1          T2L = (65536-(FOSC/4/BAUD));                //设置波特率重装值
+  89   1              T2H = (65536-(FOSC/4/BAUD))>>8;
+  90   1              AUXR |= 0x14;                                   //T2 1T模式,启动定时器2
+  91   1              AUXR |= 0x01;                                   //定时器2为串口1的波特率发生器
+  92   1              IE2 |= 0x01;                            //使能串口2中断
+  93   1              //UART2Loc = 0;
+  94   1              IP2 |= 0x01;                                                    //UART2中断调整为高优先级
+  95   1              IP2 &= ~0xfe;
+  96   1              //PS2 = 1;                                              
+  97   1      }
+  98          
+  99          /*-------------------------
+ 100          UART1 中断服务程序
+ 101          -------------------------*/
+ 102          void Uart() interrupt 4
+ 103          {
+ 104   1              P15 = 1;
+ 105   1              if(RI)
+ 106   1              {
+ 107   2                      RI = 0;                     //清除RI位
+ 108   2                      UART1Temp = SBUF;
+ 109   2                      //UART1Temp[UART1Loc++] = SBUF;   
+ 110   2                      UART1RIREADY = 1;
+ 111   2                      if(WIFINEEDDELAY == 0)
+ 112   2                      {
+ 113   3                              EnableTimer4();
+ 114   3                              WIFINEEDDELAY = 1;
+ 115   3                      }
+ 116   2                      else
+C51 COMPILER V9.00   UART                                                                  06/03/2016 18:24:02 PAGE 3   
 
  117   2                      {
- 118   3                              EnableTimer4();
- 119   3                              WIFINEEDDELAY = 1;
- 120   3                      }
- 121   2                      else
- 122   2                      {
- 123   3                              T4times = 0;
- 124   3                      }
+ 118   3                              T4times = 0;
+ 119   3                      }
+ 120   2              }
+ 121   1              if(TI)
+ 122   1              {
+ 123   2                      TI = 0;                     //清除TI位
+ 124   2                      busy = 0;                   //清忙标志
  125   2              }
- 126   1              if(TI)
- 127   1              {
- 128   2                      TI = 0;                     //清除TI位
- 129   2                      busy = 0;                   //清忙标志
- 130   2              }
- 131   1      }
- 132          
- 133          /*--------------------------
- 134          UART1发送数据
- 135          --------------------------*/
- 136          void SendData(BYTE dat)
- 137          {
- 138   1              while(busy);                     //等待前面的数据发送完成
- 139   1              ACC = dat;                       //获取校验位P(PSW.0)
- 140   1              if(P)
- 141   1              {
- 142   2              #if(PARITYBIT == ODD_PARITY)
+ 126   1      }
+ 127          
+ 128          /*--------------------------
+ 129          UART1发送数据
+ 130          --------------------------*/
+ 131          void SendData(BYTE dat)
+ 132          {
+ 133   1              while(busy);                     //等待前面的数据发送完成
+ 134   1              ACC = dat;                       //获取校验位P(PSW.0)
+ 135   1              if(P)
+ 136   1              {
+ 137   2              #if(PARITYBIT == ODD_PARITY)
                               TB8 = 0;                     //设置校验位为0
                       #elif(PARITYBIT == EVEN_PARITY)
                               TB8 = 1;                     //设置校验位为1
                       #endif
- 147   2              }
- 148   1              else
- 149   1              {
- 150   2              #if(PARITYBIT == ODD_PARITY)
+ 142   2              }
+ 143   1              else
+ 144   1              {
+ 145   2              #if(PARITYBIT == ODD_PARITY)
                               TB8 = 1;                     //设置校验位为0
                       #elif(PARITYBIT == EVEN_PARITY)
                               TB8 = 0;                     //设置校验位为1
                       #endif
- 155   2              }
- 156   1              busy = 1;
- 157   1              SBUF = ACC;                      //写数据到UART数据寄存器
- 158   1              
- 159   1      }
- 160          
- 161          /*--------------------------
- 162          发送字符串
- 163          --------------------------*/
- 164          void SendString(char *s)
- 165          {
- 166   1              while(*s)                        //检测字符串结束标志
- 167   1              {
- 168   2                      SendData(*s++);              //发送当前字符
- 169   2              }
- 170   1              
- 171   1      }
- 172          
- 173          /*
- 174           * 串口1发串口2接收的信息
- 175           */
- 176          void Uart1SendUart2String()
- 177          {
- 178   1          //unsigned char i;
-C51 COMPILER V9.00   UART                                                                  06/02/2016 00:46:33 PAGE 4   
+ 150   2              }
+ 151   1              busy = 1;
+ 152   1              SBUF = ACC;                      //写数据到UART数据寄存器
+ 153   1              
+ 154   1      }
+ 155          
+ 156          /*--------------------------
+ 157          发送字符串
+ 158          --------------------------*/
+ 159          void SendString(char *s)
+ 160          {
+ 161   1          unsigned char FUCK = 0;
+ 162   1              while(*s)                        //检测字符串结束标志
+ 163   1              {
+ 164   2                      SendData(*s++);              //发送当前字符
+ 165   2                      FUCK ++;
+ 166   2                      if(FUCK==1)
+ 167   2                      {
+ 168   3                              P15 = 0;
+ 169   3                      }
+ 170   2              }
+ 171   1              
+ 172   1      }
+ 173          
+ 174          /*
+ 175           * 串口1发串口2接收的信息
+ 176           */
+ 177          void Uart1SendUart2String()
+ 178          {
+C51 COMPILER V9.00   UART                                                                  06/03/2016 18:24:02 PAGE 4   
 
- 179   1              //for(i=0;i<UART2Loc;i++)
- 180   1              //{
- 181   1              //      SendData(UART2Temp[i]);
- 182   1              //}
- 183   1              //UART2Loc = 0;
- 184   1              SendData(UART2Temp);
- 185   1      }
- 186          
- 187          /*-------------------------
- 188          UART2 中断服务程序
- 189          -------------------------*/
- 190          void Uart2() interrupt 8
- 191          {
- 192   1              if(S2CON&S2RI)
- 193   1              {
- 194   2                      S2CON&=~S2RI;                   //清除RI位
- 195   2                      //UART2Temp[UART2Loc++] = S2BUF;   
- 196   2                      UART2RIREADY = 1;
- 197   2                      UART2Temp = S2BUF;
- 198   2                      if(WIFINEEDDELAY == 0)
- 199   2                      {
- 200   3                              EnableTimer4();
- 201   3                              WIFINEEDDELAY = 1;
- 202   3                      }
- 203   2                      else
- 204   2                      {
- 205   3                              T4times = 0;
- 206   3                      }
- 207   2                      //SendData(SBUF);
- 208   2                      //P22 = RB8;                    //P2.2显示检验位
- 209   2              }
- 210   1              if(S2CON&S2TI)
- 211   1              {
- 212   2                      S2CON&=~S2TI;                   //清除TI位
- 213   2                      busy2 = 0;                              //清忙标志
- 214   2              }
- 215   1      }
- 216          
- 217          /*--------------------------
- 218          UART2发送数据
- 219          --------------------------*/
- 220          void SendData2(BYTE dat)
- 221          {
- 222   1              while(busy2);                           //等待前面的数据发送完成
- 223   1              ACC = dat;                              //获取校验位P(PSW.0)
- 224   1              if(P)
- 225   1              {
- 226   2              #if(PARITYBIT2 == ODD_PARITY)
+ 179   1          //unsigned char i;
+ 180   1              //for(i=0;i<UART2Loc;i++)
+ 181   1              //{
+ 182   1              //      SendData(UART2Temp[i]);
+ 183   1              //}
+ 184   1              //UART2Loc = 0;
+ 185   1              SendData(UART2Temp);
+ 186   1      }
+ 187          
+ 188          /*-------------------------
+ 189          UART2 中断服务程序
+ 190          -------------------------*/
+ 191          void Uart2() interrupt 8
+ 192          {
+ 193   1              if(S2CON&S2RI)
+ 194   1              {
+ 195   2                      S2CON&=~S2RI;                   //清除RI位
+ 196   2                      //UART2Temp[UART2Loc++] = S2BUF;   
+ 197   2                      //UART2RIREADY = 1;
+ 198   2                      UART2Temp = S2BUF;
+ 199   2                      if(WIFINEEDDELAY == 0)
+ 200   2                      {
+ 201   3                              EnableTimer4();
+ 202   3                              WIFINEEDDELAY = 1;
+ 203   3                      }
+ 204   2                      else
+ 205   2                      {
+ 206   3                              T4times = 0;
+ 207   3                      }
+ 208   2                      //SendData(SBUF);
+ 209   2                      //P22 = RB8;                    //P2.2显示检验位
+ 210   2              }
+ 211   1              if(S2CON&S2TI)
+ 212   1              {
+ 213   2                      S2CON&=~S2TI;                   //清除TI位
+ 214   2                      busy2 = 0;                              //清忙标志
+ 215   2              }
+ 216   1      }
+ 217          
+ 218          /*--------------------------
+ 219          UART2发送数据
+ 220          --------------------------*/
+ 221          void SendData2(BYTE dat)
+ 222          {
+ 223   1              while(busy2);                           //等待前面的数据发送完成
+ 224   1              ACC = dat;                              //获取校验位P(PSW.0)
+ 225   1              if(P)
+ 226   1              {
+ 227   2              #if(PARITYBIT2 == ODD_PARITY)
                               S2CON&=~S2TB8;                  //设置校验位为0
                       #elif(PARITYBIT2 == EVEN_PARITY)
                               S2CON|=~S2TB8;                  //设置校验位为1
                       #endif
- 231   2              }
- 232   1              else
- 233   1              {
- 234   2              #if(PARITYBIT2 == ODD_PARITY)
+ 232   2              }
+ 233   1              else
+ 234   1              {
+ 235   2              #if(PARITYBIT2 == ODD_PARITY)
                               S2CON|=~S2TB8;                  //设置校验位为1
                       #elif(PARITYBIT2 == EVEN_PARITY)
                               S2CON&=~S2TB8;                  //设置校验位为0
                       #endif
- 239   2              }
- 240   1              busy2 = 1;
-C51 COMPILER V9.00   UART                                                                  06/02/2016 00:46:33 PAGE 5   
+ 240   2              }
+C51 COMPILER V9.00   UART                                                                  06/03/2016 18:24:02 PAGE 5   
 
- 241   1              S2BUF = ACC;                            //写数据到UART数据寄存器
- 242   1              
- 243   1      }
- 244          
- 245          /*--------------------------
- 246          UART2发送字符串
- 247          --------------------------*/
- 248          void SendString2(char *s)
- 249          {
- 250   1              while(*s)                               //检测字符串结束标志
- 251   1              {
- 252   2                      SendData2(*s++);                //发送当前字符
- 253   2              }
- 254   1      }
- 255          
- 256          void SendString2Length(char s[], unsigned char length)
- 257          {
- 258   1              unsigned char i;
- 259   1              for(i=0;i<length;i++)
- 260   1              {
- 261   2                      SendData2(s[i]);                //发送当前字符
- 262   2              }
- 263   1              
- 264   1      }
- 265          
- 266          /*
- 267           * 串口2发串口1接收的信息
- 268           */
- 269          void Uart2SendUart1String()
- 270          {
- 271   1          //unsigned char i;
- 272   1              //for(i=0;i<UART1Loc;i++)
- 273   1              //{
- 274   1              SendData2(UART1Temp);
- 275   1              //}
- 276   1              //UART1Loc = 0;
- 277   1      }
+ 241   1              busy2 = 1;
+ 242   1              S2BUF = ACC;                            //写数据到UART数据寄存器
+ 243   1              
+ 244   1      }
+ 245          
+ 246          /*--------------------------
+ 247          UART2发送字符串
+ 248          --------------------------*/
+ 249          void SendString2(char *s)
+ 250          {
+ 251   1              while(*s)                               //检测字符串结束标志
+ 252   1              {
+ 253   2                      SendData2(*s++);                //发送当前字符
+ 254   2              }
+ 255   1      }
+ 256          
+ 257          void SendString2Length(char s[], unsigned char length)
+ 258          {
+ 259   1              unsigned char i;
+ 260   1              for(i=0;i<length;i++)
+ 261   1              {
+ 262   2                      SendData2(s[i]);                //发送当前字符
+ 263   2              }
+ 264   1              //WIFINEEDDELAY = 0;
+ 265   1      }
+ 266          
+ 267          /*
+ 268           * 串口2发串口1接收的信息
+ 269           */
+ 270          void Uart2SendUart1String()
+ 271          {
+ 272   1          //unsigned char i;
+ 273   1              //for(i=0;i<UART1Loc;i++)
+ 274   1              //{
+ 275   1              SendData2(UART1Temp);
+ 276   1              //}
+ 277   1              //UART1Loc = 0;
+ 278   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    441    ----
+   CODE SIZE        =    450    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =      2       9
    PDATA SIZE       =   ----    ----

@@ -6,8 +6,8 @@
 #include "main.h"
 #include "FLASH.h"
 
-sbit trig=P1^3;	//触发输入 至少为10us以上
-sbit echo=P1^4 ;	//输出回响信号
+sbit trig=P4^1;	//触发输入 至少为10us以上
+sbit echo=P4^2 ;	//输出回响信号
 
 unsigned long RawTime;
 signed int RealDistance;
@@ -20,23 +20,17 @@ void delay(unsigned int i)
 	while(i--);
 }
 
-void UltraSoundInit()
-{
-	;
-	//Timer1Init();
-}
-
 void super_start()	//触发超声波开始工作
 {
 	trig=1;
 	delay(10);	 //至少10us
 	trig=0;	
 }
-signed int super_count()	  //计算超声波回响的高电平持续时间,直接取出TH1和额TL1		 0-25m/s
+signed int super_count()	  //计算超声波回响的高电平持续时间,直接取出TH4和TL4		 0-25m/s
 {
     RawTime=65536*T1times+TH1*256+TL1;
 	RealDistance=(RawTime*FOSC_FENZHIYI*170);   //精确到mm								 3m         1/11059200 s  假设1m 则t=2m/340m/s  
-					  															 //0-4000	   pp * 	 9.0422e-8 s * 170m/s = 4000mm
+					  															 		//0-4000	   pp * 	 9.0422e-8 s * 170m/s = 4000mm
 	//bat[0]=RealDistance/1000 + 48;
 	//bat[1]=(unsigned char)('.');
 	//bat[2]=RealDistance%1000/100 + 48;
@@ -130,7 +124,7 @@ void UltraSoundDisplay()
 		if((unsigned int)DDis > TempVelocityThreshold)					 //超过速度阈值,单位m/h,1000mm/s=1m/s=3.6km/h
 		{	 
 			FASTSPEED = 1;
-			P20 = !P20;
+			//P20 = !P20;
 			//Display_String(1,VelocityData);
 			//LCD12864DisplayChar(2,6,DDis%100000/10000 + 48);
 			//LCD12864DisplayChar(2,7,DDis%10000/1000 + 48);
