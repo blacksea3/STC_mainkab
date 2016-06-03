@@ -216,7 +216,7 @@ void DS1302_readoutTime(unsigned char result[6])
 /*
  * DS1302用Wifi发送时间
  */
-void DS1302SendTimeByWifi()
+void DS1302SendTimeByUART()
 {
 	unsigned char Time[6];
 	unsigned char String[13];
@@ -252,6 +252,35 @@ void DS1302SendTimeByWifi()
 	SendData(':');
 	SendData(String[10]+48);
 	SendData(String[11]+48);
+}
+
+/*
+ * DS1302用Wifi发送时间
+ */
+void DS1302SendTimeByWifi()
+{
+	unsigned char Time[6];
+	unsigned char String[26];
+	DS1302_readoutTime(Time);
+	String[0] = Time[0]/10 + 48;
+	String[1] = Time[0]%10 + 48;
+	String[2] = '-';
+	String[3] = Time[1]/10 + 48;
+	String[4] = Time[1]%10 + 48;
+	String[5] = '-';
+	String[6] = Time[2]/10 + 48;
+	String[7] = Time[2]%10 + 48;
+	String[8] = ' ';
+	String[9] = Time[3]/10 + 48;
+	String[10] = Time[3]%10 + 48;
+	String[11] = ':';
+	String[12] = Time[4]/10 + 48;
+	String[13] = Time[4]%10 + 48;
+	String[14] = ':';
+	String[15] = Time[5]/10 + 48;
+	String[16] = Time[5]%10 + 48;
+	String[17] = '\0';
+	SendString2Length(String,17);
 }
 
 /*

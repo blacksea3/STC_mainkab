@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   STC_AD                                                                06/03/2016 18:23:32 PAGE 1   
+C51 COMPILER V9.00   STC_AD                                                                06/03/2016 19:01:30 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE STC_AD
@@ -62,7 +62,7 @@ line level    source
   52   1              Tmp = ADC_RESL;                         // 默认低字节低2位。
   53   1              Tmp &= 0x03;                            // 屏蔽无关位
   54   1              AD_Dat|= Tmp;                           // 高低字节拼接成一个10位数。
-C51 COMPILER V9.00   STC_AD                                                                06/03/2016 18:23:32 PAGE 2   
+C51 COMPILER V9.00   STC_AD                                                                06/03/2016 19:01:30 PAGE 2   
 
   55   1              ADvalue=AD_Dat;                                 // 值:0-1023
   56   1              ADCSTOPREADY = 1;                               // ADC准备停止

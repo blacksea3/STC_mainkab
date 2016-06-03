@@ -15,4 +15,7 @@ void Uart1SendUart2String();
 void Uart2SendUart1String();
 void SendString2Length(char s[], unsigned char length);
 
+extern unsigned char UART1Temp;
+extern unsigned char UART2Temp;
+
 #endif

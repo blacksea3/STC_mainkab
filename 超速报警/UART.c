@@ -5,6 +5,7 @@
 #include "intrins.h"
 #include "main.h"
 #include "Timer.h"
+#include "Delay.h"
 
 typedef unsigned char BYTE;
 typedef unsigned int WORD;
@@ -108,7 +109,7 @@ void Uart() interrupt 4
 		UART1Temp = SBUF;
 		//UART1Temp[UART1Loc++] = SBUF;   
 		UART1RIREADY = 1;
-		if(WIFINEEDDELAY == 0)
+		/*if(WIFINEEDDELAY == 0)
 		{
 			EnableTimer4();
 			WIFINEEDDELAY = 1;
@@ -116,7 +117,7 @@ void Uart() interrupt 4
 		else
 		{
 			T4times = 0;
-		}
+		}*/
 	}
 	if(TI)
 	{
@@ -196,7 +197,7 @@ void Uart2() interrupt 8
 		//UART2Temp[UART2Loc++] = S2BUF;   
 		//UART2RIREADY = 1;
 		UART2Temp = S2BUF;
-		if(WIFINEEDDELAY == 0)
+		/*if(WIFINEEDDELAY == 0)
 		{
 			EnableTimer4();
 			WIFINEEDDELAY = 1;
@@ -204,7 +205,7 @@ void Uart2() interrupt 8
 		else
 		{
 			T4times = 0;
-		}
+		}*/
 		//SendData(SBUF);
 		//P22 = RB8;                  	//P2.2œ‘ æºÏ—ÈŒª
 	}
@@ -273,6 +274,18 @@ void Uart2SendUart1String()
 	//for(i=0;i<UART1Loc;i++)
 	//{
 	SendData2(UART1Temp);
+	if(UART1Temp=='G')
+	{
+		SendString2("AT+CIPMUX=1\r\n");
+		Delay5Ms();
+		SendString2("AT+CIPSERVER=1,333\r\n");
+		Delay5Ms();
+		SendString2("AT+CIPSTO=7200\r\n");
+		Delay5Ms();
+		SendString2("AT+CIPSEND=0,26\r\n");
+		Delay5Ms();
+		SendString2("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+	}
 	//}
 	//UART1Loc = 0;
 }

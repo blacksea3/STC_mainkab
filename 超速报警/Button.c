@@ -21,7 +21,7 @@ void EXT0(void) interrupt 0
 	//P20 = !P20;
 	if(P32==0)							// 仍然是按下状态
 	{
-		/*if(ISSETTING==0)
+		if(ISSETTING==0)
 		{
 			ISSETTING=1;
 			//P21 = !P21;
@@ -32,16 +32,16 @@ void EXT0(void) interrupt 0
 		{
 			ISSETTING=2;
 			EXITSETTING=1;
-			//WIFINEEDDELAY=1;
+			WIFINEEDDELAY=1;
 		}
 		else
 		{
 			ISSETTING=0;
-			//WIFINEEDDELAY=0; 
+			WIFINEEDDELAY=0; 
 			EnableTimer0();				// 开启超声波 温湿度的定时器中断
 			EnableTimer3();				// 开启蜂鸣器的定时器中断			
-		}*/
-		if(ISSETTING==0)
+		}
+		/*if(ISSETTING==0)
 		{ 
 		    //P21 = !P21;
 			ISSETTING=1;
@@ -55,7 +55,7 @@ void EXT0(void) interrupt 0
 			EXITSETTING=1; 
 			EnableTimer0();				// 开启超声波 温湿度的定时器中断
 			EnableTimer3();				// 开启蜂鸣器的定时器中断			
-		}
+		}*/
 	}
 	else								// 抖动
 	{
@@ -527,10 +527,60 @@ void EnterSetting()
 	SaveTime[2] = TempTime[3];
 	SaveTime[3] = TempTime[2];
 	SaveTime[4] = TempTime[1];
-	SaveTime[5] = TempTime[0];
-
+	SaveTime[5] = 5;
+	SaveTime[6] = TempTime[0];
     set_time(SaveTime);
 
 	LCD12864SettingExit();
 	EXITSETTING = 0;
 }
+
+/*
+ 进入Wifi设置模式
+ */
+/*void EnterWifiSetting()
+{
+	//do	                             			             	      	//矩阵键盘按键扫描
+	//{
+	    KeyOut1 = 0;
+		KeyOut2 = 1;
+		Delay20ms();
+		if(KeyIn1 == 0)									   	     
+		{  	
+    		Delay20ms();
+			Delay20ms();
+			if(KeyIn1 == 1) continue;
+			SendString2("AT+CIPMUX=1\r\n");
+			SendString2("AT+CIPSERVER=1,333\r\n");
+			SendString2("AT+CIPSTO=7200\r\n");
+			while(KeyIn1==0);
+		}
+
+		if(KeyIn2 == 0)									   	       	
+		{  	
+    		Delay20ms();
+			Delay20ms();
+			if(KeyIn2 == 1) continue;
+			while(KeyIn2==0);
+		}
+																	
+	    KeyOut1 = 1;
+		KeyOut2 = 0;
+		Delay20ms();
+ 		if(KeyIn1 == 0)
+		{
+    		Delay20ms();
+			Delay20ms();
+			if(KeyIn1 == 1) continue;
+			while(KeyIn1==0);
+		}
+
+		if(KeyIn2 == 0)
+		{
+    		Delay20ms();
+			Delay20ms();
+			if(KeyIn2 == 1) continue;
+			while(KeyIn2==0);
+		}			
+	//}while(0);	
+}*/

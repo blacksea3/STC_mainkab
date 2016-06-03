@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 1   
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 19:35:31 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE BUTTON
@@ -31,43 +31,43 @@ line level    source
   21   1              //P20 = !P20;
   22   1              if(P32==0)                                                      // 仍然是按下状态
   23   1              {
-  24   2                      /*if(ISSETTING==0)
+  24   2                      if(ISSETTING==0)
   25   2                      {
-  26   2                              ISSETTING=1;
-  27   2                              //P21 = !P21;
-  28   2                              DisableTimer0();                        // 关闭超声波 温湿度的定时器中断
-  29   2                              DisableTimer3();                        // 关闭蜂鸣器的定时器中断                               
-  30   2                      }
+  26   3                              ISSETTING=1;
+  27   3                              //P21 = !P21;
+  28   3                              DisableTimer0();                        // 关闭超声波 温湿度的定时器中断
+  29   3                              DisableTimer3();                        // 关闭蜂鸣器的定时器中断                               
+  30   3                      }
   31   2                      else if(ISSETTING==1)
   32   2                      {
-  33   2                              ISSETTING=2;
-  34   2                              EXITSETTING=1;
-  35   2                              //WIFINEEDDELAY=1;
-  36   2                      }
+  33   3                              ISSETTING=2;
+  34   3                              EXITSETTING=1;
+  35   3                              WIFINEEDDELAY=1;
+  36   3                      }
   37   2                      else
   38   2                      {
-  39   2                              ISSETTING=0;
-  40   2                              //WIFINEEDDELAY=0; 
-  41   2                              EnableTimer0();                         // 开启超声波 温湿度的定时器中断
-  42   2                              EnableTimer3();                         // 开启蜂鸣器的定时器中断                       
-  43   2                      }*/
-  44   2                      if(ISSETTING==0)
+  39   3                              ISSETTING=0;
+  40   3                              WIFINEEDDELAY=0; 
+  41   3                              EnableTimer0();                         // 开启超声波 温湿度的定时器中断
+  42   3                              EnableTimer3();                         // 开启蜂鸣器的定时器中断                       
+  43   3                      }
+  44   2                      /*if(ISSETTING==0)
   45   2                      { 
-  46   3                          //P21 = !P21;
-  47   3                              ISSETTING=1;
-  48   3                              DisableTimer0();                        // 关闭超声波 温湿度的定时器中断
-  49   3                              DisableTimer3();                        // 关闭蜂鸣器的定时器中断
-  50   3                      }
+  46   2                          //P21 = !P21;
+  47   2                              ISSETTING=1;
+  48   2                              DisableTimer0();                        // 关闭超声波 温湿度的定时器中断
+  49   2                              DisableTimer3();                        // 关闭蜂鸣器的定时器中断
+  50   2                      }
   51   2                      else
   52   2                      {
-  53   3                          //P26 = !P26;
-  54   3                          ISSETTING=0;
-C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 2   
+  53   2                          //P26 = !P26;
+  54   2                          ISSETTING=0;
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 19:35:31 PAGE 2   
 
-  55   3                              EXITSETTING=1; 
-  56   3                              EnableTimer0();                         // 开启超声波 温湿度的定时器中断
-  57   3                              EnableTimer3();                         // 开启蜂鸣器的定时器中断                       
-  58   3                      }
+  55   2                              EXITSETTING=1; 
+  56   2                              EnableTimer0();                         // 开启超声波 温湿度的定时器中断
+  57   2                              EnableTimer3();                         // 开启蜂鸣器的定时器中断                       
+  58   2                      }*/
   59   2              }
   60   1              else                                                            // 抖动
   61   1              {
@@ -126,7 +126,7 @@ line level    source
  114   1              {
  115   2                      if((*day)>1)
  116   2                              (*day)--;
-C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 3   
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 19:35:31 PAGE 3   
 
  117   2                      else
  118   2                              (*day)=31;
@@ -190,7 +190,7 @@ line level    source
  176          /*
  177           * 进入设置模式
  178           */
-C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 4   
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 19:35:31 PAGE 4   
 
  179          void EnterSetting()
  180          {
@@ -254,7 +254,7 @@ line level    source
  238   3                              //P20 = !P20;
  239   3                              if(Loc == 1)                                               
  240   3                              {
-C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 5   
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 19:35:31 PAGE 5   
 
  241   4                                      Loc = 2;
  242   4                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
@@ -318,7 +318,7 @@ line level    source
  300   3                              {
  301   4                                      Loc = 2;
  302   4                                      LCD12864DisplayChar(2,3,VelocityValue2 + 48);
-C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 6   
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 19:35:31 PAGE 6   
 
  303   4                              }
  304   3                              else if(Loc == 4)
@@ -382,7 +382,7 @@ line level    source
  362   3                              {
  363   4                              if(VelocityValue1==0)
  364   4                                      {       
-C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 7   
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 19:35:31 PAGE 7   
 
  365   5                                          VelocityValue1 = 9;
  366   5                                      LCD12864DisplayChar(2,1,VelocityValue1 + 48);
@@ -446,7 +446,7 @@ line level    source
  424   4                                  //分钟加一
  425   4                                      AddMinute(&TempTime[4],1);
  426   4                                      LCD12864DisplayTwoChar(4,3,TempTime[4]/10 + 48,TempTime[4]%10 + 48);
-C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 8   
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 19:35:31 PAGE 8   
 
  427   4                              }
  428   3                              
@@ -510,7 +510,7 @@ line level    source
  486   3                              {
  487   4                                  //月份减一
  488   4                                      AddMonth(&TempTime[1],-1);
-C51 COMPILER V9.00   BUTTON                                                                06/03/2016 18:23:32 PAGE 9   
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 19:35:31 PAGE 9   
 
  489   4                                      LCD12864DisplayTwoChar(3,3,TempTime[1]/10 + 48,TempTime[1]%10 + 48);
  490   4                              }
@@ -553,17 +553,69 @@ line level    source
  527   1              SaveTime[2] = TempTime[3];
  528   1              SaveTime[3] = TempTime[2];
  529   1              SaveTime[4] = TempTime[1];
- 530   1              SaveTime[5] = TempTime[0];
- 531   1      
+ 530   1              SaveTime[5] = 5;
+ 531   1              SaveTime[6] = TempTime[0];
  532   1          set_time(SaveTime);
  533   1      
  534   1              LCD12864SettingExit();
  535   1              EXITSETTING = 0;
  536   1      }
+ 537          
+ 538          /*
+ 539           进入Wifi设置模式
+ 540           */
+ 541          /*void EnterWifiSetting()
+ 542          {
+ 543                  //do                                                                            //矩阵键盘按键扫描
+ 544                  //{
+ 545                      KeyOut1 = 0;
+ 546                          KeyOut2 = 1;
+ 547                          Delay20ms();
+ 548                          if(KeyIn1 == 0)                                                                              
+ 549                          {       
+ 550                          Delay20ms();
+C51 COMPILER V9.00   BUTTON                                                                06/03/2016 19:35:31 PAGE 10  
+
+ 551                                  Delay20ms();
+ 552                                  if(KeyIn1 == 1) continue;
+ 553                                  SendString2("AT+CIPMUX=1\r\n");
+ 554                                  SendString2("AT+CIPSERVER=1,333\r\n");
+ 555                                  SendString2("AT+CIPSTO=7200\r\n");
+ 556                                  while(KeyIn1==0);
+ 557                          }
+ 558          
+ 559                          if(KeyIn2 == 0)                                                                                 
+ 560                          {       
+ 561                          Delay20ms();
+ 562                                  Delay20ms();
+ 563                                  if(KeyIn2 == 1) continue;
+ 564                                  while(KeyIn2==0);
+ 565                          }
+ 566                                                                                                                                                  
+ 567                      KeyOut1 = 1;
+ 568                          KeyOut2 = 0;
+ 569                          Delay20ms();
+ 570                          if(KeyIn1 == 0)
+ 571                          {
+ 572                          Delay20ms();
+ 573                                  Delay20ms();
+ 574                                  if(KeyIn1 == 1) continue;
+ 575                                  while(KeyIn1==0);
+ 576                          }
+ 577          
+ 578                          if(KeyIn2 == 0)
+ 579                          {
+ 580                          Delay20ms();
+ 581                                  Delay20ms();
+ 582                                  if(KeyIn2 == 1) continue;
+ 583                                  while(KeyIn2==0);
+ 584                          }                       
+ 585                  //}while(0);    
+ 586          }*/
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =   2434    ----
+   CODE SIZE        =   2458    ----
    CONSTANT SIZE    =     70    ----
    XDATA SIZE       =   ----      69
    PDATA SIZE       =   ----    ----

@@ -1,4 +1,4 @@
-C51 COMPILER V9.00   TIMER                                                                 06/03/2016 18:23:31 PAGE 1   
+C51 COMPILER V9.00   TIMER                                                                 06/03/2016 19:01:29 PAGE 1   
 
 
 C51 COMPILER V9.00, COMPILATION OF MODULE TIMER
@@ -62,7 +62,7 @@ line level    source
   52          //Timer0中断函数
   53          void Timer0_ISR() interrupt 1                               
   54          {
-C51 COMPILER V9.00   TIMER                                                                 06/03/2016 18:23:31 PAGE 2   
+C51 COMPILER V9.00   TIMER                                                                 06/03/2016 19:01:29 PAGE 2   
 
   55   1          //EA = 0;
   56   1              if(T0times0<2000)                                                       //2s间隔 DHT11
@@ -126,7 +126,7 @@ line level    source
  113   1              TR1 = 1;                                                                //定时器1开始计时
  114   1              ET1 = 1;                                                        //使能定时器1中断
  115   1              T1times = 0;
-C51 COMPILER V9.00   TIMER                                                                 06/03/2016 18:23:31 PAGE 3   
+C51 COMPILER V9.00   TIMER                                                                 06/03/2016 19:01:29 PAGE 3   
 
  116   1      }
  117          
@@ -190,7 +190,7 @@ line level    source
  175   1          EA = 0;
  176   1              if(T3times<T3TimesValue)
  177   1              {       
-C51 COMPILER V9.00   TIMER                                                                 06/03/2016 18:23:31 PAGE 4   
+C51 COMPILER V9.00   TIMER                                                                 06/03/2016 19:01:29 PAGE 4   
 
  178   2                  Buzzer();                                                           //蜂鸣器
  179   2                      T3times++;
@@ -254,7 +254,7 @@ line level    source
  237   2                      //ReadAir();                            //读取空气传感器值
  238   2                      //WifiSend();                           //Wifi发送数据
  239   2              }
-C51 COMPILER V9.00   TIMER                                                                 06/03/2016 18:23:31 PAGE 5   
+C51 COMPILER V9.00   TIMER                                                                 06/03/2016 19:01:29 PAGE 5   
 
  240   1              //EA = 1;
  241   1      }

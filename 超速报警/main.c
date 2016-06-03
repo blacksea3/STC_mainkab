@@ -32,11 +32,11 @@ unsigned char EXITSETTING;							//退出设置标志1为激活0为未激活
 unsigned char UART2RIREADY;
 unsigned char UART1RIREADY;
 
-unsigned char SENDREADY;
+//unsigned char SENDREADY;
 
 unsigned char WIFINEEDDELAY;
-//unsigned char WifiDataSendReady;
-//unsigned char WifiDataSendType = 0;
+unsigned char WifiDataSendReady;
+unsigned char WifiDataSendType = 0;
 
 						  
 unsigned char TEMPSTOP;
@@ -59,8 +59,9 @@ void main()
 
     port_mode();		  						//端口设置全部弱上拉
 	UARTInit();		  							//UART初始化
-	//UART2Init();								//UART2初始化
-    P44 = 1;									//蜂鸣器关闭
+	UART2Init();								//UART2初始化
+    
+	P44 = 1;									//蜂鸣器关闭
 	P54 = 1;									//蜂鸣器关闭
 	P55 = 1;									//蜂鸣器关闭
 
@@ -78,8 +79,8 @@ void main()
 	UART1RIREADY = 0;
 	//WifiDataSendReady = 0;
 	WIFINEEDDELAY = 0;
-    SENDREADY = 0;
-	//WifiDataSendType = 0;
+    //SENDREADY = 0;
+	WifiDataSendType = 0;
 	//P20 = 1;
 	//DS1302Init(StartTime);						//DS1302初始化,初始化一次就行了
 
@@ -112,27 +113,46 @@ void main()
 	
 	//SendString2("AT+CIPSTART=\"TCP\",\"192.168.4.2\",8070\r\n");
 	
-   	//SendString2("AT+CIPMUX=1\r\n");
-	//SendString2("AT+CIPSERVER=1,333\r\n");
-	//SendString2("AT+CIPSTO=7200\r\n");
-
 	while(1)
 	{
-	    if(0)
+		if(WIFINEEDDELAY)
 		{
-			
-		}
-		/*if(WIFINEEDDELAY)
-		{
-			if()
+			if(WifiDataSendType != 0)
 			{
-				Uart1SendUart2String();	
+				if(WifiDataSendType == 1)
+				{
+					SendString2("AT+CIPSEND=0,17\r\n");
+					WifiDataSendType = 2;
+					//WIFINEEDDELAY = 1;
+					P14 = 0;
+				}
+				else
+				{
+					Delay5Ms();
+					DS1302SendTimeByWifi();
+					WifiDataSendType = 0;
+					WIFINEEDDELAY = 0;
+					P15 = 0;
+				}	
 			}
-			else()
+			else
 			{
-				
-			}	
-		}*/
+				if(UART2Temp)
+				{
+					Uart1SendUart2String();
+					UART2Temp = 0;	
+				}
+				else if(UART1Temp)
+				{
+					Uart2SendUart1String();
+					UART1Temp = 0;
+				}	
+				else
+				{
+					;
+				}				
+			}
+		}
 		else
 		{
 			/**********************设置状态*****************************/
@@ -164,11 +184,10 @@ void main()
 						//SENDREADY = 1;
 						SendString("超速");
 						SendString("时间为");
-						DS1302SendTimeByWifi();
-						//WIFINEEDDELAY = 1;
-						//SendString2Length("AT+CIPSEND=26\r\n",15);
-						//WIFINEEDDELAY = 1;
-						//SendString2Length("ABCDEFGHIJKLMNOPQRSTUVWXYZ",26);
+						DS1302SendTimeByUART();
+
+						WIFINEEDDELAY = 1;
+						WifiDataSendType = 1;								 	//Wifi发送时间,请求发送
 					}
 				}
 				else if(DS3231ISREADY)
